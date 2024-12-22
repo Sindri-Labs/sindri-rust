@@ -8,9 +8,12 @@ use openapi::apis::configuration::Configuration;
 use openapi::apis::circuits_api::circuit_detail;
 use openapi::apis::Error;
 use openapi::apis::circuits_api::CircuitDetailError;
+use openapi::models::CircuitInfoResponse;
 use openapi::apis::authorization_api::apikey_list;
+use openapi::models::ApiKeyResponse;
 use openapi::apis::authorization_api::ApikeyListError;  
 use crate::utils::HeaderDeduplicatorMiddleware;
+use crate::utils::LoggingMiddleware;
 
 
 
@@ -44,6 +47,7 @@ impl SindriClient {
                 .expect("Could not build client")
         )
         .with(HeaderDeduplicatorMiddleware)
+        .with(LoggingMiddleware)
         .build();
 
         // First try to read from auth_options, then from environment variables, then use default values    
@@ -66,14 +70,14 @@ impl SindriClient {
         }
     }
 
-    pub async fn list_api_keys(&self) -> Result<serde_json::Value, Error<ApikeyListError>> {
+    pub async fn list_api_keys(&self) -> Result<Vec<ApiKeyResponse>, Error<ApikeyListError>> {
         let api_keys = apikey_list(&self.config).await?;
         Ok(api_keys)
     }   
 
-    pub async fn get_circuit(&self, circuit_id: &str) -> Result<serde_json::Value, Error<CircuitDetailError>> {
-        println!("{:?}", serde_json::Value::String(circuit_id.to_string()));
-        let circuit_info = circuit_detail(&self.config, serde_json::Value::String(circuit_id.to_string()), None).await?;
+    pub async fn get_circuit(&self, circuit_id: &str) -> Result<CircuitInfoResponse, Error<CircuitDetailError>> {
+        let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
+        println!("{:?}",&circuit_info);
         Ok(circuit_info)
     }
 

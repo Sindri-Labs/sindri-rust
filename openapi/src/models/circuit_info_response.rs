@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 /// CircuitInfoResponse : Response for getting circuit info.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "circuit_type")]
+#[serde(untagged)]
 pub enum CircuitInfoResponse {
     #[serde(rename="boojum")]
     Boojum(Box<models::BoojumCircuitInfoResponse>),

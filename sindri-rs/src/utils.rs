@@ -1,6 +1,7 @@
 use reqwest_middleware::{Middleware, Next};
-use task_local_extensions::Extensions;
 use std::collections::HashSet;
+use reqwest::{Client, Request, Response};
+use http::Extensions;
 
 pub struct HeaderDeduplicatorMiddleware;
 
@@ -37,5 +38,23 @@ impl Middleware for HeaderDeduplicatorMiddleware {
         }
 
         next.run(req, extensions).await
+    }
+}
+
+pub struct LoggingMiddleware;
+
+/// Simple stdout logging of reqwest headers and bodies
+#[async_trait::async_trait]
+impl Middleware for LoggingMiddleware {
+    async fn handle(
+        &self,
+        req: Request,
+        extensions: &mut Extensions,
+        next: Next<'_>,
+    ) -> reqwest_middleware::Result<Response> {
+        println!("Request started {:?}", req);
+        let res = next.run(req, extensions).await;
+        println!("Result: {:?}", res);
+        res
     }
 }
