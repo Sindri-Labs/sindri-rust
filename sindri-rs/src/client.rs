@@ -11,7 +11,15 @@ use openapi::apis::circuits_api::CircuitDetailError;
 use openapi::models::CircuitInfoResponse;
 use openapi::apis::authorization_api::apikey_list;
 use openapi::models::ApiKeyResponse;
-use openapi::apis::authorization_api::ApikeyListError;  
+use openapi::apis::authorization_api::ApikeyListError; 
+
+use openapi::apis::circuits_api::ProofCreateError;
+use openapi::apis::circuits_api::proof_create;
+use openapi::models::CircuitProveInput;
+use openapi::models::ProofInfoResponse;
+use openapi::models::ProofInput;
+
+
 use crate::custom_middleware::HeaderDeduplicatorMiddleware;
 use crate::custom_middleware::LoggingMiddleware;
 use crate::custom_middleware::retry_client;
@@ -89,44 +97,26 @@ impl SindriClient {
         Ok(circuit_info)
     }
 
-    // pub async fn prove_circuit(
-    //     &self,
-    //     circuit_id: &str,
-    //     proof_input: &str,
-    //     verify: bool,
-    //     include_smart_contract_calldata: bool,
-    //     meta: serde_json::Value,
-    // ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
+    pub async fn prove_circuit(
+        &self,
+        circuit_id: &str,
+        proof_input: &str,
+        verify: Option<bool>,
+        meta: Option<serde_json::Value>,
+    ) -> Result<ProofInfoResponse, Error<ProofCreateError>> {
 
-    //     #[derive(Serialize)]
-    //     struct ProofRequest<'a> {
-    //         proof_input: &'a str,
-    //         perform_verify: bool,
-    //         meta: serde_json::Value,
-    //     }
+        let proof_input_coerced = Box::new(serde_json::from_str(proof_input)?);
 
-    //     let request_body = ProofRequest {
-    //         proof_input,
-    //         perform_verify: verify,
-    //         meta,
-    //     };
+        let circuit_prove_input = CircuitProveInput {
+            proof_input: proof_input_coerced,
+            perform_verify: None, //todo
+            meta: None, //todo
+            prover_implementation: None, //todo
+        };
 
-    //     let response = self.client
-    //         .post(&url)
-    //         .bearer_auth(self.api_key.as_ref().ok_or("API key not set")?)
-    //         .json(&request_body)
-    //         .send()
-    //         .await?;
-
-    //     if !response.status().is_success() {
-    //         return Err(format!("API request failed: {}", response.status()).into());
-    //     }
-
-    //     // Handle polling for proof completion
-    //     // Implementation details for polling...
-
-    //     todo!("Implement full proof generation logic")
-    // }
-
+        let proof_info = proof_create(&self.config, circuit_id, circuit_prove_input).await?;
+        // TODO: Implement polling for proof completion 
+        Ok(proof_info)
+    }
 
 }
