@@ -10,8 +10,6 @@ use openapi::apis::Error;
 use openapi::apis::circuits_api::CircuitDetailError;
 use openapi::apis::authorization_api::apikey_list;
 use openapi::apis::authorization_api::ApikeyListError;  
-use reqwest_tracing::TracingMiddleware;
-
 use crate::utils::HeaderDeduplicatorMiddleware;
 
 
@@ -45,7 +43,6 @@ impl SindriClient {
                 .build()
                 .expect("Could not build client")
         )
-        .with(TracingMiddleware::default())
         .with(HeaderDeduplicatorMiddleware)
         .build();
 
@@ -59,8 +56,8 @@ impl SindriClient {
 
         let config = Configuration {
             base_path: base_url,
-            client,
             bearer_access_token: api_key,
+            client,
             ..Default::default()
         };
 
@@ -75,7 +72,8 @@ impl SindriClient {
     }   
 
     pub async fn get_circuit(&self, circuit_id: &str) -> Result<serde_json::Value, Error<CircuitDetailError>> {
-        let circuit_info = circuit_detail(&self.config, circuit_id.into(), None).await?;
+        println!("{:?}", serde_json::Value::String(circuit_id.to_string()));
+        let circuit_info = circuit_detail(&self.config, serde_json::Value::String(circuit_id.to_string()), None).await?;
         Ok(circuit_info)
     }
 
