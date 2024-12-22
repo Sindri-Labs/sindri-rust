@@ -3,5 +3,5 @@
 members = [
     "openapi",
     "sindri-rs",
-    "tester",
+    "sandbox",
 ]

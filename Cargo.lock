@@ -1000,6 +1000,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
+name = "sandbox"
+version = "0.1.0"
+dependencies = [
+ "sindri-rs",
+ "tokio",
+]
+
+[[package]]
 name = "schannel"
 version = "0.1.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1241,17 +1249,6 @@ dependencies = [
  "once_cell",
  "rustix",
  "windows-sys 0.59.0",
-]
-
-[[package]]
-name = "tester"
-version = "0.1.0"
-dependencies = [
- "dotenv",
- "openapi",
- "reqwest",
- "reqwest-middleware",
- "tokio",
 ]
 
 [[package]]
