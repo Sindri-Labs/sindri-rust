@@ -13,3 +13,7 @@ serde_json = "^1.0"
 async-trait = "0.1.83"
 http = "1.2.0"
 tracing = "0.1.41"
+
+[dev-dependencies]
+mockito = "1.2"
+temp-env = "0.3"

@@ -87,10 +87,9 @@ impl SindriClient {
         &self.config.base_path
     }
 
-    pub async fn list_api_keys(&self) -> Result<Vec<ApiKeyResponse>, Error<ApikeyListError>> {
-        let api_keys = apikey_list(&self.config).await?;
-        Ok(api_keys)
-    }   
+    pub(crate) fn config(&self) -> &Configuration {
+        &self.config
+    }
 
     pub async fn get_circuit(&self, circuit_id: &str) -> Result<CircuitInfoResponse, Error<CircuitDetailError>> {
         let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
