@@ -12,9 +12,10 @@ use openapi::models::CircuitInfoResponse;
 use openapi::apis::authorization_api::apikey_list;
 use openapi::models::ApiKeyResponse;
 use openapi::apis::authorization_api::ApikeyListError;  
-use crate::utils::HeaderDeduplicatorMiddleware;
-use crate::utils::LoggingMiddleware;
-
+use crate::custom_middleware::HeaderDeduplicatorMiddleware;
+use crate::custom_middleware::LoggingMiddleware;
+use crate::custom_middleware::retry_client;
+use reqwest_retry::policies::ExponentialBackoffTimed;
 
 
 
@@ -39,7 +40,6 @@ impl SindriClient {
                 .expect("Could not insert default rust client header"),
         );
 
-        // Default (no retry for now)
         let client = reqwest_middleware::ClientBuilder::new(
             reqwest::Client::builder()
                 .default_headers(headers)
@@ -48,6 +48,7 @@ impl SindriClient {
         )
         .with(HeaderDeduplicatorMiddleware)
         .with(LoggingMiddleware)
+        .with(retry_client::<ExponentialBackoffTimed>(None))
         .build();
 
         // First try to read from auth_options, then from environment variables, then use default values    
@@ -77,9 +78,47 @@ impl SindriClient {
 
     pub async fn get_circuit(&self, circuit_id: &str) -> Result<CircuitInfoResponse, Error<CircuitDetailError>> {
         let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
-        println!("{:?}",&circuit_info);
         Ok(circuit_info)
     }
+
+    // pub async fn prove_circuit(
+    //     &self,
+    //     circuit_id: &str,
+    //     proof_input: &str,
+    //     verify: bool,
+    //     include_smart_contract_calldata: bool,
+    //     meta: serde_json::Value,
+    // ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
+
+    //     #[derive(Serialize)]
+    //     struct ProofRequest<'a> {
+    //         proof_input: &'a str,
+    //         perform_verify: bool,
+    //         meta: serde_json::Value,
+    //     }
+
+    //     let request_body = ProofRequest {
+    //         proof_input,
+    //         perform_verify: verify,
+    //         meta,
+    //     };
+
+    //     let response = self.client
+    //         .post(&url)
+    //         .bearer_auth(self.api_key.as_ref().ok_or("API key not set")?)
+    //         .json(&request_body)
+    //         .send()
+    //         .await?;
+
+    //     if !response.status().is_success() {
+    //         return Err(format!("API request failed: {}", response.status()).into());
+    //     }
+
+    //     // Handle polling for proof completion
+    //     // Implementation details for polling...
+
+    //     todo!("Implement full proof generation logic")
+    // }
 
 
 }
