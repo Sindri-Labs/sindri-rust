@@ -5,19 +5,22 @@ use reqwest::{
 };
 use reqwest_middleware::ClientWithMiddleware;
 use openapi::apis::configuration::Configuration;
+use openapi::apis::circuits_api::circuit_detail;
+use openapi::apis::Error;
+use openapi::apis::circuits_api::CircuitDetailError;
+use openapi::apis::authorization_api::apikey_list;
+use openapi::apis::authorization_api::ApikeyListError;  
+use reqwest_tracing::TracingMiddleware;
 
-#[derive(Debug, Clone)]
+use crate::utils::HeaderDeduplicatorMiddleware;
+
+
+
+
+#[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
     pub api_key: Option<String>,
     pub base_url: Option<String>,
-}
-impl Default for AuthOptions {
-    fn default() -> Self {
-        Self {
-            api_key: None,
-            base_url: None,
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -31,7 +34,7 @@ impl SindriClient {
         let mut headers = HeaderMap::new();
         headers.insert(
             "Sindri-Client",
-            HeaderValue::from_str(&"sindri-rust-sdk/alpha")
+            HeaderValue::from_str(&"DOESTHISWORK???")
                 .expect("Could not insert default rust client header"),
         );
 
@@ -42,6 +45,8 @@ impl SindriClient {
                 .build()
                 .expect("Could not build client")
         )
+        .with(TracingMiddleware::default())
+        .with(HeaderDeduplicatorMiddleware)
         .build();
 
         // First try to read from auth_options, then from environment variables, then use default values    
@@ -63,4 +68,16 @@ impl SindriClient {
             config
         }
     }
+
+    pub async fn list_api_keys(&self) -> Result<serde_json::Value, Error<ApikeyListError>> {
+        let api_keys = apikey_list(&self.config).await?;
+        Ok(api_keys)
+    }   
+
+    pub async fn get_circuit(&self, circuit_id: &str) -> Result<serde_json::Value, Error<CircuitDetailError>> {
+        let circuit_info = circuit_detail(&self.config, circuit_id.into(), None).await?;
+        Ok(circuit_info)
+    }
+
+
 }
