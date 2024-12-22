@@ -41,8 +41,8 @@ Obtain circuit file(s).
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**circuit_id** | [**serde_json::Value**](.md) | The circuit identifer of the circuit. This can take one of the following forms:  1. `<CIRCUIT_ID>` - The unique UUID4 ID for an exact version of a compiled circuit. 2. `<CIRCUIT_NAME>` - The name of a circuit owned by the authenticated team. This will default to     the most recent version of the circuit tagged as `latest`. 3. `<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by the authenticated team and an explicit     tag. This corresponds to the most recent compilation of the circuit with the specified tag. 4. `<TEAM_NAME>/<CIRCUIT_NAME>` - The name of a circuit owned by the specified team.  This will     default to the most recent version of the circuit tagged as `latest`. 5. `<TEAM_NAME>/<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by a specified team and an     explicit tag. This corresponds to the most recent compilation of the team's circuit with the     specified tag. | [required] |
-**path** | Option<[**serde_json::Value**](.md)> | The optional file path within the circuit package to download. |  |
+**circuit_id** | **String** | The circuit identifer of the circuit. This can take one of the following forms:  1. `<CIRCUIT_ID>` - The unique UUID4 ID for an exact version of a compiled circuit. 2. `<CIRCUIT_NAME>` - The name of a circuit owned by the authenticated team. This will default to     the most recent version of the circuit tagged as `latest`. 3. `<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by the authenticated team and an explicit     tag. This corresponds to the most recent compilation of the circuit with the specified tag. 4. `<TEAM_NAME>/<CIRCUIT_NAME>` - The name of a circuit owned by the specified team.  This will     default to the most recent version of the circuit tagged as `latest`. 5. `<TEAM_NAME>/<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by a specified team and an     explicit tag. This corresponds to the most recent compilation of the team's circuit with the     specified tag. | [required] |
+**path** | Option<**String**> | The optional file path within the circuit package to download. |  |
 
 ### Return type
 
@@ -62,7 +62,7 @@ Name | Type | Description  | Required | Notes
 
 ## circuit_proofs_paginated
 
-> crate::models::PagedProofInfoResponse circuit_proofs_paginated(circuit_id, limit, offset)
+> models::PagedProofInfoResponse circuit_proofs_paginated(circuit_id, limit, offset)
 Circuit Proofs
 
 List all proofs for a circuit.
@@ -72,13 +72,13 @@ List all proofs for a circuit.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**circuit_id** | [**serde_json::Value**](.md) | The circuit identifer of the circuit. This can take one of the following forms:  1. `<CIRCUIT_ID>` - The unique UUID4 ID for an exact version of a compiled circuit. 2. `<CIRCUIT_NAME>` - The name of a circuit owned by the authenticated team. This will default to     the most recent version of the circuit tagged as `latest`. 3. `<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by the authenticated team and an explicit     tag. This corresponds to the most recent compilation of the circuit with the specified tag. 4. `<TEAM_NAME>/<CIRCUIT_NAME>` - The name of a circuit owned by the specified team.  This will     default to the most recent version of the circuit tagged as `latest`. 5. `<TEAM_NAME>/<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by a specified team and an     explicit tag. This corresponds to the most recent compilation of the team's circuit with the     specified tag. | [required] |
-**limit** | Option<[**serde_json::Value**](.md)> | The number of proofs to return. |  |[default to 100]
-**offset** | Option<[**serde_json::Value**](.md)> | The number of proofs to skip. |  |[default to 0]
+**circuit_id** | **String** | The circuit identifer of the circuit. This can take one of the following forms:  1. `<CIRCUIT_ID>` - The unique UUID4 ID for an exact version of a compiled circuit. 2. `<CIRCUIT_NAME>` - The name of a circuit owned by the authenticated team. This will default to     the most recent version of the circuit tagged as `latest`. 3. `<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by the authenticated team and an explicit     tag. This corresponds to the most recent compilation of the circuit with the specified tag. 4. `<TEAM_NAME>/<CIRCUIT_NAME>` - The name of a circuit owned by the specified team.  This will     default to the most recent version of the circuit tagged as `latest`. 5. `<TEAM_NAME>/<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by a specified team and an     explicit tag. This corresponds to the most recent compilation of the team's circuit with the     specified tag. | [required] |
+**limit** | Option<**i32**> | The number of proofs to return. |  |[default to 100]
+**offset** | Option<**i32**> | The number of proofs to skip. |  |[default to 0]
 
 ### Return type
 
-[**crate::models::PagedProofInfoResponse**](PagedProofInfoResponse.md)
+[**models::PagedProofInfoResponse**](PagedProofInfoResponse.md)
 
 ### Authorization
 
@@ -94,7 +94,7 @@ Name | Type | Description  | Required | Notes
 
 ## circuit_smart_contract_verifier
 
-> crate::models::SmartContractVerifierResponse circuit_smart_contract_verifier(circuit_id)
+> models::SmartContractVerifierResponse circuit_smart_contract_verifier(circuit_id)
 Circuit Smart Contract Verifier
 
 Get smart contract verifier for existing circuit
@@ -104,11 +104,11 @@ Get smart contract verifier for existing circuit
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**circuit_id** | [**serde_json::Value**](.md) | The circuit identifer of the circuit. This can take one of the following forms:  1. `<CIRCUIT_ID>` - The unique UUID4 ID for an exact version of a compiled circuit. 2. `<CIRCUIT_NAME>` - The name of a circuit owned by the authenticated team. This will default to     the most recent version of the circuit tagged as `latest`. 3. `<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by the authenticated team and an explicit     tag. This corresponds to the most recent compilation of the circuit with the specified tag. 4. `<TEAM_NAME>/<CIRCUIT_NAME>` - The name of a circuit owned by the specified team.  This will     default to the most recent version of the circuit tagged as `latest`. 5. `<TEAM_NAME>/<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by a specified team and an     explicit tag. This corresponds to the most recent compilation of the team's circuit with the     specified tag. | [required] |
+**circuit_id** | **String** | The circuit identifer of the circuit. This can take one of the following forms:  1. `<CIRCUIT_ID>` - The unique UUID4 ID for an exact version of a compiled circuit. 2. `<CIRCUIT_NAME>` - The name of a circuit owned by the authenticated team. This will default to     the most recent version of the circuit tagged as `latest`. 3. `<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by the authenticated team and an explicit     tag. This corresponds to the most recent compilation of the circuit with the specified tag. 4. `<TEAM_NAME>/<CIRCUIT_NAME>` - The name of a circuit owned by the specified team.  This will     default to the most recent version of the circuit tagged as `latest`. 5. `<TEAM_NAME>/<CIRCUIT_NAME>:<TAG>` - The name of a circuit owned by a specified team and an     explicit tag. This corresponds to the most recent compilation of the team's circuit with the     specified tag. | [required] |
 
 ### Return type
 
-[**crate::models::SmartContractVerifierResponse**](SmartContractVerifierResponse.md)
+[**models::SmartContractVerifierResponse**](SmartContractVerifierResponse.md)
 
 ### Authorization
 
@@ -124,7 +124,7 @@ Name | Type | Description  | Required | Notes
 
 ## circuit_status
 
-> crate::models::CircuitStatusResponse circuit_status(circuit_id)
+> models::CircuitStatusResponse circuit_status(circuit_id)
 Circuit Status
 
 Get status for a specific circuit.
@@ -134,11 +134,11 @@ Get status for a specific circuit.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**circuit_id** | [**serde_json::Value**](.md) | The UUID4 identifier associated with this circuit. | [required] |
+**circuit_id** | **String** | The UUID4 identifier associated with this circuit. | [required] |
 
 ### Return type
 
-[**crate::models::CircuitStatusResponse**](CircuitStatusResponse.md)
+[**models::CircuitStatusResponse**](CircuitStatusResponse.md)
 
 ### Authorization
 
@@ -154,7 +154,7 @@ Name | Type | Description  | Required | Notes
 
 ## password_change_with_jwt_auth
 
-> crate::models::ActionResponse password_change_with_jwt_auth(password_change_input)
+> models::ActionResponse password_change_with_jwt_auth(password_change_input)
 Change Password
 
 Change user password. Requires JWT authentication.
@@ -168,7 +168,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::ActionResponse**](ActionResponse.md)
+[**models::ActionResponse**](ActionResponse.md)
 
 ### Authorization
 
@@ -184,7 +184,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_circuits
 
-> serde_json::Value project_circuits(project_id)
+> Vec<models::CircuitInfoResponse> project_circuits(project_id)
 Project Circuits
 
 List all circuits for a project.
@@ -194,11 +194,11 @@ List all circuits for a project.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_id** | [**serde_json::Value**](.md) | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
+**project_id** | **String** | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
 
 ### Return type
 
-[**serde_json::Value**](serde_json::Value.md)
+[**Vec<models::CircuitInfoResponse>**](CircuitInfoResponse.md)
 
 ### Authorization
 
@@ -214,7 +214,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_circuits_paginated
 
-> crate::models::PagedCircuitInfoResponse project_circuits_paginated(project_id, limit, offset)
+> models::PagedCircuitInfoResponse project_circuits_paginated(project_id, limit, offset)
 Project Circuits
 
 List all circuits for a project.
@@ -224,13 +224,13 @@ List all circuits for a project.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_id** | [**serde_json::Value**](.md) | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
-**limit** | Option<[**serde_json::Value**](.md)> | The number of circuits to return. |  |[default to 100]
-**offset** | Option<[**serde_json::Value**](.md)> | The number of circuits to skip. |  |[default to 0]
+**project_id** | **String** | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
+**limit** | Option<**i32**> | The number of circuits to return. |  |[default to 100]
+**offset** | Option<**i32**> | The number of circuits to skip. |  |[default to 0]
 
 ### Return type
 
-[**crate::models::PagedCircuitInfoResponse**](PagedCircuitInfoResponse.md)
+[**models::PagedCircuitInfoResponse**](PagedCircuitInfoResponse.md)
 
 ### Authorization
 
@@ -246,7 +246,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_delete
 
-> crate::models::ActionResponse project_delete(project_id)
+> models::ActionResponse project_delete(project_id)
 Delete Project
 
 Delete a project.
@@ -256,11 +256,11 @@ Delete a project.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_id** | [**serde_json::Value**](.md) | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
+**project_id** | **String** | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
 
 ### Return type
 
-[**crate::models::ActionResponse**](ActionResponse.md)
+[**models::ActionResponse**](ActionResponse.md)
 
 ### Authorization
 
@@ -276,7 +276,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_detail
 
-> crate::models::ProjectInfoResponse project_detail(project_id)
+> models::ProjectInfoResponse project_detail(project_id)
 Project Detail
 
 Get info for a project.
@@ -286,11 +286,11 @@ Get info for a project.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_id** | [**serde_json::Value**](.md) | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
+**project_id** | **String** | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
 
 ### Return type
 
-[**crate::models::ProjectInfoResponse**](ProjectInfoResponse.md)
+[**models::ProjectInfoResponse**](ProjectInfoResponse.md)
 
 ### Authorization
 
@@ -306,7 +306,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_list
 
-> serde_json::Value project_list(project_list_input)
+> Vec<models::ProjectInfoResponse> project_list(project_list_input)
 Project List
 
 List all projects meeting filter criteria.
@@ -320,7 +320,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**serde_json::Value**](serde_json::Value.md)
+[**Vec<models::ProjectInfoResponse>**](ProjectInfoResponse.md)
 
 ### Authorization
 
@@ -336,7 +336,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_list_paginated
 
-> crate::models::PagedProjectInfoResponse project_list_paginated(project_list_input, limit, offset)
+> models::PagedProjectInfoResponse project_list_paginated(project_list_input, limit, offset)
 Project List
 
 List all projects meeting filter criteria.
@@ -347,12 +347,12 @@ List all projects meeting filter criteria.
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **project_list_input** | [**ProjectListInput**](ProjectListInput.md) |  | [required] |
-**limit** | Option<[**serde_json::Value**](.md)> | The number of projects to return. |  |[default to 100]
-**offset** | Option<[**serde_json::Value**](.md)> | The number of projects to skip. |  |[default to 0]
+**limit** | Option<**i32**> | The number of projects to return. |  |[default to 100]
+**offset** | Option<**i32**> | The number of projects to skip. |  |[default to 0]
 
 ### Return type
 
-[**crate::models::PagedProjectInfoResponse**](PagedProjectInfoResponse.md)
+[**models::PagedProjectInfoResponse**](PagedProjectInfoResponse.md)
 
 ### Authorization
 
@@ -368,7 +368,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_proofs
 
-> serde_json::Value project_proofs(project_id)
+> Vec<models::ProofInfoResponse> project_proofs(project_id)
 Project Proofs
 
 Get all proofs for a project.
@@ -378,11 +378,11 @@ Get all proofs for a project.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_id** | [**serde_json::Value**](.md) | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
+**project_id** | **String** | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
 
 ### Return type
 
-[**serde_json::Value**](serde_json::Value.md)
+[**Vec<models::ProofInfoResponse>**](ProofInfoResponse.md)
 
 ### Authorization
 
@@ -398,7 +398,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_proofs_paginated
 
-> crate::models::PagedProofInfoResponse project_proofs_paginated(project_id, limit, offset)
+> models::PagedProofInfoResponse project_proofs_paginated(project_id, limit, offset)
 Project Proofs
 
 Get all proofs for a project.
@@ -408,13 +408,13 @@ Get all proofs for a project.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_id** | [**serde_json::Value**](.md) | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
-**limit** | Option<[**serde_json::Value**](.md)> | The number of proofs to return. |  |[default to 100]
-**offset** | Option<[**serde_json::Value**](.md)> | The number of proofs to skip. |  |[default to 0]
+**project_id** | **String** | The project identifer of the project. This can take one of the following forms:  1. `<PROJECT_ID>` - The unique UUID4 ID for a project. 2. `<TEAM_NAME>/<PROJECT_NAME>` - The name of a project owned by the specified team. | [required] |
+**limit** | Option<**i32**> | The number of proofs to return. |  |[default to 100]
+**offset** | Option<**i32**> | The number of proofs to skip. |  |[default to 0]
 
 ### Return type
 
-[**crate::models::PagedProofInfoResponse**](PagedProofInfoResponse.md)
+[**models::PagedProofInfoResponse**](PagedProofInfoResponse.md)
 
 ### Authorization
 
@@ -430,7 +430,7 @@ Name | Type | Description  | Required | Notes
 
 ## project_settings
 
-> crate::models::ProjectInfoResponse project_settings(project_name, project_settings_input)
+> models::ProjectInfoResponse project_settings(project_name, project_settings_input)
 Update Project Settings
 
 Update project settings.
@@ -440,12 +440,12 @@ Update project settings.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**project_name** | [**serde_json::Value**](.md) | The name of a project associated with the team. | [required] |
+**project_name** | **String** | The name of a project associated with the team. | [required] |
 **project_settings_input** | [**ProjectSettingsInput**](ProjectSettingsInput.md) |  | [required] |
 
 ### Return type
 
-[**crate::models::ProjectInfoResponse**](ProjectInfoResponse.md)
+[**models::ProjectInfoResponse**](ProjectInfoResponse.md)
 
 ### Authorization
 
@@ -461,7 +461,7 @@ Name | Type | Description  | Required | Notes
 
 ## proof_list
 
-> serde_json::Value proof_list(proof_list_input)
+> Vec<models::ProofInfoResponse> proof_list(proof_list_input)
 Proof List
 
 List proofs for the requesting team.
@@ -475,7 +475,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**serde_json::Value**](serde_json::Value.md)
+[**Vec<models::ProofInfoResponse>**](ProofInfoResponse.md)
 
 ### Authorization
 
@@ -491,7 +491,7 @@ Name | Type | Description  | Required | Notes
 
 ## proof_list_paginated
 
-> crate::models::PagedProofInfoResponse proof_list_paginated(proof_list_input, limit, offset)
+> models::PagedProofInfoResponse proof_list_paginated(proof_list_input, limit, offset)
 Proof List
 
 List proofs for the requesting team.
@@ -502,12 +502,12 @@ List proofs for the requesting team.
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **proof_list_input** | [**ProofListInput**](ProofListInput.md) |  | [required] |
-**limit** | Option<[**serde_json::Value**](.md)> | The number of proofs to return. |  |[default to 100]
-**offset** | Option<[**serde_json::Value**](.md)> | The number of proofs to skip. |  |[default to 0]
+**limit** | Option<**i32**> | The number of proofs to return. |  |[default to 100]
+**offset** | Option<**i32**> | The number of proofs to skip. |  |[default to 0]
 
 ### Return type
 
-[**crate::models::PagedProofInfoResponse**](PagedProofInfoResponse.md)
+[**models::PagedProofInfoResponse**](PagedProofInfoResponse.md)
 
 ### Authorization
 
@@ -523,7 +523,7 @@ Name | Type | Description  | Required | Notes
 
 ## proof_status
 
-> crate::models::ProofStatusResponse proof_status(proof_id)
+> models::ProofStatusResponse proof_status(proof_id)
 Proof Status
 
 Get status for a specific proof.
@@ -533,11 +533,11 @@ Get status for a specific proof.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**proof_id** | [**serde_json::Value**](.md) | The UUID4 identifier associated with this proof. | [required] |
+**proof_id** | **String** | The UUID4 identifier associated with this proof. | [required] |
 
 ### Return type
 
-[**crate::models::ProofStatusResponse**](ProofStatusResponse.md)
+[**models::ProofStatusResponse**](ProofStatusResponse.md)
 
 ### Authorization
 
@@ -580,7 +580,7 @@ No authorization required
 
 ## team_avatar_upload
 
-> crate::models::TeamMeResponse team_avatar_upload(files)
+> models::TeamMeResponse team_avatar_upload(files)
 Avatar Upload
 
 Upload avatar for the team
@@ -590,11 +590,11 @@ Upload avatar for the team
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**files** | Option<[**serde_json::Value**](serde_json::Value.md)> |  | [required] |
+**files** | [**Vec<std::path::PathBuf>**](std::path::PathBuf.md) |  | [required] |
 
 ### Return type
 
-[**crate::models::TeamMeResponse**](TeamMeResponse.md)
+[**models::TeamMeResponse**](TeamMeResponse.md)
 
 ### Authorization
 
@@ -610,7 +610,7 @@ Name | Type | Description  | Required | Notes
 
 ## team_detail
 
-> crate::models::TeamDetail team_detail(team_name)
+> models::TeamDetail team_detail(team_name)
 Team Detail
 
 Return details for the specified team
@@ -620,11 +620,11 @@ Return details for the specified team
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**team_name** | [**serde_json::Value**](.md) |  | [required] |
+**team_name** | **String** |  | [required] |
 
 ### Return type
 
-[**crate::models::TeamDetail**](TeamDetail.md)
+[**models::TeamDetail**](TeamDetail.md)
 
 ### Authorization
 
@@ -640,7 +640,7 @@ Name | Type | Description  | Required | Notes
 
 ## team_me
 
-> crate::models::TeamMeResponse team_me()
+> models::TeamMeResponse team_me()
 Team Me
 
 Obtain team details for the currently authenticated team
@@ -651,7 +651,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**crate::models::TeamMeResponse**](TeamMeResponse.md)
+[**models::TeamMeResponse**](TeamMeResponse.md)
 
 ### Authorization
 
@@ -667,7 +667,7 @@ This endpoint does not need any parameter.
 
 ## user_me_with_jwt_auth
 
-> crate::models::UserMeResponse user_me_with_jwt_auth()
+> models::UserMeResponse user_me_with_jwt_auth()
 User Me
 
 Obtain user details. Requires JWT authentication.
@@ -678,7 +678,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**crate::models::UserMeResponse**](UserMeResponse.md)
+[**models::UserMeResponse**](UserMeResponse.md)
 
 ### Authorization
 

@@ -10,8 +10,8 @@
 
 
 use reqwest;
-
-use crate::apis::ResponseContent;
+use serde::{Deserialize, Serialize};
+use crate::{apis::ResponseContent, models};
 use super::{Error, configuration};
 
 
@@ -19,7 +19,7 @@ use super::{Error, configuration};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum JwtTokenGenerateError {
-    Status403(crate::models::JwtTokenErrorResponse),
+    Status403(models::JwtTokenErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -39,7 +39,7 @@ pub enum JwtTokenVerifyError {
 
 
 /// Override the ninja_jwt default `obtain_token` method in order to add email verification check before generating a token.
-pub async fn jwt_token_generate(configuration: &configuration::Configuration, token_obtain_pair_input_schema: crate::models::TokenObtainPairInputSchema) -> Result<crate::models::TokenObtainPairOutputSchema, Error<JwtTokenGenerateError>> {
+pub async fn jwt_token_generate(configuration: &configuration::Configuration, token_obtain_pair_input_schema: models::TokenObtainPairInputSchema) -> Result<models::TokenObtainPairOutputSchema, Error<JwtTokenGenerateError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -67,7 +67,7 @@ pub async fn jwt_token_generate(configuration: &configuration::Configuration, to
     }
 }
 
-pub async fn jwt_token_refresh(configuration: &configuration::Configuration, token_refresh_input_schema: crate::models::TokenRefreshInputSchema) -> Result<crate::models::TokenRefreshOutputSchema, Error<JwtTokenRefreshError>> {
+pub async fn jwt_token_refresh(configuration: &configuration::Configuration, token_refresh_input_schema: models::TokenRefreshInputSchema) -> Result<models::TokenRefreshOutputSchema, Error<JwtTokenRefreshError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -95,7 +95,7 @@ pub async fn jwt_token_refresh(configuration: &configuration::Configuration, tok
     }
 }
 
-pub async fn jwt_token_verify(configuration: &configuration::Configuration, token_verify_input_schema: crate::models::TokenVerifyInputSchema) -> Result<serde_json::Value, Error<JwtTokenVerifyError>> {
+pub async fn jwt_token_verify(configuration: &configuration::Configuration, token_verify_input_schema: models::TokenVerifyInputSchema) -> Result<serde_json::Value, Error<JwtTokenVerifyError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

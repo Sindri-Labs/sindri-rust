@@ -10,8 +10,8 @@
 
 
 use reqwest;
-
-use crate::apis::ResponseContent;
+use serde::{Deserialize, Serialize};
+use crate::{apis::ResponseContent, models};
 use super::{Error, configuration};
 
 
@@ -20,7 +20,7 @@ use super::{Error, configuration};
 #[serde(untagged)]
 pub enum CircuitDownloadError {
     Status404(),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -28,8 +28,8 @@ pub enum CircuitDownloadError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CircuitProofsPaginatedError {
-    Status404(crate::models::CircuitDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::CircuitDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -37,10 +37,10 @@ pub enum CircuitProofsPaginatedError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CircuitSmartContractVerifierError {
-    Status404(crate::models::CircuitDoesNotExistResponse),
-    Status409(crate::models::CircuitIsNotReadyResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
-    Status501(crate::models::ComingSoonResponse),
+    Status404(models::CircuitDoesNotExistResponse),
+    Status409(models::CircuitIsNotReadyResponse),
+    Status500(models::ForgeInternalErrorResponse),
+    Status501(models::ComingSoonResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -48,8 +48,8 @@ pub enum CircuitSmartContractVerifierError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CircuitStatusError {
-    Status404(crate::models::CircuitDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::CircuitDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -57,7 +57,7 @@ pub enum CircuitStatusError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PasswordChangeWithJwtAuthError {
-    Status422(crate::models::ValidationErrorResponse),
+    Status422(models::ValidationErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -65,8 +65,8 @@ pub enum PasswordChangeWithJwtAuthError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectCircuitsError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -74,8 +74,8 @@ pub enum ProjectCircuitsError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectCircuitsPaginatedError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -83,8 +83,8 @@ pub enum ProjectCircuitsPaginatedError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectDeleteError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -92,8 +92,8 @@ pub enum ProjectDeleteError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectDetailError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -101,8 +101,8 @@ pub enum ProjectDetailError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectListError {
-    Status500(crate::models::ForgeInternalErrorResponse),
-    Status404(crate::models::TeamDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
+    Status404(models::TeamDoesNotExistResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -110,8 +110,8 @@ pub enum ProjectListError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectListPaginatedError {
-    Status500(crate::models::ForgeInternalErrorResponse),
-    Status404(crate::models::TeamDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
+    Status404(models::TeamDoesNotExistResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -119,8 +119,8 @@ pub enum ProjectListPaginatedError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectProofsError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -128,8 +128,8 @@ pub enum ProjectProofsError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectProofsPaginatedError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -137,9 +137,9 @@ pub enum ProjectProofsPaginatedError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProjectSettingsError {
-    Status404(crate::models::ProjectDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
-    Status422(crate::models::ValidationErrorResponse),
+    Status404(models::ProjectDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
+    Status422(models::ValidationErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -147,7 +147,7 @@ pub enum ProjectSettingsError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProofListError {
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -155,7 +155,7 @@ pub enum ProofListError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProofListPaginatedError {
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -163,8 +163,8 @@ pub enum ProofListPaginatedError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProofStatusError {
-    Status404(crate::models::ProofDoesNotExistResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status404(models::ProofDoesNotExistResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -179,8 +179,8 @@ pub enum SindriManifestSchemaError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TeamAvatarUploadError {
-    Status400(crate::models::ForgeInvalidUploadResponse),
-    Status500(crate::models::ForgeInternalErrorResponse),
+    Status400(models::ForgeInvalidUploadResponse),
+    Status500(models::ForgeInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -188,7 +188,7 @@ pub enum TeamAvatarUploadError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TeamDetailError {
-    Status404(crate::models::TeamDoesNotExistResponse),
+    Status404(models::TeamDoesNotExistResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -208,12 +208,12 @@ pub enum UserMeWithJwtAuthError {
 
 
 /// Obtain circuit file(s).
-pub async fn circuit_download(configuration: &configuration::Configuration, circuit_id: serde_json::Value, path: Option<serde_json::Value>) -> Result<(), Error<CircuitDownloadError>> {
+pub async fn circuit_download(configuration: &configuration::Configuration, circuit_id: &str, path: Option<&str>) -> Result<(), Error<CircuitDownloadError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/download", local_var_configuration.base_path, circuit_id=circuit_id);
+    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/download", local_var_configuration.base_path, circuit_id=crate::apis::urlencode(circuit_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_str) = path {
@@ -245,12 +245,12 @@ pub async fn circuit_download(configuration: &configuration::Configuration, circ
 }
 
 /// List all proofs for a circuit.
-pub async fn circuit_proofs_paginated(configuration: &configuration::Configuration, circuit_id: serde_json::Value, limit: Option<serde_json::Value>, offset: Option<serde_json::Value>) -> Result<crate::models::PagedProofInfoResponse, Error<CircuitProofsPaginatedError>> {
+pub async fn circuit_proofs_paginated(configuration: &configuration::Configuration, circuit_id: &str, limit: Option<i32>, offset: Option<i32>) -> Result<models::PagedProofInfoResponse, Error<CircuitProofsPaginatedError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/proofs/paginated", local_var_configuration.base_path, circuit_id=circuit_id);
+    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/proofs/paginated", local_var_configuration.base_path, circuit_id=crate::apis::urlencode(circuit_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_str) = limit {
@@ -285,12 +285,12 @@ pub async fn circuit_proofs_paginated(configuration: &configuration::Configurati
 }
 
 /// Get smart contract verifier for existing circuit
-pub async fn circuit_smart_contract_verifier(configuration: &configuration::Configuration, circuit_id: serde_json::Value) -> Result<crate::models::SmartContractVerifierResponse, Error<CircuitSmartContractVerifierError>> {
+pub async fn circuit_smart_contract_verifier(configuration: &configuration::Configuration, circuit_id: &str) -> Result<models::SmartContractVerifierResponse, Error<CircuitSmartContractVerifierError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/smart_contract_verifier", local_var_configuration.base_path, circuit_id=circuit_id);
+    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/smart_contract_verifier", local_var_configuration.base_path, circuit_id=crate::apis::urlencode(circuit_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -319,12 +319,12 @@ pub async fn circuit_smart_contract_verifier(configuration: &configuration::Conf
 }
 
 /// Get status for a specific circuit.
-pub async fn circuit_status(configuration: &configuration::Configuration, circuit_id: serde_json::Value) -> Result<crate::models::CircuitStatusResponse, Error<CircuitStatusError>> {
+pub async fn circuit_status(configuration: &configuration::Configuration, circuit_id: &str) -> Result<models::CircuitStatusResponse, Error<CircuitStatusError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/status", local_var_configuration.base_path, circuit_id=circuit_id);
+    let local_var_uri_str = format!("{}/api/v1/circuit/{circuit_id}/status", local_var_configuration.base_path, circuit_id=crate::apis::urlencode(circuit_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -353,7 +353,7 @@ pub async fn circuit_status(configuration: &configuration::Configuration, circui
 }
 
 /// Change user password. Requires JWT authentication.
-pub async fn password_change_with_jwt_auth(configuration: &configuration::Configuration, password_change_input: crate::models::PasswordChangeInput) -> Result<crate::models::ActionResponse, Error<PasswordChangeWithJwtAuthError>> {
+pub async fn password_change_with_jwt_auth(configuration: &configuration::Configuration, password_change_input: models::PasswordChangeInput) -> Result<models::ActionResponse, Error<PasswordChangeWithJwtAuthError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -385,12 +385,12 @@ pub async fn password_change_with_jwt_auth(configuration: &configuration::Config
 }
 
 /// List all circuits for a project.
-pub async fn project_circuits(configuration: &configuration::Configuration, project_id: serde_json::Value) -> Result<serde_json::Value, Error<ProjectCircuitsError>> {
+pub async fn project_circuits(configuration: &configuration::Configuration, project_id: &str) -> Result<Vec<models::CircuitInfoResponse>, Error<ProjectCircuitsError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/circuits", local_var_configuration.base_path, project_id=project_id);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/circuits", local_var_configuration.base_path, project_id=crate::apis::urlencode(project_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -419,12 +419,12 @@ pub async fn project_circuits(configuration: &configuration::Configuration, proj
 }
 
 /// List all circuits for a project.
-pub async fn project_circuits_paginated(configuration: &configuration::Configuration, project_id: serde_json::Value, limit: Option<serde_json::Value>, offset: Option<serde_json::Value>) -> Result<crate::models::PagedCircuitInfoResponse, Error<ProjectCircuitsPaginatedError>> {
+pub async fn project_circuits_paginated(configuration: &configuration::Configuration, project_id: &str, limit: Option<i32>, offset: Option<i32>) -> Result<models::PagedCircuitInfoResponse, Error<ProjectCircuitsPaginatedError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/circuits/paginated", local_var_configuration.base_path, project_id=project_id);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/circuits/paginated", local_var_configuration.base_path, project_id=crate::apis::urlencode(project_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_str) = limit {
@@ -459,12 +459,12 @@ pub async fn project_circuits_paginated(configuration: &configuration::Configura
 }
 
 /// Delete a project.
-pub async fn project_delete(configuration: &configuration::Configuration, project_id: serde_json::Value) -> Result<crate::models::ActionResponse, Error<ProjectDeleteError>> {
+pub async fn project_delete(configuration: &configuration::Configuration, project_id: &str) -> Result<models::ActionResponse, Error<ProjectDeleteError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/delete", local_var_configuration.base_path, project_id=project_id);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/delete", local_var_configuration.base_path, project_id=crate::apis::urlencode(project_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -493,12 +493,12 @@ pub async fn project_delete(configuration: &configuration::Configuration, projec
 }
 
 /// Get info for a project.
-pub async fn project_detail(configuration: &configuration::Configuration, project_id: serde_json::Value) -> Result<crate::models::ProjectInfoResponse, Error<ProjectDetailError>> {
+pub async fn project_detail(configuration: &configuration::Configuration, project_id: &str) -> Result<models::ProjectInfoResponse, Error<ProjectDetailError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/detail", local_var_configuration.base_path, project_id=project_id);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/detail", local_var_configuration.base_path, project_id=crate::apis::urlencode(project_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -527,7 +527,7 @@ pub async fn project_detail(configuration: &configuration::Configuration, projec
 }
 
 /// List all projects meeting filter criteria.
-pub async fn project_list(configuration: &configuration::Configuration, project_list_input: crate::models::ProjectListInput) -> Result<serde_json::Value, Error<ProjectListError>> {
+pub async fn project_list(configuration: &configuration::Configuration, project_list_input: models::ProjectListInput) -> Result<Vec<models::ProjectInfoResponse>, Error<ProjectListError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -562,7 +562,7 @@ pub async fn project_list(configuration: &configuration::Configuration, project_
 }
 
 /// List all projects meeting filter criteria.
-pub async fn project_list_paginated(configuration: &configuration::Configuration, project_list_input: crate::models::ProjectListInput, limit: Option<serde_json::Value>, offset: Option<serde_json::Value>) -> Result<crate::models::PagedProjectInfoResponse, Error<ProjectListPaginatedError>> {
+pub async fn project_list_paginated(configuration: &configuration::Configuration, project_list_input: models::ProjectListInput, limit: Option<i32>, offset: Option<i32>) -> Result<models::PagedProjectInfoResponse, Error<ProjectListPaginatedError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -603,12 +603,12 @@ pub async fn project_list_paginated(configuration: &configuration::Configuration
 }
 
 /// Get all proofs for a project.
-pub async fn project_proofs(configuration: &configuration::Configuration, project_id: serde_json::Value) -> Result<serde_json::Value, Error<ProjectProofsError>> {
+pub async fn project_proofs(configuration: &configuration::Configuration, project_id: &str) -> Result<Vec<models::ProofInfoResponse>, Error<ProjectProofsError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/proofs", local_var_configuration.base_path, project_id=project_id);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/proofs", local_var_configuration.base_path, project_id=crate::apis::urlencode(project_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -637,12 +637,12 @@ pub async fn project_proofs(configuration: &configuration::Configuration, projec
 }
 
 /// Get all proofs for a project.
-pub async fn project_proofs_paginated(configuration: &configuration::Configuration, project_id: serde_json::Value, limit: Option<serde_json::Value>, offset: Option<serde_json::Value>) -> Result<crate::models::PagedProofInfoResponse, Error<ProjectProofsPaginatedError>> {
+pub async fn project_proofs_paginated(configuration: &configuration::Configuration, project_id: &str, limit: Option<i32>, offset: Option<i32>) -> Result<models::PagedProofInfoResponse, Error<ProjectProofsPaginatedError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/proofs/paginated", local_var_configuration.base_path, project_id=project_id);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_id}/proofs/paginated", local_var_configuration.base_path, project_id=crate::apis::urlencode(project_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_str) = limit {
@@ -677,12 +677,12 @@ pub async fn project_proofs_paginated(configuration: &configuration::Configurati
 }
 
 /// Update project settings.
-pub async fn project_settings(configuration: &configuration::Configuration, project_name: serde_json::Value, project_settings_input: crate::models::ProjectSettingsInput) -> Result<crate::models::ProjectInfoResponse, Error<ProjectSettingsError>> {
+pub async fn project_settings(configuration: &configuration::Configuration, project_name: &str, project_settings_input: models::ProjectSettingsInput) -> Result<models::ProjectInfoResponse, Error<ProjectSettingsError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/project/{project_name}/settings", local_var_configuration.base_path, project_name=project_name);
+    let local_var_uri_str = format!("{}/api/v1/project/{project_name}/settings", local_var_configuration.base_path, project_name=crate::apis::urlencode(project_name));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -712,7 +712,7 @@ pub async fn project_settings(configuration: &configuration::Configuration, proj
 }
 
 /// List proofs for the requesting team.
-pub async fn proof_list(configuration: &configuration::Configuration, proof_list_input: crate::models::ProofListInput) -> Result<serde_json::Value, Error<ProofListError>> {
+pub async fn proof_list(configuration: &configuration::Configuration, proof_list_input: models::ProofListInput) -> Result<Vec<models::ProofInfoResponse>, Error<ProofListError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -747,7 +747,7 @@ pub async fn proof_list(configuration: &configuration::Configuration, proof_list
 }
 
 /// List proofs for the requesting team.
-pub async fn proof_list_paginated(configuration: &configuration::Configuration, proof_list_input: crate::models::ProofListInput, limit: Option<serde_json::Value>, offset: Option<serde_json::Value>) -> Result<crate::models::PagedProofInfoResponse, Error<ProofListPaginatedError>> {
+pub async fn proof_list_paginated(configuration: &configuration::Configuration, proof_list_input: models::ProofListInput, limit: Option<i32>, offset: Option<i32>) -> Result<models::PagedProofInfoResponse, Error<ProofListPaginatedError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -788,12 +788,12 @@ pub async fn proof_list_paginated(configuration: &configuration::Configuration, 
 }
 
 /// Get status for a specific proof.
-pub async fn proof_status(configuration: &configuration::Configuration, proof_id: serde_json::Value) -> Result<crate::models::ProofStatusResponse, Error<ProofStatusError>> {
+pub async fn proof_status(configuration: &configuration::Configuration, proof_id: &str) -> Result<models::ProofStatusResponse, Error<ProofStatusError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/proof/{proof_id}/status", local_var_configuration.base_path, proof_id=proof_id);
+    let local_var_uri_str = format!("{}/api/v1/proof/{proof_id}/status", local_var_configuration.base_path, proof_id=crate::apis::urlencode(proof_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -850,7 +850,7 @@ pub async fn sindri_manifest_schema(configuration: &configuration::Configuration
 }
 
 /// Upload avatar for the team
-pub async fn team_avatar_upload(configuration: &configuration::Configuration, files: Option<serde_json::Value>) -> Result<crate::models::TeamMeResponse, Error<TeamAvatarUploadError>> {
+pub async fn team_avatar_upload(configuration: &configuration::Configuration, files: Vec<std::path::PathBuf>) -> Result<models::TeamMeResponse, Error<TeamAvatarUploadError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -868,10 +868,7 @@ pub async fn team_avatar_upload(configuration: &configuration::Configuration, fi
         local_var_req_builder = local_var_req_builder.bearer_auth(local_var_token.to_owned());
     };
     let mut local_var_form = reqwest::multipart::Form::new();
-    match files {
-        Some(local_var_param_value) => { local_var_form = local_var_form.text("files", local_var_param_value.to_string()); },
-        None => { local_var_form = local_var_form.text("files", ""); },
-    }
+    // TODO: support file upload for 'files' parameter
     local_var_req_builder = local_var_req_builder.multipart(local_var_form);
 
     let local_var_req = local_var_req_builder.build()?;
@@ -890,12 +887,12 @@ pub async fn team_avatar_upload(configuration: &configuration::Configuration, fi
 }
 
 /// Return details for the specified team
-pub async fn team_detail(configuration: &configuration::Configuration, team_name: serde_json::Value) -> Result<crate::models::TeamDetail, Error<TeamDetailError>> {
+pub async fn team_detail(configuration: &configuration::Configuration, team_name: &str) -> Result<models::TeamDetail, Error<TeamDetailError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/v1/team/{team_name}/detail", local_var_configuration.base_path, team_name=team_name);
+    let local_var_uri_str = format!("{}/api/v1/team/{team_name}/detail", local_var_configuration.base_path, team_name=crate::apis::urlencode(team_name));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -924,7 +921,7 @@ pub async fn team_detail(configuration: &configuration::Configuration, team_name
 }
 
 /// Obtain team details for the currently authenticated team
-pub async fn team_me(configuration: &configuration::Configuration, ) -> Result<crate::models::TeamMeResponse, Error<TeamMeError>> {
+pub async fn team_me(configuration: &configuration::Configuration, ) -> Result<models::TeamMeResponse, Error<TeamMeError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -958,7 +955,7 @@ pub async fn team_me(configuration: &configuration::Configuration, ) -> Result<c
 }
 
 /// Obtain user details. Requires JWT authentication.
-pub async fn user_me_with_jwt_auth(configuration: &configuration::Configuration, ) -> Result<crate::models::UserMeResponse, Error<UserMeWithJwtAuthError>> {
+pub async fn user_me_with_jwt_auth(configuration: &configuration::Configuration, ) -> Result<models::UserMeResponse, Error<UserMeWithJwtAuthError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

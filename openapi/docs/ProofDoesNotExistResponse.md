@@ -4,9 +4,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**error** | Option<[**serde_json::Value**](.md)> |  | 
-**proof_id** | Option<[**serde_json::Value**](.md)> |  | 
-**message** | Option<[**serde_json::Value**](.md)> |  | 
+**error** | **String** |  | 
+**proof_id** | [**models::ProofId**](Proof_Id.md) |  | 
+**message** | **String** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

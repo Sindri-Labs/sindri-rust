@@ -1,6 +1,6 @@
 # \ProofsApi
 
-All URIs are relative to *https://stage.sindri.app*
+All URIs are relative to *https://sindri.app*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -11,7 +11,7 @@ Method | HTTP request | Description
 
 ## proof_delete
 
-> crate::models::ActionResponse proof_delete(proof_id)
+> models::ActionResponse proof_delete(proof_id)
 Delete Proof
 
 Delete a specific proof.
@@ -21,11 +21,11 @@ Delete a specific proof.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**proof_id** | [**serde_json::Value**](.md) | The UUID4 identifier associated with this proof. | [required] |
+**proof_id** | **String** | The UUID4 identifier associated with this proof. | [required] |
 
 ### Return type
 
-[**crate::models::ActionResponse**](ActionResponse.md)
+[**models::ActionResponse**](ActionResponse.md)
 
 ### Authorization
 
@@ -41,7 +41,7 @@ Name | Type | Description  | Required | Notes
 
 ## proof_detail
 
-> crate::models::ProofInfoResponse proof_detail(proof_id, include_proof, include_public, include_smart_contract_calldata, include_verification_key)
+> models::ProofInfoResponse proof_detail(proof_id, include_proof, include_public, include_smart_contract_calldata, include_verification_key)
 Proof Detail
 
 Get info for a specific proof.
@@ -51,15 +51,15 @@ Get info for a specific proof.
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**proof_id** | [**serde_json::Value**](.md) | The UUID4 identifier associated with this proof. | [required] |
-**include_proof** | Option<[**serde_json::Value**](.md)> | Indicates whether to include the proof in the response. |  |[default to true]
-**include_public** | Option<[**serde_json::Value**](.md)> | Indicates whether to include public inputs in the response. |  |[default to true]
-**include_smart_contract_calldata** | Option<[**serde_json::Value**](.md)> | Indicates whether to include the proof and public formatted as smart contract calldata in the response. |  |[default to true]
-**include_verification_key** | Option<[**serde_json::Value**](.md)> | Indicates whether to include the circuit's verification key in the response. |  |[default to true]
+**proof_id** | **String** | The UUID4 identifier associated with this proof. | [required] |
+**include_proof** | Option<**bool**> | Indicates whether to include the proof in the response. |  |[default to true]
+**include_public** | Option<**bool**> | Indicates whether to include public inputs in the response. |  |[default to true]
+**include_smart_contract_calldata** | Option<**bool**> | Indicates whether to include the proof and public formatted as smart contract calldata in the response. |  |[default to true]
+**include_verification_key** | Option<**bool**> | Indicates whether to include the circuit's verification key in the response. |  |[default to true]
 
 ### Return type
 
-[**crate::models::ProofInfoResponse**](ProofInfoResponse.md)
+[**models::ProofInfoResponse**](ProofInfoResponse.md)
 
 ### Authorization
 

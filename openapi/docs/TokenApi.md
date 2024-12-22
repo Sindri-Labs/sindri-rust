@@ -12,7 +12,7 @@ Method | HTTP request | Description
 
 ## jwt_token_generate
 
-> crate::models::TokenObtainPairOutputSchema jwt_token_generate(token_obtain_pair_input_schema)
+> models::TokenObtainPairOutputSchema jwt_token_generate(token_obtain_pair_input_schema)
 Generate JWT Token Pair
 
 Override the ninja_jwt default `obtain_token` method in order to add email verification check before generating a token.
@@ -26,7 +26,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::TokenObtainPairOutputSchema**](TokenObtainPairOutputSchema.md)
+[**models::TokenObtainPairOutputSchema**](TokenObtainPairOutputSchema.md)
 
 ### Authorization
 
@@ -42,7 +42,7 @@ No authorization required
 
 ## jwt_token_refresh
 
-> crate::models::TokenRefreshOutputSchema jwt_token_refresh(token_refresh_input_schema)
+> models::TokenRefreshOutputSchema jwt_token_refresh(token_refresh_input_schema)
 Refresh Token
 
 ### Parameters
@@ -54,7 +54,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::TokenRefreshOutputSchema**](TokenRefreshOutputSchema.md)
+[**models::TokenRefreshOutputSchema**](TokenRefreshOutputSchema.md)
 
 ### Authorization
 
