@@ -71,6 +71,14 @@ impl SindriClient {
         }
     }
 
+    pub fn api_key(&self) -> Option<&str> {
+        self.config.bearer_access_token.as_deref()
+    }
+
+    pub fn base_url(&self) -> &str {
+        &self.config.base_path
+    }
+
     pub async fn list_api_keys(&self) -> Result<Vec<ApiKeyResponse>, Error<ApikeyListError>> {
         let api_keys = apikey_list(&self.config).await?;
         Ok(api_keys)
