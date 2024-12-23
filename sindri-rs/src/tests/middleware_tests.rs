@@ -1,8 +1,26 @@
 use crate::custom_middleware::HeaderDeduplicatorMiddleware;
 use reqwest::header::{HeaderMap, HeaderValue};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-use wiremock::matchers::{method, header};
+use wiremock::matchers::{header, header_exists, method};
+use crate::client::SindriClient;
 
+
+#[tokio::test]
+async fn test_client_default_header() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(header_exists("sindri-client"))
+        .respond_with(ResponseTemplate::new(200))
+        .mount(&mock_server)
+        .await;
+
+    let outer_client = SindriClient::new(None);
+    let inner_client = &outer_client.config().client;
+
+    let request = inner_client.get(mock_server.uri()).build().unwrap();
+    let response = inner_client.execute(request).await.unwrap();
+    assert_eq!(response.status(), 200); 
+}
 
 
 #[tokio::test]
@@ -116,46 +134,4 @@ async fn test_header_deduplicator() {
     
 //     let result = middleware.handle(req, &mut extensions, next).await;
 //     assert!(result.is_ok());
-// }
-
-
-// #[tokio::test]
-// async fn test_new_client_default_headers() {
-//     let client = SindriClient::new(None);
-//     let config = client.config();
-
-    // Example code from openapi/src/apis/authorization_api.rs
-    // This code is used in nearly all methods. However it isn't modularized by the codegen
-    // So we can't call a method from that package.
-    // let local_var_configuration = client.config();
-
-    // let local_var_client = &local_var_configuration.client;
-
-    // // TODO: change so it's not hitting api
-    // let local_var_uri_str = format!("{}/api/v1/sindri-manifest-schema.json", local_var_configuration.base_path);
-    // let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-    // if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-    //     local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-    // }
-    // if let Some(ref local_var_token) = local_var_configuration.bearer_access_token {
-    //     local_var_req_builder = local_var_req_builder.bearer_auth(local_var_token.to_owned());
-    // };
-    // if let Some(ref local_var_token) = local_var_configuration.bearer_access_token {
-    //     local_var_req_builder = local_var_req_builder.bearer_auth(local_var_token.to_owned());
-    // };
-
-    // let local_var_req = local_var_req_builder.build().unwrap();
-    // println!("{:?}", local_var_req.headers());
-    // let local_var_resp = local_var_client.execute(local_var_req).await.unwrap();
-    // let headers = local_var_resp.
-    // .request().headers();
-    // println!("{:?}", headers);
-
-    // println!("{:?}",headers);
-
-//     assert_eq!(headers.get("User-Agent").unwrap(), "OpenAPI-Generator/v1.14.5/rust");
-//     assert!(headers.get("Authorization").unwrap().to_str().unwrap().starts_with("Bearer "));
-//     assert!(headers.contains_key("sindri-client"));
-
 // }
