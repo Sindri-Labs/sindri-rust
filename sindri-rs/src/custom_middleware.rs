@@ -1,14 +1,13 @@
-use reqwest_middleware::{Middleware, Next};
-use std::collections::HashSet;
-use reqwest::{Client, Request, Response, StatusCode};
 use http::Extensions;
+use reqwest::{Client, Request, Response, StatusCode};
+use reqwest_middleware::{Middleware, Next};
+use reqwest_retry::policies::ExponentialBackoffTimed;
 use reqwest_retry::{
     default_on_request_failure, policies::ExponentialBackoff, RetryTransientMiddleware, Retryable,
     RetryableStrategy,
 };
-use reqwest_retry::policies::ExponentialBackoffTimed;
+use std::collections::HashSet;
 use std::time::Duration;
-
 
 pub struct HeaderDeduplicatorMiddleware;
 
@@ -66,10 +65,12 @@ impl Middleware for LoggingMiddleware {
     }
 }
 
-
 pub struct Retry500;
 impl RetryableStrategy for Retry500 {
-    fn handle(&self, res: &Result<reqwest::Response, reqwest_middleware::Error>)  -> Option<Retryable> {
+    fn handle(
+        &self,
+        res: &Result<reqwest::Response, reqwest_middleware::Error>,
+    ) -> Option<Retryable> {
         // Middleware retry classification rules
 
         // 400s are not retried because they are client errors, and
@@ -101,7 +102,7 @@ impl RetryableStrategy for Retry500 {
             StatusCode::from_u16(510).unwrap(),
         ];
 
-        // 500, 502, 503, 504 indicate a server error that may soon be resolved. 
+        // 500, 502, 503, 504 indicate a server error that may soon be resolved.
         let transient_codes = [
             StatusCode::from_u16(500).unwrap(),
             StatusCode::from_u16(502).unwrap(),
@@ -112,34 +113,40 @@ impl RetryableStrategy for Retry500 {
         match res {
             // retry if temporary API outage: 500, 502, 503, or 504
             Ok(success) if transient_codes.contains(&success.status()) => {
-                tracing::debug!("[RETRY MIDDLEWARE] Retrying request due to temporary API outage: {}", success.status());
+                tracing::debug!(
+                    "[RETRY MIDDLEWARE] Retrying request due to temporary API outage: {}",
+                    success.status()
+                );
                 Some(Retryable::Transient)
-            },
+            }
             // cause a panic if client error: 400s
             Ok(success) if unrecoverable_codes.contains(&success.status()) => {
-                tracing::debug!("[RETRY MIDDLEWARE] Request failed with fatal client error: {}", success.status());
+                tracing::debug!(
+                    "[RETRY MIDDLEWARE] Request failed with fatal client error: {}",
+                    success.status()
+                );
                 Some(Retryable::Fatal)
-            },
+            }
             // otherwise do not retry a successful request (even for 400s/300s)
-            Ok(_success) => {
-                None
-            },
+            Ok(_success) => None,
             // but maybe retry a request failure due to local network issue
             Err(error) => {
-                tracing::debug!("[RETRY MIDDLEWARE] Request failed with network error: {}", error);
+                tracing::debug!(
+                    "[RETRY MIDDLEWARE] Request failed with network error: {}",
+                    error
+                );
                 default_on_request_failure(error)
-            },
+            }
         }
     }
 }
 
 // Returns a robust HTTP client with ExponentialBackoff on retries up to max_duration
-pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::marker::Send>(max_duration : Option<Duration>) -> RetryTransientMiddleware<ExponentialBackoffTimed, Retry500> {
+pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::marker::Send>(
+    max_duration: Option<Duration>,
+) -> RetryTransientMiddleware<ExponentialBackoffTimed, Retry500> {
     let retry_policy = ExponentialBackoff::builder()
         .retry_bounds(Duration::from_secs(1), Duration::from_secs(8))
         .build_with_total_retry_duration(max_duration.unwrap_or(Duration::from_secs(60)));
-    RetryTransientMiddleware::new_with_policy_and_strategy(
-        retry_policy,
-        Retry500,
-    )
+    RetryTransientMiddleware::new_with_policy_and_strategy(retry_policy, Retry500)
 }
