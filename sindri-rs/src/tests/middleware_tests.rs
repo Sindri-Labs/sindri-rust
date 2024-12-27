@@ -1,9 +1,18 @@
 use crate::custom_middleware::HeaderDeduplicatorMiddleware;
-use reqwest::header::{HeaderMap, HeaderValue};
-use wiremock::{Mock, MockServer, ResponseTemplate};
-use wiremock::matchers::{header, header_exists, method};
+use crate::custom_middleware::Retry500;
+use crate::custom_middleware::retry_client;
 use crate::client::SindriClient;
 
+use reqwest::header::{HeaderMap, HeaderValue};
+
+use wiremock::{Mock, MockServer, ResponseTemplate, Times};
+use wiremock::matchers::{any, header, header_exists, method};
+use reqwest_retry::{
+    default_on_request_failure, policies::ExponentialBackoffTimed, RetryTransientMiddleware, Retryable,
+    RetryableStrategy,
+};
+
+use std::time::{Instant, Duration};
 
 #[tokio::test]
 async fn test_client_default_header() {
@@ -63,75 +72,63 @@ async fn test_header_deduplicator() {
 
 }
 
+#[tokio::test]
+async fn test_retry_policy_on_500() {
+    let mock_server = MockServer::start().await;
+    
+    // First mock: Return 500 errors for initial N requests
+    Mock::given(method("GET"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest_middleware::ClientBuilder::new(
+        reqwest::Client::builder()
+            .build()
+            .expect("Could not build client")
+        )
+        .with(retry_client::<ExponentialBackoffTimed>(None))
+        .build();
+
+    // Make the request
+    let request = client.get(mock_server.uri()).build().unwrap();
+    let start = Instant::now();
+    client.execute(request).await.unwrap();
+    let elapsed = start.elapsed();
+    
+    // Retry logic should make numerous retries in 60 seconds at random deltas
+    // between 1s and 8s
+    let num_requests = mock_server.received_requests().await.unwrap().len();
+    assert!(num_requests > 10);
+    
+    // Verify that the duration of retries is about 60 seconds
+    let lower_bound = Duration::new(60, 0);
+    let upper_bound = Duration::new(65, 0);
+    assert!(elapsed >= lower_bound && elapsed <= upper_bound);
+
+}
 
 
-// #[tokio::test]
-// async fn test_retry500_strategy() {
-//     let mock_server = MockServer::start().await;
-    
-//     // Test transient error (500)
-//     Mock::given(any())
-//         .respond_with(ResponseTemplate::new(500))
-//         .mount(&mock_server)
-//         .await;
-    
-//     let retry_strategy = Retry500;
-//     let client = reqwest::Client::new();
-//     let response = client.get(mock_server.uri()).send().await.unwrap();
-    
-//     let result = retry_strategy.handle(&Ok(response));
-//     assert_eq!(result, Some(Retryable::Transient));
-    
-//     // Test unrecoverable error (400)
-//     Mock::given(any())
-//         .respond_with(ResponseTemplate::new(400))
-//         .mount(&mock_server)
-//         .await;
-    
-//     let response = client.get(mock_server.uri()).send().await.unwrap();
-//     let result = retry_strategy.handle(&Ok(response));
-//     assert_eq!(result, Some(Retryable::Fatal));
-    
-//     // Test successful response (200)
-//     Mock::given(any())
-//         .respond_with(ResponseTemplate::new(200))
-//         .mount(&mock_server)
-//         .await;
-    
-//     let response = client.get(mock_server.uri()).send().await.unwrap();
-//     let result = retry_strategy.handle(&Ok(response));
-//     assert_eq!(result, None);
-// }
+#[tokio::test]
+async fn test_retry_policy_on_400() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .respond_with(ResponseTemplate::new(400))
+        .mount(&mock_server)
+        .await;
 
-// #[tokio::test]
-// async fn test_retry_client() {
-//     let max_duration = Duration::from_secs(30);
-//     let retry_middleware = retry_client(Some(max_duration));
-    
-//     // Verify retry policy configuration
-//     let policy = retry_middleware.get_policy();
-//     assert_eq!(policy.get_total_retry_duration(), Some(max_duration));
-// }
+    let client = reqwest_middleware::ClientBuilder::new(
+        reqwest::Client::builder()
+            .build()
+            .expect("Could not build client")
+        )
+        .with(retry_client::<ExponentialBackoffTimed>(None))
+        .build();
 
-// #[tokio::test]
-// async fn test_logging_middleware() {
-//     let mock_server = MockServer::start().await;
-    
-//     Mock::given(any())
-//         .respond_with(ResponseTemplate::new(200))
-//         .mount(&mock_server)
-//         .await;
-    
-//     let client = reqwest::Client::new();
-//     let middleware = LoggingMiddleware;
-//     let mut extensions = Extensions::new();
-//     let req = client.get(mock_server.uri()).build().unwrap();
-    
-//     // Test that logging doesn't affect the response
-//     let next = Next::new(&|req, _| Box::pin(async move {
-//         Ok(Response::new(req))
-//     }));
-    
-//     let result = middleware.handle(req, &mut extensions, next).await;
-//     assert!(result.is_ok());
-// }
+    let request = client.get(mock_server.uri()).build().unwrap();
+    client.execute(request).await.unwrap();
+
+    let num_retries = mock_server.received_requests().await.unwrap().len();
+
+    assert_eq!(num_retries, 1);
+}

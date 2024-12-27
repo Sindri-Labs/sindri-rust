@@ -136,7 +136,7 @@ impl RetryableStrategy for Retry500 {
 // Returns a robust HTTP client with ExponentialBackoff on retries up to max_duration
 pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::marker::Send>(max_duration : Option<Duration>) -> RetryTransientMiddleware<ExponentialBackoffTimed, Retry500> {
     let retry_policy = ExponentialBackoff::builder()
-        .retry_bounds(Duration::from_secs(1), Duration::from_secs(16))
+        .retry_bounds(Duration::from_secs(1), Duration::from_secs(8))
         .build_with_total_retry_duration(max_duration.unwrap_or(Duration::from_secs(60)));
     RetryTransientMiddleware::new_with_policy_and_strategy(
         retry_policy,
