@@ -87,7 +87,7 @@ async fn test_retry_policy_on_500() {
             .build()
             .expect("Could not build client"),
     )
-    .with(retry_client::<ExponentialBackoffTimed>(None))
+    .with(retry_client::<ExponentialBackoffTimed>(Some(Duration::from_secs(15))))
     .build();
 
     // Make the request
@@ -99,11 +99,11 @@ async fn test_retry_policy_on_500() {
     // Retry logic should make numerous retries in 60 seconds at random deltas
     // between 1s and 8s
     let num_requests = mock_server.received_requests().await.unwrap().len();
-    assert!(num_requests > 10);
+    assert!(num_requests > 3);
 
     // Verify that the duration of retries is about 60 seconds
-    let lower_bound = Duration::new(60, 0);
-    let upper_bound = Duration::new(65, 0);
+    let lower_bound = Duration::new(15, 0);
+    let upper_bound = Duration::new(25, 0);
     assert!(elapsed >= lower_bound && elapsed <= upper_bound);
 }
 

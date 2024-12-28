@@ -7,15 +7,16 @@ use std::error::Error;
 // Global recommended maximum on circuit uploads
 const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
 
-const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
-const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
+pub(crate) const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
+pub(crate) const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
 
 
 /// When a user submits a path to the circuit create method, we prepare the directory
 /// of the circuit project as a compressed tarfile which is sent as multipart/form data.
 /// In order to fail fast, we first perform validation checks on the project directory.
-/// Ignore conventions: ...
-async fn compress_directory(dir: &Path) -> Result<Vec<u8>, Box<dyn Error>> {
+/// Ignore conventions: any patterns in .gitignore, .sindriignore, are respected. 
+/// Hidden files are ignored.
+pub async fn compress_directory(dir: &Path, override_max_project_size: Option<usize>) -> Result<Vec<u8>, Box<dyn Error>> {
 
     // Check for Sindri manifest
     let manifest_path = dir.join(SINDRI_MANIFEST_FILENAME);
@@ -53,13 +54,13 @@ async fn compress_directory(dir: &Path) -> Result<Vec<u8>, Box<dyn Error>> {
     }
 
     // Check the size of the upload
-    if contents.len() > MAX_PROJECT_SIZE {
+    if contents.len() > override_max_project_size.unwrap_or(MAX_PROJECT_SIZE) {
         return Err(format!(
-            "This project directory is above 8Gb and requires a special compilation process. \
+            "This project directory exceeds the maximum allowed size of {} and requires a special compilation process. \
             Please reach out to the Sindri team if you would like to compile the entire project \
             or double check the contents of the project for files and directories that do not \
             need to be included. Those may be added to a `{}` if you would like to \
-            automatically exclude them on your next upload.", SINDRI_IGNORE_FILENAME
+            automatically exclude them on your next upload.", MAX_PROJECT_SIZE, SINDRI_IGNORE_FILENAME
         ).into());
     }
 

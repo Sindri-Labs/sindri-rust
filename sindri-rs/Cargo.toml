@@ -17,7 +17,9 @@ tracing-subscriber = "0.3"
 flate2 = "1.0.35"
 ignore = "0.4.23"
 tar = "0.4.43"
+rand = "0.8.5"
 
 [dev-dependencies]
 wiremock = "0.6.2"
+tempfile = "3.2"
 temp-env = "0.3"
