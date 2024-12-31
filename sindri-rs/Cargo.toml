@@ -18,6 +18,7 @@ flate2 = "1.0.35"
 ignore = "0.4.23"
 tar = "0.4.43"
 rand = "0.8.5"
+regex = "1.11.1"
 
 [dev-dependencies]
 wiremock = "0.6.2"

@@ -1,6 +1,7 @@
 use openapi::apis::authorization_api::apikey_list;
 use openapi::apis::authorization_api::ApikeyListError;
 use openapi::apis::circuits_api::circuit_detail;
+use openapi::apis::circuits_api::circuit_create;
 use openapi::apis::circuits_api::CircuitDetailError;
 use openapi::apis::configuration::Configuration;
 use openapi::apis::Error;
@@ -18,11 +19,19 @@ use openapi::apis::circuits_api::ProofCreateError;
 use openapi::models::CircuitProveInput;
 use openapi::models::ProofInfoResponse;
 use openapi::models::ProofInput;
+use openapi::apis::circuit_status;
+use openapi::models::JobStatus;
 
 use crate::custom_middleware::retry_client;
 use crate::custom_middleware::HeaderDeduplicatorMiddleware;
 use crate::custom_middleware::LoggingMiddleware;
 use reqwest_retry::policies::ExponentialBackoffTimed;
+
+use crate::utils::compress_directory;
+
+use std::path::Path;
+use std::fs;
+use regex::Regex;
 
 #[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
@@ -83,8 +92,58 @@ impl SindriClient {
         &self.config.base_path
     }
 
+    /// Internal testing getter for the config
     pub(crate) fn config(&self) -> &Configuration {
         &self.config
+    }
+
+
+    /// Uploads a circuit project to Sindri. Upon successful upload, the method polls
+    /// to track the compilation status of the project. 
+    /// Returns a CircuitInfoResponse object with the circuit id and other metadata.
+    pub async fn create_circuit(
+        &self,
+        project: String,
+        tags: Option<Vec<String>>,
+        meta: Option<serde_json::Value> ,
+    ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
+
+        // Load the project into a byte array whether it is a compressed
+        // file already or a directory
+        let project_bytes = match Path::new(&project) {
+            p if p.is_dir() => compress_directory(p, None).await?,
+            p if p.is_file() => {
+                let extension_regex = Regex::new(r"(?i)\.(zip|tar|tar\.gz|tgz)$")?;
+                if !extension_regex.is_match(&project) {
+                    return Err("Project is not a zip file or tarball".into());
+                }
+                fs::read(&project)?
+            },
+            _ => return Err("Project is not a file or directory".into()),
+        };
+
+        let response = circuit_create(&self.config, project_bytes, None, None).await?;
+        
+        // openapi returns a union type for the circuit_info response, so we need to match on the specific type
+        let circuit_id = match response {
+            CircuitInfoResponse::Boojum(response) => response.circuit_id,
+            CircuitInfoResponse::Circom(response) => response.circuit_id,
+            CircuitInfoResponse::Halo2(response) => response.circuit_id,
+            CircuitInfoResponse::Gnark(response) => response.circuit_id,
+            CircuitInfoResponse::Jolt(response) => response.circuit_id,
+            CircuitInfoResponse::Noir(response) => response.circuit_id,
+            CircuitInfoResponse::Plonky2(response) => response.circuit_id,
+        };
+        let mut status = circuit_status(&self.config, &circuit_id).await?;
+
+        // TODO: Implement an optional timeout & configurable polling interval
+        while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            status = circuit_status(&self.config, &circuit_id).await?;
+        }
+
+        let circuit_info = circuit_detail(&self.config, &circuit_id, None).await?;
+        Ok(circuit_info)
     }
 
     pub async fn get_circuit(

@@ -1648,6 +1648,7 @@ dependencies = [
  "ignore",
  "openapi",
  "rand",
+ "regex",
  "reqwest",
  "reqwest-middleware",
  "reqwest-retry",
