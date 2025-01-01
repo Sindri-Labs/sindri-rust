@@ -1,39 +1,24 @@
-use openapi::apis::authorization_api::apikey_list;
-use openapi::apis::authorization_api::ApikeyListError;
-use openapi::apis::circuits_api::circuit_detail;
-use openapi::apis::circuits_api::circuit_create;
-use openapi::apis::circuits_api::CircuitDetailError;
-use openapi::apis::configuration::Configuration;
-use openapi::apis::Error;
-use openapi::models::ApiKeyResponse;
-use openapi::models::CircuitInfoResponse;
-use reqwest::{
-    header::{HeaderMap, HeaderValue},
-    multipart::Part,
-    Client, Response, StatusCode,
-};
-use reqwest_middleware::ClientWithMiddleware;
+use std::{fs, path::Path};
 
-use openapi::apis::circuits_api::proof_create;
-use openapi::apis::circuits_api::ProofCreateError;
-use openapi::models::CircuitProveInput;
-use openapi::models::ProofInfoResponse;
-use openapi::models::ProofInput;
-use openapi::apis::proofs_api::ProofDetailError;
-use openapi::apis::proofs_api::proof_detail;
-use openapi::apis::circuit_status;
-use openapi::models::JobStatus;
-use openapi::apis::proof_status;
-use crate::custom_middleware::retry_client;
-use crate::custom_middleware::HeaderDeduplicatorMiddleware;
-use crate::custom_middleware::LoggingMiddleware;
+use openapi::{
+    apis::{
+        circuit_status,
+        circuits_api::{circuit_create, circuit_detail, proof_create, CircuitDetailError},
+        configuration::Configuration,
+        proof_status,
+        proofs_api::{proof_detail, ProofDetailError},
+        Error,
+    },
+    models::{CircuitInfoResponse, CircuitProveInput, JobStatus, ProofInfoResponse},
+};
+use regex::Regex;
+use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest_retry::policies::ExponentialBackoffTimed;
 
-use crate::utils::compress_directory;
-
-use std::path::Path;
-use std::fs;
-use regex::Regex;
+use crate::{
+    custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
+    utils::compress_directory,
+};
 
 #[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
@@ -100,15 +85,14 @@ impl SindriClient {
     }
 
     /// Uploads a circuit project to Sindri. Upon successful upload, the method polls
-    /// to track the compilation status of the project. 
+    /// to track the compilation status of the project.
     /// Returns a CircuitInfoResponse object with the circuit id and other metadata.
     pub async fn create_circuit(
         &self,
         project: String,
         tags: Option<Vec<String>>,
-        meta: Option<serde_json::Value> ,
+        meta: Option<serde_json::Value>,
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
-
         // Load the project into a byte array whether it is a compressed
         // file already or a directory
         let project_bytes = match Path::new(&project) {
@@ -119,12 +103,12 @@ impl SindriClient {
                     return Err("Project is not a zip file or tarball".into());
                 }
                 fs::read(&project)?
-            },
+            }
             _ => return Err("Project is not a file or directory".into()),
         };
 
         let response = circuit_create(&self.config, project_bytes, None, None).await?;
-        
+
         // openapi returns a union type for the circuit_info response, so we need to match on the specific type
         let circuit_id = match response {
             CircuitInfoResponse::Boojum(response) => response.circuit_id,

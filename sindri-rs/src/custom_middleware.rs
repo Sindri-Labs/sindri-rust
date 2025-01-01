@@ -1,13 +1,13 @@
+use std::{collections::HashSet, time::Duration};
+
 use http::Extensions;
-use reqwest::{Client, Request, Response, StatusCode};
+use reqwest::{Request, Response, StatusCode};
 use reqwest_middleware::{Middleware, Next};
-use reqwest_retry::policies::ExponentialBackoffTimed;
 use reqwest_retry::{
-    default_on_request_failure, policies::ExponentialBackoff, RetryTransientMiddleware, Retryable,
-    RetryableStrategy,
+    default_on_request_failure,
+    policies::{ExponentialBackoff, ExponentialBackoffTimed},
+    RetryTransientMiddleware, Retryable, RetryableStrategy,
 };
-use std::collections::HashSet;
-use std::time::Duration;
 
 pub struct HeaderDeduplicatorMiddleware;
 

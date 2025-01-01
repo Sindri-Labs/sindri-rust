@@ -1,23 +1,23 @@
+use std::{error::Error, io::Read, path::Path};
+
 use flate2::{write::GzEncoder, Compression};
 use ignore::WalkBuilder;
-use std::io::Read;
-use std::path::Path;
-use std::error::Error;
 
 // Global recommended maximum on circuit uploads
 const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
-
+// Designated names for special purpose files
 pub(crate) const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
 pub(crate) const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
-
 
 /// When a user submits a path to the circuit create method, we prepare the directory
 /// of the circuit project as a compressed tarfile which is sent as multipart/form data.
 /// In order to fail fast, we first perform validation checks on the project directory.
-/// Ignore conventions: any patterns in .gitignore, .sindriignore, are respected. 
+/// Ignore conventions: any patterns in .gitignore, .sindriignore, are respected.
 /// Hidden files are ignored.
-pub async fn compress_directory(dir: &Path, override_max_project_size: Option<usize>) -> Result<Vec<u8>, Box<dyn Error>> {
-
+pub async fn compress_directory(
+    dir: &Path,
+    override_max_project_size: Option<usize>,
+) -> Result<Vec<u8>, Box<dyn Error>> {
     // Check for Sindri manifest
     let manifest_path = dir.join(SINDRI_MANIFEST_FILENAME);
     if !manifest_path.exists() {
@@ -28,7 +28,7 @@ pub async fn compress_directory(dir: &Path, override_max_project_size: Option<us
     let mut manifest_file = std::fs::File::open(&manifest_path)?;
     let mut manifest_contents = String::new();
     manifest_file.read_to_string(&mut manifest_contents)?;
-    
+
     serde_json::from_str::<serde_json::Value>(&manifest_contents)
         .map_err(|e| format!("Invalid JSON in {}: {}", SINDRI_MANIFEST_FILENAME, e))?;
 

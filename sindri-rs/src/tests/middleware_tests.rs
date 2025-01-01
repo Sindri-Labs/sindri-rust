@@ -1,18 +1,16 @@
-use crate::client::SindriClient;
-use crate::custom_middleware::retry_client;
-use crate::custom_middleware::HeaderDeduplicatorMiddleware;
-use crate::custom_middleware::Retry500;
+use std::time::{Duration, Instant};
 
 use reqwest::header::{HeaderMap, HeaderValue};
-
-use reqwest_retry::{
-    default_on_request_failure, policies::ExponentialBackoffTimed, RetryTransientMiddleware,
-    Retryable, RetryableStrategy,
+use reqwest_retry::policies::ExponentialBackoffTimed;
+use wiremock::{
+    matchers::{header, header_exists, method},
+    Mock, MockServer, ResponseTemplate,
 };
-use wiremock::matchers::{any, header, header_exists, method};
-use wiremock::{Mock, MockServer, ResponseTemplate, Times};
 
-use std::time::{Duration, Instant};
+use crate::{
+    client::SindriClient,
+    custom_middleware::{retry_client, HeaderDeduplicatorMiddleware},
+};
 
 #[tokio::test]
 async fn test_client_default_header() {
@@ -87,7 +85,9 @@ async fn test_retry_policy_on_500() {
             .build()
             .expect("Could not build client"),
     )
-    .with(retry_client::<ExponentialBackoffTimed>(Some(Duration::from_secs(15))))
+    .with(retry_client::<ExponentialBackoffTimed>(Some(
+        Duration::from_secs(15),
+    )))
     .build();
 
     // Make the request
