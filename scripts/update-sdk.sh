@@ -13,6 +13,7 @@ cat openapi.json | jq -r '.content' | base64 -d | jq '.' > openapi_decoded.json
 npx @openapitools/openapi-generator-cli generate -i openapi_decoded.json -g rust -o ../openapi --additional-properties=supportMiddleware=true
 
 # Patch
+cd .. && git apply openapi/openapi.patch && cd scripts
 
 # Remove the spec
 rm openapi.json
