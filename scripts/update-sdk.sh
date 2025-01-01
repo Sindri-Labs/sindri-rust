@@ -12,9 +12,9 @@ cat openapi.json | jq -r '.content' | base64 -d | jq '.' > openapi_decoded.json
 # Generate the client
 npx @openapitools/openapi-generator-cli generate -i openapi_decoded.json -g rust -o ../openapi --additional-properties=supportMiddleware=true
 
-# Patch
+# Patch over the generated client with some manual changes
 cd .. && git apply openapi/openapi.patch && cd scripts
 
-# Remove the spec
+# Remove the spec files
 rm openapi.json
 rm openapi_decoded.json
