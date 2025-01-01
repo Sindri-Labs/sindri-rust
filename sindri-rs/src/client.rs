@@ -36,7 +36,7 @@ impl SindriClient {
         let mut headers = HeaderMap::new();
         headers.insert(
             "Sindri-Client",
-            HeaderValue::from_str(&"DOESTHISWORK???")
+            HeaderValue::from_str("DOESTHISWORK???")
                 .expect("Could not insert default rust client header"),
         );
 
@@ -119,6 +119,7 @@ impl SindriClient {
             CircuitInfoResponse::Jolt(response) => response.circuit_id,
             CircuitInfoResponse::Noir(response) => response.circuit_id,
             CircuitInfoResponse::Plonky2(response) => response.circuit_id,
+            CircuitInfoResponse::Sp1(response) => response.circuit_id,
         };
         let mut status = circuit_status(&self.config, &circuit_id).await?;
 
