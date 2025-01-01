@@ -19,9 +19,11 @@ use openapi::apis::circuits_api::ProofCreateError;
 use openapi::models::CircuitProveInput;
 use openapi::models::ProofInfoResponse;
 use openapi::models::ProofInput;
+use openapi::apis::proofs_api::ProofDetailError;
+use openapi::apis::proofs_api::proof_detail;
 use openapi::apis::circuit_status;
 use openapi::models::JobStatus;
-
+use openapi::apis::proof_status;
 use crate::custom_middleware::retry_client;
 use crate::custom_middleware::HeaderDeduplicatorMiddleware;
 use crate::custom_middleware::LoggingMiddleware;
@@ -97,7 +99,6 @@ impl SindriClient {
         &self.config
     }
 
-
     /// Uploads a circuit project to Sindri. Upon successful upload, the method polls
     /// to track the compilation status of the project. 
     /// Returns a CircuitInfoResponse object with the circuit id and other metadata.
@@ -157,10 +158,11 @@ impl SindriClient {
     pub async fn prove_circuit(
         &self,
         circuit_id: &str,
-        proof_input: &str,
+        proof_input: &str, // Todo: make this optionally ProofInput
         verify: Option<bool>,
         meta: Option<serde_json::Value>,
-    ) -> Result<ProofInfoResponse, Error<ProofCreateError>> {
+    ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
+        println!("{:?}", proof_input);
         let proof_input_coerced = Box::new(serde_json::from_str(proof_input)?);
 
         let circuit_prove_input = CircuitProveInput {
@@ -169,9 +171,26 @@ impl SindriClient {
             meta: None,                  //todo
             prover_implementation: None, //todo
         };
-
+        println!("{:?}", circuit_prove_input.proof_input);
         let proof_info = proof_create(&self.config, circuit_id, circuit_prove_input).await?;
-        // TODO: Implement polling for proof completion
+        let proof_id = proof_info.proof_id;
+        let mut status = proof_status(&self.config, &proof_id).await?;
+
+        // TODO: Implement an optional timeout & configurable polling interval
+        while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            status = proof_status(&self.config, &proof_id).await?;
+        }
+
+        let proof_info = proof_detail(&self.config, &proof_id, None, None, None, None).await?;
+        Ok(proof_info)
+    }
+
+    pub async fn get_proof(
+        &self,
+        proof_id: &str,
+    ) -> Result<ProofInfoResponse, Error<ProofDetailError>> {
+        let proof_info = proof_detail(&self.config, proof_id, None, None, None, None).await?;
         Ok(proof_info)
     }
 }

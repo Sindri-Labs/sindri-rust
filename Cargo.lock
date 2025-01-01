@@ -1487,6 +1487,7 @@ dependencies = [
 name = "sandbox"
 version = "0.1.0"
 dependencies = [
+ "openapi",
  "sindri-rs",
  "tokio",
 ]
