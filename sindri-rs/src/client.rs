@@ -80,6 +80,7 @@ impl SindriClient {
     }
 
     /// Internal testing getter for the config
+    #[allow(unused)]
     pub(crate) fn config(&self) -> &Configuration {
         &self.config
     }
