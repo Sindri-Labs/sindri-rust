@@ -12,12 +12,12 @@ use crate::models;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ApikeyId {
+pub struct ExceptionId {
 }
 
-impl ApikeyId {
-    pub fn new() -> ApikeyId {
-        ApikeyId {
+impl ExceptionId {
+    pub fn new() -> ExceptionId {
+        ExceptionId {
         }
     }
 }

@@ -11,19 +11,20 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TeamMemberDetail : Details about a team member.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct TokenObtainPairInputSchema {
-    #[serde(rename = "password")]
-    pub password: String,
-    /// Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+pub struct TeamMemberDetail {
+    #[serde(rename = "email")]
+    pub email: String,
     #[serde(rename = "username")]
     pub username: String,
 }
 
-impl TokenObtainPairInputSchema {
-    pub fn new(password: String, username: String) -> TokenObtainPairInputSchema {
-        TokenObtainPairInputSchema {
-            password,
+impl TeamMemberDetail {
+    /// Details about a team member.
+    pub fn new(email: String, username: String) -> TeamMemberDetail {
+        TeamMemberDetail {
+            email,
             username,
         }
     }

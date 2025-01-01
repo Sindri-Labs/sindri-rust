@@ -5,6 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **error** | **String** |  | 
+**exception_id** | Option<[**models::ExceptionId**](Exception_Id.md)> |  | [optional]
 **circuit_id** | [**models::CircuitId**](Circuit_Id.md) |  | 
 **message** | **String** |  | 
 

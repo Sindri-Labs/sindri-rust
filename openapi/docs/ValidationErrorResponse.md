@@ -4,6 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**error** | **String** |  | 
+**exception_id** | Option<[**models::ExceptionId**](Exception_Id.md)> |  | [optional]
 **location** | **String** |  | 
 **message** | **String** |  | 
 
