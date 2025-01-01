@@ -47,7 +47,7 @@ pub async fn compress_directory(dir: &Path, override_max_project_size: Option<us
         for entry in walker.filter_map(Result::ok) {
             let path = entry.path();
             if path.is_file() {
-                let relative_path = path.strip_prefix(dir)?;
+                let relative_path = path.strip_prefix(dir.parent().unwrap())?;
                 tar.append_file(relative_path, &mut std::fs::File::open(path)?)?;
             }
         }

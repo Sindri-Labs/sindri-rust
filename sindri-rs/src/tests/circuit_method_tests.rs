@@ -1,5 +1,7 @@
 use crate::utils::{compress_directory, SINDRI_IGNORE_FILENAME, SINDRI_MANIFEST_FILENAME};
+use crate::client::SindriClient;
 
+use flate2::read::GzDecoder;
 use std::fs::{self, File};
 use std::io::Write;
 use tempfile::TempDir;
@@ -72,12 +74,12 @@ async fn test_sindriignore_respected() {
     assert!(circuit.is_ok());
     
     let cursor = Cursor::new(circuit.unwrap());
-    let mut archive = Archive::new(cursor);
+    let gz_decoder = GzDecoder::new(cursor);
+    let mut archive = Archive::new(gz_decoder);
 
     let file_names: Vec<String> = archive.entries().unwrap()
         .filter_map(|e| e.ok())
-        .filter_map(|e| e.path().ok().map(|p| p.to_path_buf()))
-        .map(|p| p.to_string_lossy().into_owned())
+        .filter_map(|e| e.path().ok().map(|p| p.to_string_lossy().into_owned()))
         .collect();
 
     assert!(!file_names.contains(&"ignored.txt".to_string()));
@@ -94,12 +96,12 @@ async fn test_hidden_files_ignored() {
     assert!(circuit.is_ok());
     
     let cursor = Cursor::new(circuit.unwrap());
-    let mut archive = Archive::new(cursor);
+    let gz_decoder = GzDecoder::new(cursor);
+    let mut archive = Archive::new(gz_decoder);
 
     let file_names: Vec<String> = archive.entries().unwrap()
         .filter_map(|e| e.ok())
-        .filter_map(|e| e.path().ok().map(|p| p.to_path_buf()))
-        .map(|p| p.to_string_lossy().into_owned())
+        .filter_map(|e| e.path().ok().map(|p| p.to_string_lossy().into_owned()))
         .collect();
 
     assert!(!file_names.contains(&".hidden".to_string()));
@@ -124,3 +126,25 @@ async fn test_max_project_size_exceeded() {
         .to_string()
         .contains("project directory exceeds"));
 }
+
+#[tokio::test]
+async fn test_create_circuit_invalid_file() {
+    let (_temp_dir, dir_path) = create_test_directory();
+    let test_file_path = dir_path.join("some_artifact.circom");
+
+    let client = SindriClient::new(None);
+    let result = client.create_circuit(test_file_path.to_string_lossy().to_string(), None, None).await;
+
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("not a zip file or tarball"));
+}
+
+#[tokio::test]
+async fn test_create_circuit_nonexistent_path() {
+    let client = SindriClient::new(None);
+    let result = client.create_circuit("nonexistent/path".to_string(), None, None).await;
+
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("not a file or directory"));
+}
+
