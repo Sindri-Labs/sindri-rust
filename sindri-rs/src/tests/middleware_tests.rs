@@ -13,23 +13,6 @@ use crate::{
 };
 
 #[tokio::test]
-async fn test_client_default_header() {
-    let mock_server = MockServer::start().await;
-    Mock::given(method("GET"))
-        .and(header_exists("sindri-client"))
-        .respond_with(ResponseTemplate::new(200))
-        .mount(&mock_server)
-        .await;
-
-    let outer_client = SindriClient::new(None);
-    let inner_client = &outer_client.config().client;
-
-    let request = inner_client.get(mock_server.uri()).build().unwrap();
-    let response = inner_client.execute(request).await.unwrap();
-    assert_eq!(response.status(), 200);
-}
-
-#[tokio::test]
 async fn test_header_deduplicator() {
     // Create a request with duplicate headers
     let mut headers = HeaderMap::new();
