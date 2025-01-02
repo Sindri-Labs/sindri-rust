@@ -55,7 +55,8 @@ impl SindriClient {
 
         #[cfg(any(feature = "record", feature = "replay"))]
         {
-            if !cfg!(test) { // Do not apply to unit tests
+            if !cfg!(test) {
+                // Do not apply to unit tests
                 client_builder = client_builder.with(vcr_middleware());
             }
         }
@@ -186,7 +187,6 @@ impl SindriClient {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -202,11 +202,11 @@ mod tests {
             base_url: Some("https://dev.sindri.app".to_string()),
         };
         let client = SindriClient::new(Some(auth_options));
-    
+
         assert_eq!(client.api_key(), Some("test_key"));
         assert_eq!(client.base_url(), "https://dev.sindri.app");
     }
-    
+
     #[test]
     fn test_new_client_with_env_vars() {
         temp_env::with_vars(
@@ -221,7 +221,7 @@ mod tests {
             },
         );
     }
-    
+
     #[test]
     fn test_auth_options_override_env_vars() {
         temp_env::with_vars(
@@ -241,7 +241,7 @@ mod tests {
             },
         );
     }
-    
+
     #[test]
     fn test_new_client_auth_defaults() {
         temp_env::with_vars(
@@ -256,7 +256,7 @@ mod tests {
             },
         );
     }
-    
+
     #[test]
     fn test_new_client_config_defaults() {
         let client = SindriClient::new(None);

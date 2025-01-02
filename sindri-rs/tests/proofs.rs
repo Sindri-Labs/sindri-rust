@@ -6,7 +6,7 @@
 
 //     // Run the test
 //     let result = client.create_proof("circuit_id", None).await;
-    
+
 //     assert!(result.is_ok());
 //     if let Ok(proof) = result {
 //         assert!(!proof.proof_id.is_empty());
@@ -23,7 +23,7 @@
 
 //     // Then get the proof details
 //     let result = client.get_proof(&proof_id).await;
-    
+
 //     assert!(result.is_ok());
 //     if let Ok(proof) = result {
 //         assert_eq!(proof.proof_id, proof_id);
