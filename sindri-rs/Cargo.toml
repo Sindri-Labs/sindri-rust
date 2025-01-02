@@ -26,3 +26,8 @@ rvcr = { git = "https://github.com/lededje/rvcr", branch = "update-reqwest-middl
 wiremock = "0.6.2"
 tempfile = "3.2"
 temp-env = "0.3"
+
+[features]
+default = []
+record = ["dep:rvcr"]
+replay = ["dep:rvcr"]

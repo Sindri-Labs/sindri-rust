@@ -20,7 +20,7 @@ use crate::{
     utils::compress_directory,
 };
 
-#[cfg(feature = "rvcr")]
+#[cfg(any(feature = "record", feature = "replay"))]
 use crate::custom_middleware::vcr_middleware;
 
 #[derive(Default, Debug, Clone)]
@@ -53,7 +53,7 @@ impl SindriClient {
         .with(LoggingMiddleware)
         .with(retry_client::<ExponentialBackoffTimed>(None));
 
-        #[cfg(feature = "rvcr")]
+        #[cfg(any(feature = "record", feature = "replay"))]
         {
             client_builder = client_builder.with(vcr_middleware());
         }

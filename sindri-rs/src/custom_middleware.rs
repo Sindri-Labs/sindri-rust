@@ -8,7 +8,7 @@ use reqwest_retry::{
     policies::{ExponentialBackoff, ExponentialBackoffTimed},
     RetryTransientMiddleware, Retryable, RetryableStrategy,
 };
-#[cfg(feature = "rvcr")]
+#[cfg(any(feature = "record", feature = "replay"))]
 use rvcr::{VCRMiddleware, VCRMode};
 
 pub struct HeaderDeduplicatorMiddleware;
@@ -153,9 +153,14 @@ pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::mar
     RetryTransientMiddleware::new_with_policy_and_strategy(retry_policy, Retry500)
 }
 
-#[cfg(feature = "rvcr")]
+#[cfg(any(feature = "record", feature = "replay"))]
 pub fn vcr_middleware() -> VCRMiddleware {
     let bundle = std::path::PathBuf::from("tests/resources/replay.vcr.json");
-    VCRMiddleware::try_from(bundle.clone())
-        .unwrap()
+    let mut vcr = VCRMiddleware::try_from(bundle.clone()).unwrap();
+    #[cfg(feature = "record")]
+    {
+        vcr = vcr.with_mode(VCRMode::Record);
+    }
+
+    vcr
 }
