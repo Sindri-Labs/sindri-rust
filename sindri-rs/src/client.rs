@@ -20,6 +20,9 @@ use crate::{
     utils::compress_directory,
 };
 
+#[cfg(feature = "rvcr")]
+use crate::custom_middleware::vcr_middleware;
+
 #[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
     pub api_key: Option<String>,
@@ -40,7 +43,7 @@ impl SindriClient {
                 .expect("Could not insert default rust client header"),
         );
 
-        let client = reqwest_middleware::ClientBuilder::new(
+        let mut client_builder = reqwest_middleware::ClientBuilder::new(
             reqwest::Client::builder()
                 .default_headers(headers)
                 .build()
@@ -48,8 +51,14 @@ impl SindriClient {
         )
         .with(HeaderDeduplicatorMiddleware)
         .with(LoggingMiddleware)
-        .with(retry_client::<ExponentialBackoffTimed>(None))
-        .build();
+        .with(retry_client::<ExponentialBackoffTimed>(None));
+
+        #[cfg(feature = "rvcr")]
+        {
+            client_builder = client_builder.with(vcr_middleware());
+        }
+
+        let client = client_builder.build();
 
         // First try to read from auth_options, then from environment variables, then use default values
         let auth = auth_options.unwrap_or_default();

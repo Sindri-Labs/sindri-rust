@@ -19,6 +19,8 @@ ignore = "0.4.23"
 tar = "0.4.43"
 rand = "0.8.5"
 regex = "1.11.1"
+# fork that supports newer reqwest-middleware (see https://github.com/ChorusOne/rvcr/pull/22)
+rvcr = { git = "https://github.com/lededje/rvcr", branch = "update-reqwest-middleware", optional = true }
 
 [dev-dependencies]
 wiremock = "0.6.2"

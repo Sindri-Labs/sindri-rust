@@ -69,7 +69,7 @@ fn test_new_client_config_defaults() {
     // Ensure the fields we are not setting have not changed between openapi codegen
     assert_eq!(
         config.user_agent,
-        Some("OpenAPI-Generator/v1.14.5/rust".to_owned())
+        Some("OpenAPI-Generator/v1.15.1/rust".to_owned())
     );
     assert_eq!(config.basic_auth, None);
     assert_eq!(config.oauth_access_token, None);
