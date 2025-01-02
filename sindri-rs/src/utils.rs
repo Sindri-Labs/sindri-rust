@@ -6,8 +6,8 @@ use ignore::WalkBuilder;
 // Global recommended maximum on circuit uploads
 const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
 // Designated names for special purpose files
-pub(crate) const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
-pub(crate) const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
+pub const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
+pub const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
 
 /// When a user submits a path to the circuit create method, we prepare the directory
 /// of the circuit project as a compressed tarfile which is sent as multipart/form data.

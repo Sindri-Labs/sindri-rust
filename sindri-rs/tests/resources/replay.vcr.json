@@ -1,0 +1,185 @@
+{
+  "http_interactions": [
+    {
+      "response": {
+        "body": {
+          "encoding": null,
+          "string": "{\"circuit_id\": \"fedebc26-c315-4033-9e14-b7cbd059338c\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_type\": \"circom\", \"date_created\": \"2025-01-02T21:00:15.266Z\", \"meta\": {}, \"num_proofs\": 0, \"proving_scheme\": \"groth16\", \"public\": false, \"status\": \"Queued\", \"finished_processing\": false, \"tags\": [\"latest\"], \"team\": \"Katie McKeon\", \"team_avatar_url\": \"https://static.stage.sindri.app/team_avatars/06661dec-e46e-7fb4-8000-782268a4d5a6.png\", \"team_slug\": \"katie-mckeon\", \"compute_time\": null, \"compute_time_sec\": null, \"compute_times\": null, \"file_size\": 257, \"queue_time\": null, \"queue_time_sec\": null, \"uploaded_file_name\": \"rust_sdk_upload.tar.gz\", \"has_smart_contract_verifier\": false, \"has_verification_key\": false, \"verification_key\": null, \"warnings\": null, \"error\": null, \"curve\": \"bn254\", \"num_constraints\": null, \"num_outputs\": null, \"num_private_inputs\": null, \"num_public_inputs\": null}"
+        },
+        "http_version": "1.1",
+        "status": {
+          "code": 201,
+          "message": "Created"
+        },
+        "headers": {
+          "x-content-type-options": [
+            "nosniff"
+          ],
+          "content-type": [
+            "application/json; charset=utf-8"
+          ],
+          "x-frame-options": [
+            "SAMEORIGIN"
+          ],
+          "content-length": [
+            "922"
+          ],
+          "vary": [
+            "Cookie, origin"
+          ],
+          "server": [
+            "openresty"
+          ],
+          "cross-origin-opener-policy": [
+            "same-origin"
+          ],
+          "date": [
+            "Thu, 02 Jan 2025 21:00:15 GMT"
+          ],
+          "referrer-policy": [
+            "same-origin"
+          ]
+        }
+      },
+      "request": {
+        "uri": "https://stage.sindri.app/api/v1/circuit/create",
+        "body": {
+          "encoding": "base64",
+          "string": "LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tNGViZjAwZmJjZjA5DQpDb250ZW50LURpc3Bvc2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9ImZpbGVzIjsgZmlsZW5hbWU9InJ1c3Rfc2RrX3VwbG9hZC50YXIuZ3oiDQoNCh+LCAAAAAAAAP/t1L1OwzAQB3DPfYqTJ0BgzokTS5RODExsfQETrMgodix/DKji3aEk4ktIDFRFrfxbzv7bi3U6s2R9vr3p1/YyGvcQDHuMoyM7hRyxbQVBRC4b/FwnLSdcyLpppOS1fM15XUtOkOxBjkkFAPJX81Pe64HYUKespldAk47pojOhyybRc6Dzcv3k346329HSZ1IcE/Yx/3PD2dRpsju/zX+F4vv8CxRNmf898EH1VsHUc6gYMlwukrZ+UEnDXR6S8YPRoYKTU9gALAAgmt6pAYzzOYFa/hDefw3HnLZpN6cdXK9WoOBsule+lKIoin/wArbbeyYADAAALS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tNGViZjAwZmJjZjA5LS0NCg"
+        },
+        "method": "post",
+        "headers": {
+          "authorization": [
+            "Bearer REDACTED_TOKEN"
+          ],
+          "user-agent": [
+            "OpenAPI-Generator/v1.15.1/rust"
+          ],
+          "content-type": [
+            "multipart/form-data; boundary=----------------------------4ebf00fbcf09"
+          ]
+        }
+      },
+      "recorded_at": "Thu, 2 Jan 2025 21:00:15 +0000"
+    },
+    {
+      "response": {
+        "body": {
+          "encoding": null,
+          "string": "{\"circuit_id\": \"fedebc26-c315-4033-9e14-b7cbd059338c\", \"status\": \"Failed\", \"finished_processing\": true}"
+        },
+        "http_version": "1.1",
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "headers": {
+          "content-type": [
+            "application/json; charset=utf-8"
+          ],
+          "date": [
+            "Thu, 02 Jan 2025 21:00:16 GMT"
+          ],
+          "x-frame-options": [
+            "SAMEORIGIN"
+          ],
+          "referrer-policy": [
+            "same-origin"
+          ],
+          "x-content-type-options": [
+            "nosniff"
+          ],
+          "content-length": [
+            "103"
+          ],
+          "cross-origin-opener-policy": [
+            "same-origin"
+          ],
+          "server": [
+            "openresty"
+          ],
+          "vary": [
+            "Cookie, origin"
+          ]
+        }
+      },
+      "request": {
+        "uri": "https://stage.sindri.app/api/v1/circuit/fedebc26-c315-4033-9e14-b7cbd059338c/status",
+        "body": {
+          "encoding": null,
+          "string": ""
+        },
+        "method": "get",
+        "headers": {
+          "user-agent": [
+            "OpenAPI-Generator/v1.15.1/rust"
+          ],
+          "authorization": [
+            "Bearer REDACTED_TOKEN"
+          ]
+        }
+      },
+      "recorded_at": "Thu, 2 Jan 2025 21:00:16 +0000"
+    },
+    {
+      "response": {
+        "body": {
+          "encoding": null,
+          "string": "{\"circuit_id\": \"fedebc26-c315-4033-9e14-b7cbd059338c\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_type\": \"circom\", \"date_created\": \"2025-01-02T21:00:15.266Z\", \"meta\": {}, \"num_proofs\": 0, \"proving_scheme\": \"groth16\", \"public\": false, \"status\": \"Failed\", \"finished_processing\": true, \"tags\": [\"latest\"], \"team\": \"Katie McKeon\", \"team_avatar_url\": \"https://static.stage.sindri.app/team_avatars/06661dec-e46e-7fb4-8000-782268a4d5a6.png\", \"team_slug\": \"katie-mckeon\", \"compute_time\": \"P0DT00H00M00.181854S\", \"compute_time_sec\": 0.181854, \"compute_times\": {\"total\": 0.18185, \"clean_up\": 0.00087, \"create_cpp\": 0.00969, \"file_setup\": 0.1713}, \"file_size\": 257, \"queue_time\": \"P0DT00H00M00.696621S\", \"queue_time_sec\": 0.696621, \"uploaded_file_name\": \"rust_sdk_upload.tar.gz\", \"has_smart_contract_verifier\": false, \"has_verification_key\": false, \"verification_key\": null, \"warnings\": null, \"error\": \"cmd: /opt/sindri/share/circom-v2.1.8/circom.bin -l /scratch/data/pods/stage-zk-workers-compile-1yomnqz0rm/1/circuits/fedebc26-c315-4033-9e14-b7cbd059338c_1735851616081346/code --output /scratch/data/pods/stage-zk-workers-compile-1yomnqz0rm/1/circuits/fedebc26-c315-4033-9e14-b7cbd059338c_1735851616081346 --c /scratch/data/pods/stage-zk-workers-compile-1yomnqz0rm/1/circuits/fedebc26-c315-4033-9e14-b7cbd059338c_1735851616081346/code/./circuit.circom stdout:  stderr: error[P1001]: No main specified in the project structure\\n\\nprevious errors were found\\n\", \"curve\": \"bn254\", \"num_constraints\": null, \"num_outputs\": null, \"num_private_inputs\": null, \"num_public_inputs\": null}"
+        },
+        "http_version": "1.1",
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "headers": {
+          "content-type": [
+            "application/json; charset=utf-8"
+          ],
+          "server": [
+            "openresty"
+          ],
+          "x-frame-options": [
+            "SAMEORIGIN"
+          ],
+          "referrer-policy": [
+            "same-origin"
+          ],
+          "vary": [
+            "Cookie, origin"
+          ],
+          "x-content-type-options": [
+            "nosniff"
+          ],
+          "content-length": [
+            "1599"
+          ],
+          "date": [
+            "Thu, 02 Jan 2025 21:00:16 GMT"
+          ],
+          "cross-origin-opener-policy": [
+            "same-origin"
+          ]
+        }
+      },
+      "request": {
+        "uri": "https://stage.sindri.app/api/v1/circuit/fedebc26-c315-4033-9e14-b7cbd059338c/detail",
+        "body": {
+          "encoding": null,
+          "string": ""
+        },
+        "method": "get",
+        "headers": {
+          "user-agent": [
+            "OpenAPI-Generator/v1.15.1/rust"
+          ],
+          "authorization": [
+            "Bearer REDACTED_TOKEN"
+          ]
+        }
+      },
+      "recorded_at": "Thu, 2 Jan 2025 21:00:16 +0000"
+    }
+  ],
+  "recorded_with": "rVCR 0.2.1"
+}

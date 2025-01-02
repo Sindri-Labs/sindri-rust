@@ -157,6 +157,12 @@ pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::mar
 pub fn vcr_middleware() -> VCRMiddleware {
     let bundle = std::path::PathBuf::from("tests/resources/replay.vcr.json");
     let mut vcr = VCRMiddleware::try_from(bundle.clone()).unwrap();
+
+    vcr = vcr.with_modify_request(|req| {
+        // Redact Bearer token in Authorization header before saving
+        req.headers.insert("authorization".to_string(), vec!["Bearer REDACTED_TOKEN".to_string()]);
+    });
+
     #[cfg(feature = "record")]
     {
         vcr = vcr.with_mode(VCRMode::Record);

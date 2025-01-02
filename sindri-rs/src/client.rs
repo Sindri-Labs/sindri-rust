@@ -55,7 +55,9 @@ impl SindriClient {
 
         #[cfg(any(feature = "record", feature = "replay"))]
         {
-            client_builder = client_builder.with(vcr_middleware());
+            if !cfg!(test) { // Do not apply to unit tests
+                client_builder = client_builder.with(vcr_middleware());
+            }
         }
 
         let client = client_builder.build();
