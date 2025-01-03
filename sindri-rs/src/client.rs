@@ -102,6 +102,16 @@ impl SindriClient {
         tags: Option<Vec<String>>,
         meta: Option<serde_json::Value>,
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
+        // Validate tags if provided 
+        let tag_rules = Regex::new(r"^[a-zA-Z0-9_.-]+$").unwrap();
+        if let Some(ref tags) = tags {
+            for tag in tags {
+                if !tag_rules.is_match(tag) {
+                    return Err(format!("\"{tag}\" is not a valid tag. Tags may only contain alphanumeric characters, underscores, hyphens, and periods.").into());
+                }
+            }
+        }
+
         // Load the project into a byte array whether it is a compressed
         // file already or a directory
         let project_bytes = match Path::new(&project) {
@@ -116,7 +126,12 @@ impl SindriClient {
             _ => return Err("Project is not a file or directory".into()),
         };
 
-        let response = circuit_create(&self.config, project_bytes, None, None).await?;
+        let response = circuit_create(
+            &self.config, 
+            project_bytes, 
+            None,
+            tags,
+        ).await?;
 
         // openapi returns a union type for the circuit_info response, so we need to match on the specific type
         let circuit_id = match response {
@@ -290,5 +305,26 @@ mod tests {
         let request = inner_client.get(mock_server.uri()).build().unwrap();
         let response = inner_client.execute(request).await.unwrap();
         assert_eq!(response.status(), 200);
+    }
+
+    #[tokio::test]
+    async fn test_circuit_create_tag_validation() {
+        let client = SindriClient::new(None);
+
+        let mut tags = vec!["test_t@g".to_string()];
+        let mut circuit = client.create_circuit("fake_path".to_string(), Some(tags), None).await;
+        assert!(circuit.is_err());
+        assert!(circuit
+            .unwrap_err()
+            .to_string()
+            .contains("not a valid tag"));
+
+        tags = vec!["test_tag".to_string(), "1-2-3-4-5-6".to_string(), "ಠ_ಠ".to_string()];
+        circuit = client.create_circuit("fake_path".to_string(), Some(tags), None).await;
+        assert!(circuit.is_err());
+        assert!(circuit
+            .unwrap_err()
+            .to_string()
+            .contains("ಠ_ಠ"));
     }
 }
