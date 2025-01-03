@@ -17,6 +17,7 @@ case $mode in
         cd ../sindri-rs && cargo test
         ;;
     "record")
+        rm -rf ../sindri-rs/tests/recordings/*
         echo "Running tests in record mode..."
         cd ../sindri-rs && cargo test --features record
         ;;
