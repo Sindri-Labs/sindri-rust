@@ -43,8 +43,7 @@ impl SindriClient {
                 .expect("Could not insert default rust client header"),
         );
 
-        
-        #[allow(unused_mut)]  // needed for VCR mutation
+        #[allow(unused_mut)] // needed for VCR mutation
         let mut client_builder = reqwest_middleware::ClientBuilder::new(
             reqwest::Client::builder()
                 .default_headers(headers)
@@ -102,7 +101,7 @@ impl SindriClient {
         tags: Option<Vec<String>>,
         meta: Option<serde_json::Value>,
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
-        // Validate tags if provided 
+        // Validate tags if provided
         let tag_rules = Regex::new(r"^[a-zA-Z0-9_.-]+$").unwrap();
         if let Some(ref tags) = tags {
             for tag in tags {
@@ -126,12 +125,7 @@ impl SindriClient {
             _ => return Err("Project is not a file or directory".into()),
         };
 
-        let response = circuit_create(
-            &self.config, 
-            project_bytes, 
-            None,
-            tags,
-        ).await?;
+        let response = circuit_create(&self.config, project_bytes, None, tags).await?;
 
         // openapi returns a union type for the circuit_info response, so we need to match on the specific type
         let circuit_id = match response {
@@ -312,19 +306,21 @@ mod tests {
         let client = SindriClient::new(None);
 
         let mut tags = vec!["test_t@g".to_string()];
-        let mut circuit = client.create_circuit("fake_path".to_string(), Some(tags), None).await;
+        let mut circuit = client
+            .create_circuit("fake_path".to_string(), Some(tags), None)
+            .await;
         assert!(circuit.is_err());
-        assert!(circuit
-            .unwrap_err()
-            .to_string()
-            .contains("not a valid tag"));
+        assert!(circuit.unwrap_err().to_string().contains("not a valid tag"));
 
-        tags = vec!["test_tag".to_string(), "1-2-3-4-5-6".to_string(), "ಠ_ಠ".to_string()];
-        circuit = client.create_circuit("fake_path".to_string(), Some(tags), None).await;
+        tags = vec![
+            "test_tag".to_string(),
+            "1-2-3-4-5-6".to_string(),
+            "ಠ_ಠ".to_string(),
+        ];
+        circuit = client
+            .create_circuit("fake_path".to_string(), Some(tags), None)
+            .await;
         assert!(circuit.is_err());
-        assert!(circuit
-            .unwrap_err()
-            .to_string()
-            .contains("ಠ_ಠ"));
+        assert!(circuit.unwrap_err().to_string().contains("ಠ_ಠ"));
     }
 }
