@@ -110,8 +110,22 @@ pub async fn circuit_create(configuration: &configuration::Configuration, files:
         .as_bytes(),
     );
     byte_string.extend(files);
-    byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
-    // TODO: meta & tags
+    byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of files
+    if let Some(tags) = tags {
+        for tag in tags {
+            byte_string.extend_from_slice(
+                format!(
+                    "--{boundary}\r\n\
+                    Content-Disposition: form-data; name=\"tags\"\r\n\
+                    \r\n\
+                    {tag}\r\n"
+                )
+                .as_bytes(),
+            );
+            byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of tag
+        }
+    }
+    // TODO: meta 
     let local_var_body = reqwest::Body::from(byte_string);
 
     local_var_req_builder = local_var_req_builder.body(local_var_body);

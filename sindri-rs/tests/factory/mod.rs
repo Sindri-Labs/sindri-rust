@@ -19,6 +19,7 @@ template Multiplier2 () {
    signal input b;  
    signal output c;  
    c <== a * b;  
+component main = Multiplier2();
 }"#;
     let test_file_path = dir_path.join("circuit.circom");
     let mut file = File::create(test_file_path).unwrap();

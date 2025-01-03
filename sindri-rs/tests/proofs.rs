@@ -19,7 +19,6 @@ mod factory;
 //         .create_circuit(dir_path.to_string_lossy().to_string(), None, None)
 //         .await;
 
-
 //     let input = r#"{"a": 1, "b": 2}"#;
 //     let result = client.prove_circuit("test-circuit", input, None, None).await;
 
