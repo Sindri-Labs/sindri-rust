@@ -43,6 +43,8 @@ impl SindriClient {
                 .expect("Could not insert default rust client header"),
         );
 
+        
+        #[allow(unused_mut)]  // needed for VCR mutation
         let mut client_builder = reqwest_middleware::ClientBuilder::new(
             reqwest::Client::builder()
                 .default_headers(headers)

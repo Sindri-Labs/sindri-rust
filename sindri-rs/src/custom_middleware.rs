@@ -155,7 +155,7 @@ pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::mar
 
 #[cfg(any(feature = "record", feature = "replay"))]
 pub fn vcr_middleware() -> VCRMiddleware {
-    let bundle = std::path::PathBuf::from("tests/resources/replay.vcr.json");
+    let bundle = std::path::PathBuf::from("tests/recordings/replay.vcr.json");
     let mut vcr = VCRMiddleware::try_from(bundle.clone()).unwrap();
 
     vcr = vcr.with_modify_request(|req| {

@@ -5,7 +5,8 @@ use ignore::WalkBuilder;
 
 // Global recommended maximum on circuit uploads
 const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
-                                                        // Designated names for special purpose files
+
+// Designated names for special purpose files
 pub const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
 pub const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
 
