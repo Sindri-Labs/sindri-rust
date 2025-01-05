@@ -129,7 +129,7 @@ impl SindriClient {
         let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
 
         // openapi returns a union type for the circuit_info response, so we need to match on the specific type
-        let circuit_id = response.circuit_id();
+        let circuit_id = response.id();
         let mut status = circuit_status(&self.config, circuit_id).await?;
 
         // TODO: Implement an optional timeout & configurable polling interval
