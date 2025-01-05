@@ -83,3 +83,31 @@ async fn test_create_proof_input_modes() {
     assert_eq!(json_result.public, owned_result.public);
     assert_eq!(str_result.public, owned_result.public);
 }
+
+#[tokio::test]
+async fn test_delete_proof() {
+    let (_temp_dir, dir_path) = factory::baby_circuit();
+
+    let client = SindriClient::new(None);
+
+    let result = client
+        .create_circuit(
+            dir_path.to_string_lossy().to_string(),
+            Some(vec!["proof_deletion".to_string()]),
+            None,
+        )
+        .await;
+
+    assert!(result.is_ok());
+    let circuit = result.unwrap();
+
+    let input = json!({"a": 1, "b": 2});
+    let proof = client.prove_circuit(circuit.id(), input, None, None, None).await.unwrap();
+    assert_eq!(proof.status, JobStatus::Ready);
+
+    client.delete_proof(&proof.proof_id).await.unwrap();
+
+    // Ensure that the proof is no longer available
+    let get_result = client.get_proof(&proof.proof_id, None, None, None).await;
+    assert!(get_result.is_err());
+}

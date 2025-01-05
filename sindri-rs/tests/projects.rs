@@ -45,3 +45,27 @@ async fn test_create_circuit() {
     assert_eq!(circom_info.num_outputs, Some(1));
 }
 
+
+#[tokio::test]
+async fn test_delete_circuit() {
+    let (_temp_dir, dir_path) = factory::baby_circuit();
+
+    let client = SindriClient::new(None);
+    let result = client
+        .create_circuit(
+            dir_path.to_string_lossy().to_string(),
+            Some(vec!["circuit_deletion".to_string()]),
+            None,
+        )
+        .await;
+
+    assert!(result.is_ok());
+    let circuit = result.unwrap();
+
+    let delete_result = client.delete_circuit(circuit.id()).await;
+    assert!(delete_result.is_ok());
+
+    // Ensure that the circuit is no longer available
+    let get_result = client.get_circuit(circuit.id(), None).await;
+    assert!(get_result.is_err());
+}

@@ -3,10 +3,10 @@ use std::{collections::HashMap, fs, path::Path};
 use openapi::{
     apis::{
         circuit_status,
-        circuits_api::{circuit_create, circuit_detail, proof_create, CircuitDetailError},
+        circuits_api::{circuit_create, circuit_delete, circuit_detail, proof_create, CircuitDetailError},
         configuration::Configuration,
         proof_status,
-        proofs_api::{proof_detail, ProofDetailError},
+        proofs_api::{proof_delete, proof_detail, ProofDetailError},
         Error,
     },
     models::{CircuitInfoResponse, CircuitProveInput, JobStatus, ProofInfoResponse},
@@ -142,6 +142,11 @@ impl SindriClient {
         Ok(circuit_info)
     }
 
+    pub async fn delete_circuit(&self, circuit_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+        circuit_delete(&self.config, circuit_id).await?;
+        Ok(())
+    }
+
     pub async fn get_circuit(
         &self,
         circuit_id: &str,
@@ -179,6 +184,11 @@ impl SindriClient {
 
         let proof_info = proof_detail(&self.config, &proof_id, None, None, None, None).await?;
         Ok(proof_info)
+    }
+
+    pub async fn delete_proof(&self, proof_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+        proof_delete(&self.config, proof_id).await?;
+        Ok(())
     }
 
     pub async fn get_proof(
