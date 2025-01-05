@@ -125,7 +125,15 @@ pub async fn circuit_create(configuration: &configuration::Configuration, files:
             byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of tag
         }
     }
-    // TODO: meta 
+    if let Some(meta) = meta {
+        let meta_json = serde_json::to_string(&meta)?;
+        byte_string.extend_from_slice(format!("--{boundary}\r\n\
+           Content-Disposition: form-data; name=\"meta\"\r\n\
+           Content-Type: application/json\r\n\
+            \r\n\
+            {meta_json}\r\n").as_bytes());
+        byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of meta
+    }
     let local_var_body = reqwest::Body::from(byte_string);
 
     local_var_req_builder = local_var_req_builder.body(local_var_body);
