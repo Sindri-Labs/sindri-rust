@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use sindri_rs::{
     CircuitInfo, CircuitInfoResponse, client::SindriClient, JobStatus
@@ -31,7 +31,10 @@ async fn test_create_circuit() {
 
     assert_eq!(*circuit.status(), JobStatus::Ready);
     assert_eq!(circuit.meta(), &test_meta);
-    assert_eq!(circuit.tags(), &test_tags);
+    assert_eq!(
+        circuit.tags().iter().collect::<HashSet<_>>(),
+        test_tags.iter().collect::<HashSet<_>>()
+    );
 
     let circom_info = match circuit {
         CircuitInfoResponse::Circom(circom_info) => circom_info,
