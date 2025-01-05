@@ -1,4 +1,8 @@
-use sindri_rs::client::SindriClient;
+use std::collections::HashMap;
+
+use sindri_rs::{
+    CircuitInfo, CircuitInfoResponse, client::SindriClient, JobStatus
+};
 
 mod factory;
 
@@ -11,9 +15,26 @@ async fn test_create_circuit() {
         .create_circuit(
             dir_path.to_string_lossy().to_string(),
             Some(vec!["tag1".to_string(), "tag2".to_string()]),
-            None,
+            Some(HashMap::from([
+                ("key1".to_string(), "value1".to_string()),
+                ("key2".to_string(), "value2".to_string()),
+            ])),
         )
         .await;
 
     assert!(result.is_ok());
+    let circuit = result.unwrap();
+
+    assert_eq!(*circuit.status(), JobStatus::Ready);
+    assert_eq!(circuit.meta(), &HashMap::from([("key1".to_string(), "value1".to_string()), ("key2".to_string(), "value2".to_string())]));
+    assert_eq!(circuit.tags(), &vec!["tag1".to_string(), "tag2".to_string()]);
+
+    let circom_info = match circuit {
+        CircuitInfoResponse::Circom(circom_info) => circom_info,
+        _ => panic!("Circuit is not of Circom type"),
+    };
+
+    assert_eq!(circom_info.proving_scheme, "groth16");
+    assert_eq!(circom_info.num_outputs, Some(1));
 }
+

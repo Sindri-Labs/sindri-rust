@@ -19,6 +19,7 @@ pub trait CircuitInfo {
     fn proving_scheme(&self) -> &str;
     fn queue_time_sec(&self) -> Option<f64>;
     fn status(&self) -> &JobStatus;
+    fn tags(&self) -> &Vec<String>;
 }
 
 macro_rules! impl_circuit_info {
@@ -112,6 +113,14 @@ macro_rules! impl_circuit_info {
                     )*
                 }
             }
+
+            fn tags(&self) -> &Vec<String> {
+                match self {
+                    $(
+                        CircuitInfoResponse::$variant(response) => &response.tags,
+                    )*
+                }
+            }
         }
     }
 }
@@ -138,6 +147,7 @@ mod tests {
             proving_scheme: "groth16".to_string(),
             queue_time_sec: Some(12.3),
             status: JobStatus::Ready,
+            tags: vec!["tag1".to_string(), "tag2".to_string()],
             ..Default::default()
         }))
     }
@@ -157,6 +167,7 @@ mod tests {
         assert_eq!(circuit_info.proving_scheme(), "groth16");
         assert_eq!(circuit_info.queue_time_sec(), Some(12.3));
         assert_eq!(circuit_info.status(), &JobStatus::Ready);
+        assert_eq!(circuit_info.tags(), &vec!["tag1".to_string(), "tag2".to_string()]);
     }
 
 } 

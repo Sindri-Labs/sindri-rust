@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e  # Exit on any error
 
+if [ -f "../.env" ]; then
+    export $(cat ../.env | xargs)
+    echo ".env file found and loaded"
+fi
+
 # Check if mode argument is provided
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <mode>"
