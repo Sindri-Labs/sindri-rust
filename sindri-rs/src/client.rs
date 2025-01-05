@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, fs::File, io::Write, path::Path};
+use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Duration};
 
 use openapi::{
     apis::{
@@ -29,13 +29,26 @@ pub struct AuthOptions {
     pub base_url: Option<String>,
 }
 
+#[derive(Debug, Clone)]
+pub struct PollingOptions {
+    pub interval: Duration,
+    pub timeout: Option<Duration>,
+}
+impl Default for PollingOptions {
+    fn default() -> Self {
+        Self { interval: Duration::from_secs(1), timeout: Some(Duration::from_secs(60 * 10)) }
+    }
+}
+
+
 #[derive(Debug)]
 pub struct SindriClient {
     config: Configuration,
+    pub polling_options: PollingOptions,
 }
 
 impl SindriClient {
-    pub fn new(auth_options: Option<AuthOptions>) -> Self {
+    pub fn new(auth_options: Option<AuthOptions>, polling_options: Option<PollingOptions>) -> Self {
         let mut headers = HeaderMap::new();
         headers.insert(
             "Sindri-Client",
@@ -81,7 +94,7 @@ impl SindriClient {
             ..Default::default()
         };
 
-        Self { config }
+        Self { config, polling_options: polling_options.unwrap_or_default() }
     }
 
     pub fn api_key(&self) -> Option<&str> {
@@ -130,9 +143,14 @@ impl SindriClient {
         let circuit_id = response.id();
         let mut status = circuit_status(&self.config, circuit_id).await?;
 
-        // TODO: Implement an optional timeout & configurable polling interval
+        let start_time = std::time::Instant::now();
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            if let Some(timeout) = self.polling_options.timeout {
+                if start_time.elapsed() > timeout {
+                    return Err("Circuit compilation did not complete within timeout duration".into());
+                }
+            }
+            std::thread::sleep(self.polling_options.interval);
             status = circuit_status(&self.config, circuit_id).await?;
         }
 
@@ -194,9 +212,14 @@ impl SindriClient {
         let proof_id = proof_info.proof_id;
         let mut status = proof_status(&self.config, &proof_id).await?;
 
-        // TODO: Implement an optional timeout & configurable polling interval
+        let start_time = std::time::Instant::now();
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            if let Some(timeout) = self.polling_options.timeout {
+                if start_time.elapsed() > timeout {
+                    return Err("Proof generation did not complete within timeout duration".into());
+                }
+            }
+            std::thread::sleep(self.polling_options.interval);
             status = proof_status(&self.config, &proof_id).await?;
         }
 
@@ -235,7 +258,7 @@ mod tests {
             api_key: Some("test_key".to_string()),
             base_url: Some("https://fake.sindri.app".to_string()),
         };
-        let client = SindriClient::new(Some(auth_options));
+        let client = SindriClient::new(Some(auth_options), None);
 
         assert_eq!(client.api_key(), Some("test_key"));
         assert_eq!(client.base_url(), "https://fake.sindri.app");
@@ -249,7 +272,7 @@ mod tests {
                 ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
             ],
             || {
-                let client = SindriClient::new(None);
+                let client = SindriClient::new(None, None);
                 assert_eq!(client.api_key(), Some("env_test_key"));
                 assert_eq!(client.base_url(), "https://fake.sindri.app");
             },
@@ -268,7 +291,7 @@ mod tests {
                     api_key: Some("test_key".to_string()),
                     base_url: Some("https://other.sindri.app".to_string()),
                 };
-                let client = SindriClient::new(Some(auth_options));
+                let client = SindriClient::new(Some(auth_options), None);
                 // authoptions should override env vars
                 assert_eq!(client.api_key(), Some("test_key"));
                 assert_eq!(client.base_url(), "https://other.sindri.app");
@@ -284,7 +307,7 @@ mod tests {
                 ("SINDRI_BASE_URL", None::<String>),
             ],
             || {
-                let client = SindriClient::new(None);
+                let client = SindriClient::new(None, None);
                 assert_eq!(client.api_key(), None);
                 assert_eq!(client.base_url(), "https://sindri.app");
             },
@@ -293,7 +316,7 @@ mod tests {
 
     #[test]
     fn test_new_client_config_defaults() {
-        let client = SindriClient::new(None);
+        let client = SindriClient::new(None, None);
         let config = client.config;
         // Ensure the fields we are not setting have not changed between openapi codegen
         assert_eq!(
@@ -307,6 +330,32 @@ mod tests {
         assert!(config.api_key.is_none());
     }
 
+    #[test]
+    fn test_polling_options_custom() {
+        let polling_options = PollingOptions {
+            interval: Duration::from_secs(5),
+            timeout: Some(Duration::from_secs(300)), // 5 minutes
+        };
+        let client = SindriClient::new(None, Some(polling_options));
+        
+        assert_eq!(client.polling_options.interval, Duration::from_secs(5));
+        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+    }
+
+    #[test]
+    fn test_post_client_init_polling_tweaks() {
+        let mut client = SindriClient::new(None, None);
+        
+        assert_eq!(client.polling_options.interval, Duration::from_secs(1));
+        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(600))); 
+
+        client.polling_options.interval = Duration::from_secs(5);
+        client.polling_options.timeout = Some(Duration::from_secs(300));
+
+        assert_eq!(client.polling_options.interval, Duration::from_secs(5));
+        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+    }
+
     #[tokio::test]
     async fn test_client_default_header() {
         let mock_server = MockServer::start().await;
@@ -316,7 +365,7 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let outer_client = SindriClient::new(None);
+        let outer_client = SindriClient::new(None, None);
         let inner_client = &outer_client.config.client;
 
         let request = inner_client.get(mock_server.uri()).build().unwrap();
@@ -326,7 +375,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_circuit_create_tag_validation() {
-        let client = SindriClient::new(None);
+        let client = SindriClient::new(None, None);
 
         let mut tags = vec!["test_t@g".to_string()];
         let mut circuit = client

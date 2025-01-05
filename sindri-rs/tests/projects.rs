@@ -14,7 +14,7 @@ mod factory;
 async fn test_create_circuit() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None);
+    let client = SindriClient::new(None, None);
 
     let test_tags = vec!["tag1".to_string(), "tag2".to_string()];
     let test_meta = HashMap::from([
@@ -54,7 +54,7 @@ async fn test_create_circuit() {
 async fn test_delete_circuit() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None);
+    let client = SindriClient::new(None, None);
     let result = client
         .create_circuit(
             dir_path.to_string_lossy().to_string(),
@@ -78,7 +78,7 @@ async fn test_delete_circuit() {
 async fn test_clone_circuit() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None);
+    let client = SindriClient::new(None, None);
 
     let result = client
         .create_circuit(
@@ -102,7 +102,6 @@ async fn test_clone_circuit() {
 
     clone_result = client.clone_circuit(circuit.id(), clone_file_path.to_string_lossy().to_string(), None).await;
     assert!(clone_result.is_ok());
-
 
     // rvcr misinterprets the response body as utf-8 which corrupts the tarball
     // checking the contents of the tarball only enabled for non-vcr feature

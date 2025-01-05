@@ -207,7 +207,7 @@ mod tests {
         let (_temp_dir, dir_path) = create_test_directory();
         let test_file_path = dir_path.join("some_artifact.circom");
 
-        let client = SindriClient::new(None);
+        let client = SindriClient::new(None, None);
         let result = client
             .create_circuit(test_file_path.to_string_lossy().to_string(), None, None)
             .await;
@@ -221,7 +221,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_circuit_nonexistent_path() {
-        let client = SindriClient::new(None);
+        let client = SindriClient::new(None, None);
         let result = client
             .create_circuit("nonexistent/path".to_string(), None, None)
             .await;
