@@ -11,14 +11,18 @@ async fn test_create_circuit() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
     let client = SindriClient::new(None);
+
+    let test_tags = vec!["tag1".to_string(), "tag2".to_string()];
+    let test_meta = HashMap::from([
+        ("key1".to_string(), "value1".to_string()),
+        ("key2".to_string(), "value2".to_string()),
+    ]);
+
     let result = client
         .create_circuit(
             dir_path.to_string_lossy().to_string(),
-            Some(vec!["tag1".to_string(), "tag2".to_string()]),
-            Some(HashMap::from([
-                ("key1".to_string(), "value1".to_string()),
-                ("key2".to_string(), "value2".to_string()),
-            ])),
+            Some(test_tags.clone()),
+            Some(test_meta.clone()),
         )
         .await;
 
@@ -26,8 +30,8 @@ async fn test_create_circuit() {
     let circuit = result.unwrap();
 
     assert_eq!(*circuit.status(), JobStatus::Ready);
-    assert_eq!(circuit.meta(), &HashMap::from([("key1".to_string(), "value1".to_string()), ("key2".to_string(), "value2".to_string())]));
-    assert_eq!(circuit.tags(), &vec!["tag1".to_string(), "tag2".to_string()]);
+    assert_eq!(circuit.meta(), &test_meta);
+    assert_eq!(circuit.tags(), &test_tags);
 
     let circom_info = match circuit {
         CircuitInfoResponse::Circom(circom_info) => circom_info,
