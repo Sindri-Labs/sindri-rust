@@ -16,13 +16,13 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest_retry::policies::ExponentialBackoffTimed;
 
 use crate::{
-    custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
+    middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
     types::CircuitInfo,
     utils::compress_directory,
 };
 
 #[cfg(any(feature = "record", feature = "replay"))]
-use crate::custom_middleware::vcr_middleware;
+use crate::middleware::vcr_middleware;
 
 #[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
