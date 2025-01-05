@@ -103,5 +103,5 @@ pub mod authorization_api;
 pub mod circuits_api;
 pub mod proofs_api;
 mod internal_api;
-pub use internal_api::{circuit_status, CircuitStatusError, proof_status, ProofStatusError};
+pub use internal_api::{circuit_download, circuit_status, CircuitStatusError, proof_status, ProofStatusError};
 pub mod configuration;

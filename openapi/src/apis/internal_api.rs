@@ -209,7 +209,7 @@ pub async fn circuit_download(
     configuration: &configuration::Configuration,
     circuit_id: &str,
     path: Option<&str>,
-) -> Result<(), Error<CircuitDownloadError>> {
+) -> Result<reqwest::Response, Error<CircuitDownloadError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -241,11 +241,11 @@ pub async fn circuit_download(
     let local_var_resp = local_var_client.execute(local_var_req).await?;
 
     let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
 
     if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        Ok(())
+        Ok(local_var_resp)
     } else {
+        let local_var_content = local_var_resp.text().await?;
         let local_var_entity: Option<CircuitDownloadError> =
             serde_json::from_str(&local_var_content).ok();
         let local_var_error = ResponseContent {
