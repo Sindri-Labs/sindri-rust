@@ -154,16 +154,14 @@ impl SindriClient {
     pub async fn prove_circuit(
         &self,
         circuit_id: &str,
-        proof_input: &str,  
+        proof_input: impl Into<ProofInput>,
         meta: Option<HashMap<String, String>>,
         verify: Option<bool>,
         prover_implementation: Option<String>,
     ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
 
-        let proof_input_coerced = Box::new(serde_json::from_str(proof_input)?);
-
         let circuit_prove_input = CircuitProveInput {
-            proof_input: proof_input_coerced,
+            proof_input: Box::new(proof_input.into().0),
             perform_verify: verify,
             meta,
             prover_implementation,

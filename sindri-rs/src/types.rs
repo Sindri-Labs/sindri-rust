@@ -3,7 +3,7 @@ use std::collections::HashMap;
 pub use openapi::models::{
     BoojumCircuitInfoResponse, CircomCircuitInfoResponse, CircuitInfoResponse, CircuitType,
     GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, JobStatus, JoltCircuitInfoResponse,
-    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse, ProofInput,
+    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse, ProofInput as InternalProofInput,
     Sp1CircuitInfoResponse,
 }; 
 
@@ -131,6 +131,44 @@ impl_circuit_info!(
     Boojum, Circom, Halo2, Gnark, Jolt, Noir, Plonky2, Sp1
 );
 
+// Wrapper type to allow for conversion between our internal type and the openapi type
+// This allows the external client method `prove_circuit` to be agnostic to the type of proof input
+// (string literal, owned string, or serde_json::Value.)
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProofInput(pub InternalProofInput);
+
+impl From<String> for ProofInput {
+    fn from(s: String) -> Self {
+        ProofInput(InternalProofInput::String(s))
+    }
+}
+
+impl From<&str> for ProofInput {
+    fn from(s: &str) -> Self {
+        ProofInput(InternalProofInput::String(s.to_string()))
+    }
+}
+
+impl From<serde_json::Value> for ProofInput {
+    fn from(v: serde_json::Value) -> Self {
+        ProofInput(InternalProofInput::Json(v))
+    }
+}
+
+// Convert from our wrapper type to the original type
+impl From<ProofInput> for InternalProofInput {
+    fn from(input: ProofInput) -> Self {
+        input.0
+    }
+}
+
+// Convert from the original type to our wrapper type
+impl From<InternalProofInput> for ProofInput {
+    fn from(input: InternalProofInput) -> Self {
+        ProofInput(input)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,6 +207,57 @@ mod tests {
         assert_eq!(circuit_info.queue_time_sec(), Some(12.3));
         assert_eq!(circuit_info.status(), &JobStatus::Ready);
         assert_eq!(circuit_info.tags(), &vec!["tag1".to_string(), "tag2".to_string()]);
+    }
+
+    #[test]
+    fn test_proof_input_from_string() {
+        let input_string = String::from("x=10\ny=20");
+        let proof_input: ProofInput = input_string.clone().into();
+        
+        match proof_input.0 {
+            InternalProofInput::String(s) => assert_eq!(s, input_string),
+            _ => panic!("Expected String variant"),
+        }
+    }
+
+    #[test]
+    fn test_proof_input_from_str() {
+        let input_str = "x=10\ny=20";
+        let proof_input: ProofInput = input_str.into();
+        
+        match proof_input.0 {
+            InternalProofInput::String(s) => assert_eq!(s, input_str),
+            _ => panic!("Expected String variant"),
+        }
+    }
+
+    #[test]
+    fn test_proof_input_from_json() {
+        let json_value = serde_json::json!({
+            "x": 10,
+            "y": 20
+        });
+        let proof_input: ProofInput = json_value.clone().into();
+        
+        match proof_input.0 {
+            InternalProofInput::Json(v) => assert_eq!(v, json_value),
+            _ => panic!("Expected JSON variant"),
+        }
+    }
+
+    #[test]
+    fn test_proof_input_roundtrip() {
+        // Test ProofInput -> InternalProofInput
+        let original = ProofInput(InternalProofInput::String("x=10\ny=20".to_string()));
+        let internal: InternalProofInput = original.clone().into();
+        match internal.clone() {
+            InternalProofInput::String(s) => assert_eq!(s, "x=10\ny=20"),
+            _ => panic!("Expected String variant"),
+        }
+
+        // Test InternalProofInput -> ProofInput
+        let proof_input: ProofInput = internal.into();
+        assert_eq!(proof_input, original);
     }
 
 } 
