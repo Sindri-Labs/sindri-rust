@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{collections::HashMap, fs, path::Path};
 
 use openapi::{
     apis::{
@@ -100,7 +100,7 @@ impl SindriClient {
         &self,
         project: String,
         tags: Option<Vec<String>>,
-        meta: Option<serde_json::Value>,
+        meta: Option<HashMap<String, String>>,
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
         // Validate tags if provided
         let tag_rules = Regex::new(r"^[a-zA-Z0-9_.-]+$").unwrap();
@@ -126,45 +126,47 @@ impl SindriClient {
             _ => return Err("Project is not a file or directory".into()),
         };
 
-        let response = circuit_create(&self.config, project_bytes, None, tags).await?;
+        let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
 
         // openapi returns a union type for the circuit_info response, so we need to match on the specific type
         let circuit_id = response.circuit_id();
-        let mut status = circuit_status(&self.config, &circuit_id).await?;
+        let mut status = circuit_status(&self.config, circuit_id).await?;
 
         // TODO: Implement an optional timeout & configurable polling interval
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
             std::thread::sleep(std::time::Duration::from_secs(1));
-            status = circuit_status(&self.config, &circuit_id).await?;
+            status = circuit_status(&self.config, circuit_id).await?;
         }
 
-        let circuit_info = circuit_detail(&self.config, &circuit_id, None).await?;
+        let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
         Ok(circuit_info)
     }
 
     pub async fn get_circuit(
         &self,
         circuit_id: &str,
+        include_verification_key: Option<bool>,
     ) -> Result<CircuitInfoResponse, Error<CircuitDetailError>> {
-        let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
+        let circuit_info = circuit_detail(&self.config, circuit_id, include_verification_key).await?;
         Ok(circuit_info)
     }
 
     pub async fn prove_circuit(
         &self,
         circuit_id: &str,
-        proof_input: &str, // Todo: make this optionally ProofInput
+        proof_input: &str, // Todo: make this optionally object 
+        meta: Option<HashMap<String, String>>,
         verify: Option<bool>,
-        meta: Option<serde_json::Value>,
+        prover_implementation: Option<String>,
     ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
         println!("{:?}", proof_input);
         let proof_input_coerced = Box::new(serde_json::from_str(proof_input)?);
 
         let circuit_prove_input = CircuitProveInput {
             proof_input: proof_input_coerced,
-            perform_verify: None,        //todo
-            meta: None,                  //todo
-            prover_implementation: None, //todo
+            perform_verify: verify,
+            meta,
+            prover_implementation,
         };
         println!("{:?}", circuit_prove_input.proof_input);
         let proof_info = proof_create(&self.config, circuit_id, circuit_prove_input).await?;
@@ -184,8 +186,11 @@ impl SindriClient {
     pub async fn get_proof(
         &self,
         proof_id: &str,
+        include_proof: Option<bool>,
+        include_public: Option<bool>,
+        include_verification_key: Option<bool>,
     ) -> Result<ProofInfoResponse, Error<ProofDetailError>> {
-        let proof_info = proof_detail(&self.config, proof_id, None, None, None, None).await?;
+        let proof_info = proof_detail(&self.config, proof_id, include_proof, include_public, None, include_verification_key).await?;
         Ok(proof_info)
     }
 }
