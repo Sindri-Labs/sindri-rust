@@ -17,6 +17,7 @@ use reqwest_retry::policies::ExponentialBackoffTimed;
 
 use crate::{
     custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
+    types::CircuitInfo,
     utils::compress_directory,
 };
 
@@ -128,16 +129,7 @@ impl SindriClient {
         let response = circuit_create(&self.config, project_bytes, None, tags).await?;
 
         // openapi returns a union type for the circuit_info response, so we need to match on the specific type
-        let circuit_id = match response {
-            CircuitInfoResponse::Boojum(response) => response.circuit_id,
-            CircuitInfoResponse::Circom(response) => response.circuit_id,
-            CircuitInfoResponse::Halo2(response) => response.circuit_id,
-            CircuitInfoResponse::Gnark(response) => response.circuit_id,
-            CircuitInfoResponse::Jolt(response) => response.circuit_id,
-            CircuitInfoResponse::Noir(response) => response.circuit_id,
-            CircuitInfoResponse::Plonky2(response) => response.circuit_id,
-            CircuitInfoResponse::Sp1(response) => response.circuit_id,
-        };
+        let circuit_id = response.circuit_id();
         let mut status = circuit_status(&self.config, &circuit_id).await?;
 
         // TODO: Implement an optional timeout & configurable polling interval
