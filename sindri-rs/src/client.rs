@@ -1,11 +1,10 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::{collections::HashMap, fs, fs::File, io::Write, path::Path};
 
 use openapi::{
     apis::{
-        circuit_status,
+        circuit_download, circuit_status, proof_status,
         circuits_api::{circuit_create, circuit_delete, circuit_detail, proof_create, CircuitDetailError},
         configuration::Configuration,
-        proof_status,
         proofs_api::{proof_delete, proof_detail, ProofDetailError},
         Error,
     },
@@ -128,7 +127,6 @@ impl SindriClient {
 
         let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
 
-        // openapi returns a union type for the circuit_info response, so we need to match on the specific type
         let circuit_id = response.id();
         let mut status = circuit_status(&self.config, circuit_id).await?;
 
@@ -144,6 +142,26 @@ impl SindriClient {
 
     pub async fn delete_circuit(&self, circuit_id: &str) -> Result<(), Box<dyn std::error::Error>> {
         circuit_delete(&self.config, circuit_id).await?;
+        Ok(())
+    }
+
+    pub async fn clone_circuit(&self, circuit_id: &str, download_path: String, override_max_project_size: Option<usize>) -> Result<(), Box<dyn std::error::Error>> {
+        // Ensure circuit exists, is ready, and is not too large
+        let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
+        if *circuit_info.status() != JobStatus::Ready {
+            return Err("Circuit does not indicate ready status".into());
+        }
+        if circuit_info.file_size().unwrap_or(0) as u64 > override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024) as u64 { // 2GB
+            return Err(format!("Circuit tarball is larger than {} bytes. If you still want to clone it, pass a larger size into `override_max_project_size`", override_max_project_size.unwrap_or(2* 1024 * 1024 * 1024)).into());
+        }
+
+        // Then, download the circuit
+        let download_response = circuit_download(&self.config, circuit_id, None).await?;
+
+        // Write the circuit to the specified path
+        let mut file = File::create(download_path)?;
+        file.write_all(&download_response.bytes().await?)?;
+
         Ok(())
     }
 

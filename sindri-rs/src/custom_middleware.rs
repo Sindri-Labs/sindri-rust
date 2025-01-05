@@ -166,6 +166,17 @@ pub fn vcr_middleware() -> VCRMiddleware {
         );
     });
 
+    vcr = vcr.with_modify_response(|res| {
+        if res.headers
+            .get("content-type")
+            .and_then(|values| values.first())
+            .map(|v| v.contains("application/octet-stream"))
+            .unwrap_or(false)
+        {
+            res.body.encoding = None; // Do not attempt to base64 decode any octet-stream data
+        }
+    });
+
     #[cfg(feature = "record")]
     {
         vcr = vcr.with_mode(VCRMode::Record);

@@ -1,4 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, fs, io::Cursor};
+
+use flate2::read::GzDecoder;
+use tar::Archive;
+use tempfile::TempDir;
 
 use sindri_rs::{
     CircuitInfo, CircuitInfoResponse, client::SindriClient, JobStatus
@@ -68,4 +72,55 @@ async fn test_delete_circuit() {
     // Ensure that the circuit is no longer available
     let get_result = client.get_circuit(circuit.id(), None).await;
     assert!(get_result.is_err());
+}
+
+#[tokio::test]
+async fn test_clone_circuit() {
+    let (_temp_dir, dir_path) = factory::baby_circuit();
+
+    let client = SindriClient::new(None);
+
+    let result = client
+        .create_circuit(
+            dir_path.to_string_lossy().to_string(),
+            Some(vec!["clone_test".to_string()]),
+            None,
+        )
+        .await;
+
+    assert!(result.is_ok());
+    let circuit = result.unwrap();
+
+    let clone_temp_dir = TempDir::new().unwrap();
+    let clone_file_path = clone_temp_dir.path().join("clone.tar.gz");
+    let mut clone_result = client.clone_circuit(circuit.id(), clone_file_path.to_string_lossy().to_string(), Some(10)).await;
+    assert!(clone_result.is_err());
+    assert!(clone_result
+        .unwrap_err()
+        .to_string()
+        .contains("tarball is larger than"));
+
+    clone_result = client.clone_circuit(circuit.id(), clone_file_path.to_string_lossy().to_string(), None).await;
+    assert!(clone_result.is_ok());
+
+
+    // rvcr misinterprets the response body as utf-8 which corrupts the tarball
+    // checking the contents of the tarball only enabled for non-vcr feature
+    #[cfg(not(any(feature = "record", feature = "replay")))]
+    {
+        let downloaded = fs::read(clone_file_path).unwrap();
+        let cursor = Cursor::new(downloaded);
+        let gz_decoder = GzDecoder::new(cursor);
+        let mut archive = Archive::new(gz_decoder);
+
+        let file_names: Vec<String> = archive
+            .entries()
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .filter_map(|e| e.path().ok().map(|p| p.to_string_lossy().into_owned()))
+            .collect();
+
+        assert!(file_names.iter().any(|name| name.contains("circuit.circom")));
+        assert!(file_names.iter().any(|name| name.contains("sindri.json")));
+    }
 }

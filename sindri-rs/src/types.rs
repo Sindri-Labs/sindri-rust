@@ -12,6 +12,7 @@ pub trait CircuitInfo {
     fn compute_time_sec(&self) -> Option<f64>;
     fn date_created(&self) -> &str;
     fn error(&self) -> Option<String>;
+    fn file_size(&self) -> Option<i32>;
     fn finished_processing(&self) -> bool;
     fn id(&self) -> &str;
     fn meta(&self) -> &HashMap<String, String>;
@@ -47,6 +48,14 @@ macro_rules! impl_circuit_info {
                 match self {
                     $(
                         CircuitInfoResponse::$variant(response) => response.error.clone(),
+                    )*
+                }
+            }
+
+            fn file_size(&self) -> Option<i32> {
+                match self {
+                    $(
+                        CircuitInfoResponse::$variant(response) => response.file_size,
                     )*
                 }
             }
@@ -179,6 +188,7 @@ mod tests {
             compute_time_sec: Some(42.5),
             date_created: "2025-01-01".to_string(),
             error: Some("test error".to_string()),
+            file_size: Some(1000),
             finished_processing: true,
             meta: HashMap::from([("key".to_string(), "value".to_string())]),
             num_proofs: Some(3),
