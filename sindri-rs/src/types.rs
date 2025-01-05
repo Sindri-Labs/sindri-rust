@@ -3,7 +3,8 @@ use std::collections::HashMap;
 pub use openapi::models::{
     BoojumCircuitInfoResponse, CircomCircuitInfoResponse, CircuitInfoResponse, CircuitType,
     GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, JobStatus, JoltCircuitInfoResponse,
-    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse, Sp1CircuitInfoResponse,
+    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse, ProofInput,
+    Sp1CircuitInfoResponse,
 }; 
 
 /// Helper trait to extract common fields from CircuitInfoResponse

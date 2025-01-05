@@ -16,13 +16,13 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest_retry::policies::ExponentialBackoffTimed;
 
 use crate::{
-    middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
-    types::CircuitInfo,
+    custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
+    types::{CircuitInfo, ProofInput},
     utils::compress_directory,
 };
 
 #[cfg(any(feature = "record", feature = "replay"))]
-use crate::middleware::vcr_middleware;
+use crate::custom_middleware::vcr_middleware;
 
 #[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
@@ -154,12 +154,12 @@ impl SindriClient {
     pub async fn prove_circuit(
         &self,
         circuit_id: &str,
-        proof_input: &str, // Todo: make this optionally object 
+        proof_input: &str,  
         meta: Option<HashMap<String, String>>,
         verify: Option<bool>,
         prover_implementation: Option<String>,
     ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
-        println!("{:?}", proof_input);
+
         let proof_input_coerced = Box::new(serde_json::from_str(proof_input)?);
 
         let circuit_prove_input = CircuitProveInput {
@@ -207,12 +207,12 @@ mod tests {
     fn test_new_client_with_options() {
         let auth_options = AuthOptions {
             api_key: Some("test_key".to_string()),
-            base_url: Some("https://dev.sindri.app".to_string()),
+            base_url: Some("https://fake.sindri.app".to_string()),
         };
         let client = SindriClient::new(Some(auth_options));
 
         assert_eq!(client.api_key(), Some("test_key"));
-        assert_eq!(client.base_url(), "https://dev.sindri.app");
+        assert_eq!(client.base_url(), "https://fake.sindri.app");
     }
 
     #[test]
@@ -220,12 +220,12 @@ mod tests {
         temp_env::with_vars(
             vec![
                 ("SINDRI_API_KEY", Some("env_test_key")),
-                ("SINDRI_BASE_URL", Some("https://dev.sindri.app")),
+                ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
             ],
             || {
                 let client = SindriClient::new(None);
                 assert_eq!(client.api_key(), Some("env_test_key"));
-                assert_eq!(client.base_url(), "https://dev.sindri.app");
+                assert_eq!(client.base_url(), "https://fake.sindri.app");
             },
         );
     }
@@ -235,7 +235,7 @@ mod tests {
         temp_env::with_vars(
             vec![
                 ("SINDRI_API_KEY", Some("env_test_key")),
-                ("SINDRI_BASE_URL", Some("https://dev.sindri.app")),
+                ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
             ],
             || {
                 let auth_options = AuthOptions {
