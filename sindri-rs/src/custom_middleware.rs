@@ -60,9 +60,9 @@ impl Middleware for LoggingMiddleware {
         extensions: &mut Extensions,
         next: Next<'_>,
     ) -> reqwest_middleware::Result<Response> {
-        tracing::debug!("[LOGGING MIDDLEWARE] Request started {:?}", req);
+        tracing::debug!("[LOGGING MIDDLEWARE] Request sent: {:?}", req);
         let res = next.run(req, extensions).await;
-        tracing::debug!("[LOGGING MIDDLEWARE] Result: {:?}", res);
+        tracing::debug!("[LOGGING MIDDLEWARE] Response received: {:?}", res);
         res
     }
 }

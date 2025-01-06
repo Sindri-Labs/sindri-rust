@@ -13,6 +13,7 @@ use openapi::{
 use regex::Regex;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest_retry::policies::ExponentialBackoffTimed;
+use tracing::{info, debug, warn};
 
 use crate::{
     custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
@@ -49,6 +50,9 @@ pub struct SindriClient {
 
 impl SindriClient {
     pub fn new(auth_options: Option<AuthOptions>, polling_options: Option<PollingOptions>) -> Self {
+        // Initialize tracing subscriber if not already initialized
+        let _ = tracing_subscriber::fmt::try_init();
+
         let mut headers = HeaderMap::new();
         headers.insert(
             "Sindri-Client",
@@ -114,6 +118,10 @@ impl SindriClient {
         tags: Option<Vec<String>>,
         meta: Option<HashMap<String, String>>,
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
+        info!("Creating new circuit from project: {}", project);
+        debug!("Circuit tags: {:?}, metadata: {:?}", tags, meta);
+
+
         // Validate tags if provided
         let tag_rules = Regex::new(r"^[a-zA-Z0-9_.-]+$").unwrap();
         if let Some(ref tags) = tags {
@@ -127,7 +135,10 @@ impl SindriClient {
         // Load the project into a byte array whether it is a compressed
         // file already or a directory
         let project_bytes = match Path::new(&project) {
-            p if p.is_dir() => compress_directory(p, None).await?,
+            p if p.is_dir() => {
+                info!("Compressing directory for upload");
+                compress_directory(p, None).await?
+            }
             p if p.is_file() => {
                 let extension_regex = Regex::new(r"(?i)\.(zip|tar|tar\.gz|tgz)$")?;
                 if !extension_regex.is_match(&project) {
@@ -138,15 +149,20 @@ impl SindriClient {
             _ => return Err("Project is not a file or directory".into()),
         };
 
+        info!("Uploading circuit to Sindri");
         let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
 
         let circuit_id = response.id();
+        info!("Circuit created with ID: {}", circuit_id);
+
         let mut status = circuit_status(&self.config, circuit_id).await?;
+        debug!("Initial circuit status: {:?}", status.status);
 
         let start_time = std::time::Instant::now();
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
             if let Some(timeout) = self.polling_options.timeout {
                 if start_time.elapsed() > timeout {
+                    warn!("Circuit compilation timed out after {:?}", timeout);
                     return Err("Circuit compilation did not complete within timeout duration".into());
                 }
             }
@@ -154,32 +170,43 @@ impl SindriClient {
             status = circuit_status(&self.config, circuit_id).await?;
         }
 
+        match status.status {
+            JobStatus::Ready => info!("Circuit compilation completed successfully after {:?}", start_time.elapsed()),
+            JobStatus::Failed => warn!("Circuit compilation failed after {:?}", start_time.elapsed()),
+            _ => unreachable!(),
+        }
+
         let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
         Ok(circuit_info)
     }
 
     pub async fn delete_circuit(&self, circuit_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Deleting circuit with ID: {}", circuit_id);
         circuit_delete(&self.config, circuit_id).await?;
         Ok(())
     }
 
     pub async fn clone_circuit(&self, circuit_id: &str, download_path: String, override_max_project_size: Option<usize>) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Cloning circuit with ID: {}", circuit_id);
+        debug!("Download path: {}", download_path);
         // Ensure circuit exists, is ready, and is not too large
         let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
         if *circuit_info.status() != JobStatus::Ready {
+            warn!("Circuit does not indicate ready status");
             return Err("Circuit does not indicate ready status".into());
         }
         if circuit_info.file_size().unwrap_or(0) as u64 > override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024) as u64 { // 2GB
+            warn!("Circuit tarball is larger than {} bytes.", override_max_project_size.unwrap_or(2* 1024 * 1024 * 1024));
             return Err(format!("Circuit tarball is larger than {} bytes. If you still want to clone it, pass a larger size into `override_max_project_size`", override_max_project_size.unwrap_or(2* 1024 * 1024 * 1024)).into());
         }
 
         // Then, download the circuit
         let download_response = circuit_download(&self.config, circuit_id, None).await?;
-
+        debug!("Circuit downloaded successfully");
         // Write the circuit to the specified path
-        let mut file = File::create(download_path)?;
+        let mut file = File::create(download_path.clone())?;
         file.write_all(&download_response.bytes().await?)?;
-
+        info!("Circuit written to {}", download_path);
         Ok(())
     }
 
@@ -188,6 +215,7 @@ impl SindriClient {
         circuit_id: &str,
         include_verification_key: Option<bool>,
     ) -> Result<CircuitInfoResponse, Error<CircuitDetailError>> {
+        info!("Getting circuit with ID: {}", circuit_id);
         let circuit_info = circuit_detail(&self.config, circuit_id, include_verification_key).await?;
         Ok(circuit_info)
     }
@@ -200,6 +228,8 @@ impl SindriClient {
         verify: Option<bool>,
         prover_implementation: Option<String>,
     ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
+        info!("Creating proof for circuit: {}", circuit_id);
+        debug!("Proof metadata: {:?}, verify: {:?}, prover: {:?}", meta, verify, prover_implementation);
 
         let circuit_prove_input = CircuitProveInput {
             proof_input: Box::new(proof_input.into().0),
@@ -207,15 +237,19 @@ impl SindriClient {
             meta,
             prover_implementation,
         };
-        println!("{:?}", circuit_prove_input.proof_input);
+
         let proof_info = proof_create(&self.config, circuit_id, circuit_prove_input).await?;
         let proof_id = proof_info.proof_id;
+        info!("Proof generation started with ID: {}", proof_id);
+
         let mut status = proof_status(&self.config, &proof_id).await?;
+        debug!("Initial proof status: {:?}", status.status);
 
         let start_time = std::time::Instant::now();
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
             if let Some(timeout) = self.polling_options.timeout {
                 if start_time.elapsed() > timeout {
+                    warn!("Proof generation timed out after {:?}", timeout);
                     return Err("Proof generation did not complete within timeout duration".into());
                 }
             }
@@ -223,11 +257,18 @@ impl SindriClient {
             status = proof_status(&self.config, &proof_id).await?;
         }
 
+        match status.status {
+            JobStatus::Ready => info!("Proof generation completed successfully after {:?}", start_time.elapsed()),
+            JobStatus::Failed => warn!("Proof generation failed after {:?}", start_time.elapsed()),
+            _ => unreachable!(),
+        }
+
         let proof_info = proof_detail(&self.config, &proof_id, None, None, None, None).await?;
         Ok(proof_info)
     }
 
     pub async fn delete_proof(&self, proof_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Deleting proof with ID: {}", proof_id);
         proof_delete(&self.config, proof_id).await?;
         Ok(())
     }
