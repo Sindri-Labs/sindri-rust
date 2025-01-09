@@ -56,7 +56,7 @@ impl SindriClient {
         let mut headers = HeaderMap::new();
         headers.insert(
             "Sindri-Client",
-            HeaderValue::from_str("DOESTHISWORK???")
+            HeaderValue::from_str(format!("{}/v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")).as_str())
                 .expect("Could not insert default rust client header"),
         );
 
@@ -288,6 +288,7 @@ impl SindriClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tracing_test::traced_test;
     use wiremock::{
         matchers::{header_exists, method},
         Mock, MockServer, ResponseTemplate,
@@ -435,5 +436,67 @@ mod tests {
             .await;
         assert!(circuit.is_err());
         assert!(circuit.unwrap_err().to_string().contains("ಠ_ಠ"));
+    }
+
+    #[tokio::test]
+    #[traced_test]
+    async fn test_circuit_creation_logging() {
+        // Setup mock server
+        let mock_server = wiremock::MockServer::start().await;
+        
+        // Create client with test configuration
+        let auth_options = AuthOptions {
+            api_key: Some("test_key".to_string()),
+            base_url: Some(mock_server.uri()),
+        };
+        let client = SindriClient::new(Some(auth_options), None);
+    
+        // Setup mock responses
+        wiremock::Mock::given(wiremock::matchers::method("POST"))
+            .and(wiremock::matchers::path("/api/v1/circuit/create"))
+            .respond_with(wiremock::ResponseTemplate::new(200)
+                .set_body_json(serde_json::json!({
+                    "circuit_id": "test_circuit_123",
+                    "status": "Pending"
+                })))
+            .mount(&mock_server)
+            .await;
+    
+        wiremock::Mock::given(wiremock::matchers::method("GET"))
+            .and(wiremock::matchers::path("/api/v1/circuit/test_circuit_123/status"))
+            .respond_with(wiremock::ResponseTemplate::new(200)
+                .set_body_json(serde_json::json!({
+                    "status": "Ready"
+                })))
+            .mount(&mock_server)
+            .await;
+    
+        wiremock::Mock::given(wiremock::matchers::method("GET"))
+            .and(wiremock::matchers::path("/api/v1/circuit/test_circuit_123/detail"))
+            .respond_with(wiremock::ResponseTemplate::new(200)
+                .set_body_json(serde_json::json!({
+                    "circuit_id": "test_circuit_123",
+                    "status": "Ready"
+                })))
+            .mount(&mock_server)
+            .await;
+    
+        // Create a temporary test directory
+        let temp_dir = tempfile::tempdir().unwrap();
+        let test_file = temp_dir.path().join("test.zip");
+        std::fs::write(&test_file, "test content").unwrap();
+    
+        // Execute the operation
+        let _result = client.create_circuit(
+            test_file.to_str().unwrap().to_string(),
+            None,
+            None
+        ).await;
+    
+        // Assert logs contain expected messages
+        assert!(logs_contain("Creating new circuit from project"));
+        assert!(logs_contain("Uploading circuit to Sindri"));
+        assert!(logs_contain("Circuit created with ID: test_circuit_123"));
+        assert!(logs_contain("Circuit compilation completed successfully"));
     }
 }
