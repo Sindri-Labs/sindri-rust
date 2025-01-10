@@ -30,7 +30,7 @@
 //! - **Collaboration**: Share and reuse public circuits using
 //!   [`clone_circuit`](client::SindriClient::clone_circuit)
 //!
-//! - **Seamless Integration**: Works with popular Rust-based zkDSLs and zkVMs including:
+//! - **Seamless Integration**: Works with popular Rust-based DSLs and zkVMs including:
 //!   - Halo2
 //!   - Plonky2
 //!   - Jolt
