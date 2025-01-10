@@ -1,7 +1,7 @@
-diff --git a/openapi/src/apis/circuits_api.rs b/openapi/src/apis/circuits_api.rs
-index 4b91bf9..b8d8181 100644
---- a/openapi/src/apis/circuits_api.rs
-+++ b/openapi/src/apis/circuits_api.rs
+diff --git b/openapi/src/apis/circuits_api.rs a/openapi/src/apis/circuits_api.rs
+index 4b91bf9..02d0781 100644
+--- b/openapi/src/apis/circuits_api.rs
++++ a/openapi/src/apis/circuits_api.rs
 @@ -74,7 +74,7 @@ pub enum ProofCreateError {
  
  
@@ -11,7 +11,7 @@ index 4b91bf9..b8d8181 100644
      let local_var_configuration = configuration;
  
      let local_var_client = &local_var_configuration.client;
-@@ -91,15 +91,30 @@ pub async fn circuit_create(configuration: &configuration::Configuration, files:
+@@ -91,15 +91,52 @@ pub async fn circuit_create(configuration: &configuration::Configuration, files:
      if let Some(ref local_var_token) = local_var_configuration.bearer_access_token {
          local_var_req_builder = local_var_req_builder.bearer_auth(local_var_token.to_owned());
      };
@@ -19,11 +19,6 @@ index 4b91bf9..b8d8181 100644
 -    // TODO: support file upload for 'files' parameter
 -    if let Some(local_var_param_value) = meta {
 -        local_var_form = local_var_form.text("meta", local_var_param_value.to_string());
--    }
--    if let Some(local_var_param_value) = tags {
--        local_var_form = local_var_form.text("tags", local_var_param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string());
--    }
--    local_var_req_builder = local_var_req_builder.multipart(local_var_form);
 +    // Build the request body directly in order to avoid a streaming request
 +    // that is incompatible with the retry middleware
 +    let boundary = "----------------------------4ebf00fbcf09";
@@ -43,30 +38,55 @@ index 4b91bf9..b8d8181 100644
 +        .as_bytes(),
 +    );
 +    byte_string.extend(files);
-+    byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
-+    // TODO: meta & tags
++    byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of files
++    if let Some(tags) = tags {
++        for tag in tags {
++            byte_string.extend_from_slice(
++                format!(
++                    "--{boundary}\r\n\
++                    Content-Disposition: form-data; name=\"tags\"\r\n\
++                    \r\n\
++                    {tag}\r\n"
++                )
++                .as_bytes(),
++            );
++            byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of tag
++        }
+     }
+-    if let Some(local_var_param_value) = tags {
+-        local_var_form = local_var_form.text("tags", local_var_param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string());
++    if let Some(meta) = meta {
++        let meta_json = serde_json::to_string(&meta)?;
++        byte_string.extend_from_slice(format!("--{boundary}\r\n\
++           Content-Disposition: form-data; name=\"meta\"\r\n\
++           Content-Type: application/json\r\n\
++            \r\n\
++            {meta_json}\r\n").as_bytes());
++        byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of meta
+     }
+-    local_var_req_builder = local_var_req_builder.multipart(local_var_form);
 +    let local_var_body = reqwest::Body::from(byte_string);
 +
 +    local_var_req_builder = local_var_req_builder.body(local_var_body);
  
      let local_var_req = local_var_req_builder.build()?;
      let local_var_resp = local_var_client.execute(local_var_req).await?;
-diff --git a/openapi/src/apis/mod.rs b/openapi/src/apis/mod.rs
-index d1c0ef5..c04a029 100644
---- a/openapi/src/apis/mod.rs
-+++ b/openapi/src/apis/mod.rs
+diff --git b/openapi/src/apis/mod.rs a/openapi/src/apis/mod.rs
+index d1c0ef5..cf832c5 100644
+--- b/openapi/src/apis/mod.rs
++++ a/openapi/src/apis/mod.rs
 @@ -102,5 +102,6 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
  pub mod authorization_api;
  pub mod circuits_api;
  pub mod proofs_api;
 -
 +mod internal_api;
-+pub use internal_api::{circuit_status, CircuitStatusError, proof_status, ProofStatusError};
++pub use internal_api::{circuit_download, circuit_status, CircuitStatusError, proof_status, ProofStatusError};
  pub mod configuration;
-diff --git a/openapi/src/models/circuit_info_response.rs b/openapi/src/models/circuit_info_response.rs
+diff --git b/openapi/src/models/circuit_info_response.rs a/openapi/src/models/circuit_info_response.rs
 index 869a025..d44264f 100644
---- a/openapi/src/models/circuit_info_response.rs
-+++ b/openapi/src/models/circuit_info_response.rs
+--- b/openapi/src/models/circuit_info_response.rs
++++ a/openapi/src/models/circuit_info_response.rs
 @@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
  
  /// CircuitInfoResponse : Response for getting circuit info.
@@ -76,10 +96,10 @@ index 869a025..d44264f 100644
  pub enum CircuitInfoResponse {
      #[serde(rename="boojum")]
      Boojum(Box<models::BoojumCircuitInfoResponse>),
-diff --git a/openapi/src/models/proof_input.rs b/openapi/src/models/proof_input.rs
+diff --git b/openapi/src/models/proof_input.rs a/openapi/src/models/proof_input.rs
 index c7f703a..6dfb4f6 100644
---- a/openapi/src/models/proof_input.rs
-+++ b/openapi/src/models/proof_input.rs
+--- b/openapi/src/models/proof_input.rs
++++ a/openapi/src/models/proof_input.rs
 @@ -8,19 +8,28 @@
   * Generated by: https://openapi-generator.tech
   */
