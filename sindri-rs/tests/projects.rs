@@ -1,12 +1,14 @@
-use std::{collections::{HashMap, HashSet}, fs, io::Cursor};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    io::Cursor,
+};
 
 use flate2::read::GzDecoder;
 use tar::Archive;
 use tempfile::TempDir;
 
-use sindri_rs::{
-    CircuitInfo, CircuitInfoResponse, client::SindriClient, JobStatus
-};
+use sindri_rs::{client::SindriClient, CircuitInfo, CircuitInfoResponse, JobStatus};
 
 mod factory;
 
@@ -48,7 +50,6 @@ async fn test_create_circuit() {
     assert_eq!(circom_info.proving_scheme, "groth16");
     assert_eq!(circom_info.num_outputs, Some(1));
 }
-
 
 #[tokio::test]
 async fn test_delete_circuit() {
@@ -93,14 +94,26 @@ async fn test_clone_circuit() {
 
     let clone_temp_dir = TempDir::new().unwrap();
     let clone_file_path = clone_temp_dir.path().join("clone.tar.gz");
-    let mut clone_result = client.clone_circuit(circuit.id(), clone_file_path.to_string_lossy().to_string(), Some(10)).await;
+    let mut clone_result = client
+        .clone_circuit(
+            circuit.id(),
+            clone_file_path.to_string_lossy().to_string(),
+            Some(10),
+        )
+        .await;
     assert!(clone_result.is_err());
     assert!(clone_result
         .unwrap_err()
         .to_string()
         .contains("tarball is larger than"));
 
-    clone_result = client.clone_circuit(circuit.id(), clone_file_path.to_string_lossy().to_string(), None).await;
+    clone_result = client
+        .clone_circuit(
+            circuit.id(),
+            clone_file_path.to_string_lossy().to_string(),
+            None,
+        )
+        .await;
     assert!(clone_result.is_ok());
 
     // rvcr misinterprets the response body as utf-8 which corrupts the tarball
@@ -119,7 +132,9 @@ async fn test_clone_circuit() {
             .filter_map(|e| e.path().ok().map(|p| p.to_string_lossy().into_owned()))
             .collect();
 
-        assert!(file_names.iter().any(|name| name.contains("circuit.circom")));
+        assert!(file_names
+            .iter()
+            .any(|name| name.contains("circuit.circom")));
         assert!(file_names.iter().any(|name| name.contains("sindri.json")));
     }
 }

@@ -1,7 +1,7 @@
-//! Custom middleware definitions for the SindriClient. 
-//! 
+//! Custom middleware definitions for the SindriClient.
+//!
 //! Important types of middleware implemented here:
-//! 
+//!
 //! - `HeaderDeduplicatorMiddleware`: Removes duplicate headers from requests (bugfix for openapi client).
 //! - `LoggingMiddleware`: Logs requests and responses.
 //! - `Retry500`: Implements a retry policy for 500-series errors.
@@ -145,10 +145,7 @@ impl RetryableStrategy for Retry500 {
             Ok(_success) => None,
             // but maybe retry a request failure due to local network issue
             Err(error) => {
-                debug!(
-                    "Request failed with network error: {}",
-                    error
-                );
+                debug!("Request failed with network error: {}", error);
                 default_on_request_failure(error)
             }
         }
@@ -157,7 +154,7 @@ impl RetryableStrategy for Retry500 {
 
 /// Returns a HTTP client which will retry requests with response errors meeting the retry500 "transient error" classification
 /// Default behavior is a retry at random times between 1s and 8s for a default maximum duration of 60s.
-/// 
+///
 /// The retry policy is configurable with `max_duration` which defaults to 60s.
 pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::marker::Send>(
     max_duration: Option<Duration>,
@@ -183,7 +180,8 @@ pub fn vcr_middleware() -> VCRMiddleware {
     });
 
     vcr = vcr.with_modify_response(|res| {
-        if res.headers
+        if res
+            .headers
             .get("content-type")
             .and_then(|values| values.first())
             .map(|v| v.contains("application/octet-stream"))

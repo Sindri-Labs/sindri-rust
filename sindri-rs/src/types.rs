@@ -1,11 +1,11 @@
 //! Common types re-exported from the openapi (internal) package.
-use std::collections::HashMap;
 pub use openapi::models::{
     BoojumCircuitInfoResponse, CircomCircuitInfoResponse, CircuitInfoResponse, CircuitType,
     GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, JobStatus, JoltCircuitInfoResponse,
-    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse, ProofInput as InternalProofInput,
-    Sp1CircuitInfoResponse,
-}; 
+    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse,
+    ProofInput as InternalProofInput, Sp1CircuitInfoResponse,
+};
+use std::collections::HashMap;
 
 /// Helper trait to extract common fields from CircuitInfoResponse
 pub trait CircuitInfo {
@@ -136,10 +136,7 @@ macro_rules! impl_circuit_info {
 }
 
 // Add any new circuit types here
-impl_circuit_info!(
-    Boojum, Circom, Halo2, Gnark, Jolt, Noir, Plonky2, Sp1
-);
-
+impl_circuit_info!(Boojum, Circom, Halo2, Gnark, Jolt, Noir, Plonky2, Sp1);
 
 /// A wrapper type around [`InternalProofInput`] that provides convenient conversions from
 /// various input formats for circuit proofs.
@@ -206,7 +203,6 @@ mod tests {
         }))
     }
 
-
     #[test]
     fn test_circuit_info_getters() {
         let circuit_info = create_test_response();
@@ -215,20 +211,26 @@ mod tests {
         assert_eq!(circuit_info.date_created(), "2025-01-01");
         assert_eq!(circuit_info.error(), Some("test error".to_string()));
         assert!(circuit_info.finished_processing());
-        assert_eq!(circuit_info.meta(), &HashMap::from([("key".to_string(), "value".to_string())]));
+        assert_eq!(
+            circuit_info.meta(),
+            &HashMap::from([("key".to_string(), "value".to_string())])
+        );
         assert_eq!(circuit_info.num_proofs(), Some(3));
         assert_eq!(circuit_info.project_name(), "test_project");
         assert_eq!(circuit_info.proving_scheme(), "groth16");
         assert_eq!(circuit_info.queue_time_sec(), Some(12.3));
         assert_eq!(circuit_info.status(), &JobStatus::Ready);
-        assert_eq!(circuit_info.tags(), &vec!["tag1".to_string(), "tag2".to_string()]);
+        assert_eq!(
+            circuit_info.tags(),
+            &vec!["tag1".to_string(), "tag2".to_string()]
+        );
     }
 
     #[test]
     fn test_proof_input_from_string() {
         let input_string = String::from("x=10\ny=20");
         let proof_input: ProofInput = input_string.clone().into();
-        
+
         match proof_input.0 {
             InternalProofInput::String(s) => assert_eq!(s, input_string),
             _ => panic!("Expected String variant"),
@@ -239,7 +241,7 @@ mod tests {
     fn test_proof_input_from_str() {
         let input_str = "x=10\ny=20";
         let proof_input: ProofInput = input_str.into();
-        
+
         match proof_input.0 {
             InternalProofInput::String(s) => assert_eq!(s, input_str),
             _ => panic!("Expected String variant"),
@@ -253,7 +255,7 @@ mod tests {
             "y": 20
         });
         let proof_input: ProofInput = json_value.clone().into();
-        
+
         match proof_input.0 {
             InternalProofInput::Json(v) => assert_eq!(v, json_value),
             _ => panic!("Expected JSON variant"),
@@ -274,5 +276,4 @@ mod tests {
         let proof_input: ProofInput = internal.into();
         assert_eq!(proof_input, original);
     }
-
-} 
+}

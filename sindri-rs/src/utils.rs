@@ -14,10 +14,10 @@ pub const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
 
 /// When a user submits a path to the circuit create method, we prepare the directory
 /// of the circuit project as a compressed tarfile which is sent as multipart/form data.
-/// 
+///
 /// Validation checks ensure the project contains a valid Sindri manifest and that the upload
 /// size is within the allowed limits (8Gb by default).
-/// 
+///
 /// If the project contains a .sindriignore file, that file is treated in the convention of .gitignore.
 /// Files matchings those patterns are not included in the upload to Sindri.  
 /// Hidden and .gitignored files are similarly not included.

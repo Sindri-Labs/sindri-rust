@@ -4,9 +4,12 @@ use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Durat
 
 use openapi::{
     apis::{
-        circuit_download, circuit_status, proof_status,
-        circuits_api::{circuit_create, circuit_delete, circuit_detail, proof_create, CircuitDetailError},
+        circuit_download, circuit_status,
+        circuits_api::{
+            circuit_create, circuit_delete, circuit_detail, proof_create, CircuitDetailError,
+        },
         configuration::Configuration,
+        proof_status,
         proofs_api::{proof_delete, proof_detail, ProofDetailError},
         Error,
     },
@@ -15,7 +18,7 @@ use openapi::{
 use regex::Regex;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest_retry::policies::ExponentialBackoffTimed;
-use tracing::{info, debug, warn};
+use tracing::{debug, info, warn};
 
 use crate::{
     custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
@@ -37,7 +40,7 @@ use crate::custom_middleware::vcr_middleware;
 /// * `api_key` - Optional API key for authentication. If not provided, falls back to `SINDRI_API_KEY` environment variable
 /// * `base_url` - Optional base URL for API requests. Should be left as `None` except for internal development purposes.
 ///                If not provided, falls back to `SINDRI_BASE_URL` environment variable, then to the default production URL
-/// 
+///
 /// # Examples
 ///
 /// ```
@@ -66,7 +69,7 @@ pub struct AuthOptions {
 ///
 /// * `interval` - Duration to wait between API status checks (default: 1 second)
 /// * `timeout` - Optional maximum duration to wait for operation completion (default: 10 minutes)
-/// 
+///
 /// # Examples
 ///
 /// ```
@@ -94,10 +97,12 @@ pub struct PollingOptions {
 }
 impl Default for PollingOptions {
     fn default() -> Self {
-        Self { interval: Duration::from_secs(1), timeout: Some(Duration::from_secs(60 * 10)) }
+        Self {
+            interval: Duration::from_secs(1),
+            timeout: Some(Duration::from_secs(60 * 10)),
+        }
     }
 }
-
 
 /// The [`SindriClient`] struct encapsulates all the necessary methods and properties
 ///  required to communicate effectively with the Sindri API, handling tasks
@@ -112,7 +117,7 @@ impl SindriClient {
     /// Creates a new Sindri API client.
     ///
     /// # Arguments
-    /// 
+    ///
     /// * `auth_options` - Optional authentication configuration. If not provided, will attempt to read from environment variables
     /// * `polling_options` - Optional polling configuration for long-running operations
     ///
@@ -120,7 +125,7 @@ impl SindriClient {
     ///
     /// * `SINDRI_API_KEY` - API key for authentication (if auth_options not provided)
     /// * `SINDRI_BASE_URL` - Base URL for API requests (if auth_options not provided)
-    /// 
+    ///
     /// # Examples
     ///
     /// ```
@@ -128,12 +133,13 @@ impl SindriClient {
     /// let client = SindriClient::new(None, None); // inferring your API key from `SINDRI_API_KEY`
     /// ```
     pub fn new(auth_options: Option<AuthOptions>, polling_options: Option<PollingOptions>) -> Self {
-
         let mut headers = HeaderMap::new();
         headers.insert(
             "Sindri-Client",
-            HeaderValue::from_str(format!("{}/v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")).as_str())
-                .expect("Could not insert default rust client header"),
+            HeaderValue::from_str(
+                format!("{}/v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")).as_str(),
+            )
+            .expect("Could not insert default rust client header"),
         );
 
         #[allow(unused_mut)] // needed for VCR mutation
@@ -174,7 +180,10 @@ impl SindriClient {
             ..Default::default()
         };
 
-        Self { config, polling_options: polling_options.unwrap_or_default() }
+        Self {
+            config,
+            polling_options: polling_options.unwrap_or_default(),
+        }
     }
 
     /// Returns the configured API key
@@ -189,10 +198,10 @@ impl SindriClient {
 
     /// Creates and deploys a new circuit from a local project.
     ///
-    /// In order to generate proofs on Sindri, you must first deploy the zero-knowledge circuit or 
-    /// guest code with this method. Upon deployment, this method continuously polls the service to 
+    /// In order to generate proofs on Sindri, you must first deploy the zero-knowledge circuit or
+    /// guest code with this method. Upon deployment, this method continuously polls the service to
     /// track the compilation status until the process either completes successfully or fails.
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `project` - Path to a local project directory or an archive file (.zip, .tar, .tar.gz, .tgz)
@@ -207,11 +216,11 @@ impl SindriClient {
     ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::new(None, None);
     /// let circuit = client.create_circuit(
     ///     "path/to/circuit".to_string(),
-    ///     Some(vec!["a_custom_tag".to_string()]), 
+    ///     Some(vec!["a_custom_tag".to_string()]),
     ///     Some(HashMap::from([("key".to_string(), "value".to_string())]))
     /// ).await?;
     /// ```
@@ -265,7 +274,9 @@ impl SindriClient {
             if let Some(timeout) = self.polling_options.timeout {
                 if start_time.elapsed() > timeout {
                     warn!("Circuit compilation timed out after {:?}", timeout);
-                    return Err("Circuit compilation did not complete within timeout duration".into());
+                    return Err(
+                        "Circuit compilation did not complete within timeout duration".into(),
+                    );
                 }
             }
             std::thread::sleep(self.polling_options.interval);
@@ -273,8 +284,14 @@ impl SindriClient {
         }
 
         match status.status {
-            JobStatus::Ready => info!("Circuit compilation completed successfully after {:?}", start_time.elapsed()),
-            JobStatus::Failed => warn!("Circuit compilation failed after {:?}", start_time.elapsed()),
+            JobStatus::Ready => info!(
+                "Circuit compilation completed successfully after {:?}",
+                start_time.elapsed()
+            ),
+            JobStatus::Failed => warn!(
+                "Circuit compilation failed after {:?}",
+                start_time.elapsed()
+            ),
             _ => unreachable!(),
         }
 
@@ -287,7 +304,7 @@ impl SindriClient {
     /// # Arguments
     ///
     /// * `circuit_id` - ID of the circuit to delete
-    /// 
+    ///
     /// # Warning
     ///
     /// Once deleted, the circuit will no longer be viewable on the Sindri dashboard
@@ -300,35 +317,40 @@ impl SindriClient {
     }
 
     /// Downloads and saves a project's source code.
-    /// 
+    ///
     /// This method allows you to retrieve the original source code that was uploaded to Sindri for a given circuit.
     /// The code is downloaded as a tarball (.tar.gz) and saved to the specified location. This is useful for:
-    /// 
+    ///
     /// - Obtaining code from public circuits to use as examples or templates
     /// - Retrieving your own previously deployed circuits
     /// - Backing up circuit source code
-    /// - Collaborating by sharing circuit implementations 
+    /// - Collaborating by sharing circuit implementations
     ///
     /// # Arguments
     ///
     /// * `circuit_id` - ID of the circuit to clone
     /// * `download_path` - Path where the circuit archive should be saved
     /// * `override_max_project_size` - Optional maximum allowed size in bytes (defaults to 2GB)
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::new(None, None);
-    /// 
+    ///
     /// client.clone_circuit(
-    ///     "abc123", 
+    ///     "abc123",
     ///     "path/to/save/circuit.tar.gz".to_string(),
     ///     None
     /// ).await?;
     /// ```
-    pub async fn clone_circuit(&self, circuit_id: &str, download_path: String, override_max_project_size: Option<usize>) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn clone_circuit(
+        &self,
+        circuit_id: &str,
+        download_path: String,
+        override_max_project_size: Option<usize>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Cloning circuit with ID: {}", circuit_id);
         debug!("Download path: {}", download_path);
         // Ensure circuit exists, is ready, and is not too large
@@ -337,8 +359,14 @@ impl SindriClient {
             warn!("Circuit does not indicate ready status");
             return Err("Circuit does not indicate ready status".into());
         }
-        if circuit_info.file_size().unwrap_or(0) as u64 > override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024) as u64 { // 2GB
-            warn!("Circuit tarball is larger than {} bytes.", override_max_project_size.unwrap_or(2* 1024 * 1024 * 1024));
+        if circuit_info.file_size().unwrap_or(0) as u64
+            > override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024) as u64
+        {
+            // 2GB
+            warn!(
+                "Circuit tarball is larger than {} bytes.",
+                override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024)
+            );
             return Err(format!("Circuit tarball is larger than {} bytes. If you still want to clone it, pass a larger size into `override_max_project_size`", override_max_project_size.unwrap_or(2* 1024 * 1024 * 1024)).into());
         }
 
@@ -353,24 +381,24 @@ impl SindriClient {
     }
 
     /// Retrieves the details of a circuit.
-    /// 
+    ///
     /// You can use this method to get the status, metadata, and other details of a circuit.
     ///
     /// # Arguments
     ///
     /// * `circuit_id` - ID of the circuit to retrieve
     /// * `include_verification_key` - Whether to include the verification key in the response
-    /// 
+    ///
     ///  # Returns
-    /// 
+    ///
     /// A [`CircuitInfoResponse`] object containing the circuit details.  
     /// The enum variant corresponds to the type of circuit deployed.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::new(None, None);
     /// let circuit = client.get_circuit("abc123", None).await?;
     /// ```
@@ -380,7 +408,8 @@ impl SindriClient {
         include_verification_key: Option<bool>,
     ) -> Result<CircuitInfoResponse, Error<CircuitDetailError>> {
         info!("Getting circuit with ID: {}", circuit_id);
-        let circuit_info = circuit_detail(&self.config, circuit_id, include_verification_key).await?;
+        let circuit_info =
+            circuit_detail(&self.config, circuit_id, include_verification_key).await?;
         Ok(circuit_info)
     }
 
@@ -389,7 +418,7 @@ impl SindriClient {
     /// This method initiates proof generation and automatically polls the Sindri API until the proof
     /// is either successfully generated or fails. The polling interval and timeout can be configured
     /// through the client's `polling_options`.
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `circuit_id` - ID of the circuit to prove
@@ -406,12 +435,12 @@ impl SindriClient {
     /// # Returns
     ///
     /// Returns proof information on successful generation, or error if generation fails or times out.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::new(None, None);
     /// let proof = client.prove_circuit("abc123", "x=10,y=20", None, None, None).await?;
     /// ```
@@ -424,7 +453,10 @@ impl SindriClient {
         prover_implementation: Option<String>,
     ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
         info!("Creating proof for circuit: {}", circuit_id);
-        debug!("Proof metadata: {:?}, verify: {:?}, prover: {:?}", meta, verify, prover_implementation);
+        debug!(
+            "Proof metadata: {:?}, verify: {:?}, prover: {:?}",
+            meta, verify, prover_implementation
+        );
 
         let circuit_prove_input = CircuitProveInput {
             proof_input: Box::new(proof_input.into().0),
@@ -453,7 +485,10 @@ impl SindriClient {
         }
 
         match status.status {
-            JobStatus::Ready => info!("Proof generation completed successfully after {:?}", start_time.elapsed()),
+            JobStatus::Ready => info!(
+                "Proof generation completed successfully after {:?}",
+                start_time.elapsed()
+            ),
             JobStatus::Failed => warn!("Proof generation failed after {:?}", start_time.elapsed()),
             _ => unreachable!(),
         }
@@ -467,10 +502,10 @@ impl SindriClient {
     /// # Arguments
     ///
     /// * `proof_id` - ID of the proof to delete
-    /// 
+    ///
     /// # Warning
     ///
-    /// Once deleted, the proof will no longer be viewable on the Sindri dashboard. 
+    /// Once deleted, the proof will no longer be viewable on the Sindri dashboard.
     /// You should only delete a proof if its existence may cause confusion and retrieval
     /// of the wrong proof details.
     pub async fn delete_proof(&self, proof_id: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -484,7 +519,7 @@ impl SindriClient {
     /// This method allows you to retrieve details about a previously generated proof, including
     /// the proof data itself and any public outputs. While `prove_circuit()` returns
     /// the same information immediately after generation, this method is particularly useful for:
-    /// 
+    ///
     /// - Retrieving details of historical proofs
     /// - Fetching public outputs from previous proof generations
     /// - Verifying proof status after system interruptions
@@ -501,12 +536,12 @@ impl SindriClient {
     ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::new(None, None);
-    /// 
+    ///
     /// // Get just the proof status
     /// let basic_info = client.get_proof("abc123", None, None, None).await?;
-    /// 
+    ///
     /// // Get just the public outputs
     /// let proof_with_outputs = client.get_proof("abc123", None, Some(true), None).await?;
     /// ```
@@ -517,7 +552,15 @@ impl SindriClient {
         include_public: Option<bool>,
         include_verification_key: Option<bool>,
     ) -> Result<ProofInfoResponse, Error<ProofDetailError>> {
-        let proof_info = proof_detail(&self.config, proof_id, include_proof, include_public, None, include_verification_key).await?;
+        let proof_info = proof_detail(
+            &self.config,
+            proof_id,
+            include_proof,
+            include_public,
+            None,
+            include_verification_key,
+        )
+        .await?;
         Ok(proof_info)
     }
 }
@@ -525,12 +568,12 @@ impl SindriClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::BoojumCircuitInfoResponse;
     use tracing_test::traced_test;
     use wiremock::{
         matchers::{header_exists, method, path},
         Mock, MockServer, ResponseTemplate,
     };
-    use crate::BoojumCircuitInfoResponse;
 
     #[test]
     fn test_new_client_with_options() {
@@ -617,23 +660,32 @@ mod tests {
             timeout: Some(Duration::from_secs(300)), // 5 minutes
         };
         let client = SindriClient::new(None, Some(polling_options));
-        
+
         assert_eq!(client.polling_options.interval, Duration::from_secs(5));
-        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+        assert_eq!(
+            client.polling_options.timeout,
+            Some(Duration::from_secs(300))
+        );
     }
 
     #[test]
     fn test_post_client_init_polling_tweaks() {
         let mut client = SindriClient::new(None, None);
-        
+
         assert_eq!(client.polling_options.interval, Duration::from_secs(1));
-        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(600))); 
+        assert_eq!(
+            client.polling_options.timeout,
+            Some(Duration::from_secs(600))
+        );
 
         client.polling_options.interval = Duration::from_secs(5);
         client.polling_options.timeout = Some(Duration::from_secs(300));
 
         assert_eq!(client.polling_options.interval, Duration::from_secs(5));
-        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+        assert_eq!(
+            client.polling_options.timeout,
+            Some(Duration::from_secs(300))
+        );
     }
 
     #[tokio::test]
@@ -679,28 +731,34 @@ mod tests {
     async fn mock_compile_server() -> MockServer {
         // Setup mock server
         let mock_server = wiremock::MockServer::start().await;
-    
+
         // Setup mock responses
         wiremock::Mock::given(method("POST"))
             .and(path("/api/v1/circuit/create"))
-            .respond_with(ResponseTemplate::new(200)
-                .set_body_json(CircuitInfoResponse::Boojum(Box::new(BoojumCircuitInfoResponse {
-                    circuit_id: "test_circuit_123".to_string(),
-                    ..Default::default()
-                }))))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
+                    BoojumCircuitInfoResponse {
+                        circuit_id: "test_circuit_123".to_string(),
+                        ..Default::default()
+                    },
+                ))),
+            )
             .mount(&mock_server)
             .await;
-    
+
         wiremock::Mock::given(method("GET"))
             .and(path("/api/v1/circuit/test_circuit_123/status"))
-            .respond_with(ResponseTemplate::new(200)
-                .set_body_json(CircuitInfoResponse::Boojum(Box::new(BoojumCircuitInfoResponse {
-                    status: JobStatus::Ready,
-                    ..Default::default()
-                }))))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
+                    BoojumCircuitInfoResponse {
+                        status: JobStatus::Ready,
+                        ..Default::default()
+                    },
+                ))),
+            )
             .mount(&mock_server)
             .await;
-    
+
         // The circuit detail is returned from the method, but does not influence logging
         wiremock::Mock::given(method("GET"))
             .and(path("/api/v1/circuit/test_circuit_123/detail"))
@@ -714,7 +772,6 @@ mod tests {
     #[tokio::test]
     #[traced_test]
     async fn test_verbose_logging() {
-
         let mock_server = mock_compile_server().await;
 
         // Create client with test configuration
@@ -723,18 +780,16 @@ mod tests {
             base_url: Some(mock_server.uri()),
         };
         let client = SindriClient::new(Some(auth_options), None);
-    
+
         // Create a temporary test directory
         let temp_dir = tempfile::tempdir().unwrap();
         let test_file = temp_dir.path().join("test.zip");
         std::fs::write(&test_file, "test content").unwrap();
-    
+
         // Execute the operation
-        let _result = client.create_circuit(
-            test_file.to_str().unwrap().to_string(),
-            None,
-            None
-        ).await;
+        let _result = client
+            .create_circuit(test_file.to_str().unwrap().to_string(), None, None)
+            .await;
 
         // Create method logs (debug + info level)
         assert!(logs_contain("Creating new circuit from project"));
@@ -744,17 +799,30 @@ mod tests {
         // Logs from the request/response (debug level)
         // Ensure we see exactly three (create, status, detail)
         logs_assert(|lines: &[&str]| {
-            match lines.iter().filter(|line| line.contains("Request sent")).count() {
+            match lines
+                .iter()
+                .filter(|line| line.contains("Request sent"))
+                .count()
+            {
                 3 => Ok(()),
-                n => Err(format!("Expected three logs for request outbound, but found {}", n)),
+                n => Err(format!(
+                    "Expected three logs for request outbound, but found {}",
+                    n
+                )),
             }
         });
         logs_assert(|lines: &[&str]| {
-            match lines.iter().filter(|line| line.contains("Response received")).count() {
+            match lines
+                .iter()
+                .filter(|line| line.contains("Response received"))
+                .count()
+            {
                 3 => Ok(()),
-                n => Err(format!("Expected three logs for response inbound, but found {}", n)),
+                n => Err(format!(
+                    "Expected three logs for response inbound, but found {}",
+                    n
+                )),
             }
         });
     }
-
 }
