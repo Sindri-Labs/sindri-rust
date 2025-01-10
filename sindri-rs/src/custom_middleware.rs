@@ -52,7 +52,9 @@ impl Middleware for HeaderDeduplicatorMiddleware {
 
 pub struct LoggingMiddleware;
 
-/// Simple debug logging of reqwest headers and bodies plus raw response
+/// Simple logging of requests and responses
+/// Always attached to a Sindri Client but only invoked when `RUST_LOG=debug`
+/// and a tracing subscriber is attached to the global logger.
 #[async_trait::async_trait]
 impl Middleware for LoggingMiddleware {
     async fn handle(
@@ -144,7 +146,10 @@ impl RetryableStrategy for Retry500 {
     }
 }
 
-// Returns a robust HTTP client with ExponentialBackoff on retries up to max_duration
+/// Returns a HTTP client which will retry requests with response errors meeting the retry500 "transient error" classification
+/// Default behavior is a retry at random times between 1s and 8s for a default maximum duration of 60s.
+/// 
+/// The retry policy is configurable with `max_duration` which defaults to 60s.
 pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::marker::Send>(
     max_duration: Option<Duration>,
 ) -> RetryTransientMiddleware<ExponentialBackoffTimed, Retry500> {
@@ -154,6 +159,7 @@ pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::mar
     RetryTransientMiddleware::new_with_policy_and_strategy(retry_policy, Retry500)
 }
 
+/// Returns record & replay middleware for testing purposes
 #[cfg(any(feature = "record", feature = "replay"))]
 pub fn vcr_middleware() -> VCRMiddleware {
     let bundle = std::path::PathBuf::from("tests/recordings/replay.vcr.json");
