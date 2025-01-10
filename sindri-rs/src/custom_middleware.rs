@@ -10,6 +10,7 @@ use reqwest_retry::{
 };
 #[cfg(any(feature = "record", feature = "replay"))]
 use rvcr::{VCRMiddleware, VCRMode};
+use tracing::debug;
 
 pub struct HeaderDeduplicatorMiddleware;
 
@@ -60,9 +61,9 @@ impl Middleware for LoggingMiddleware {
         extensions: &mut Extensions,
         next: Next<'_>,
     ) -> reqwest_middleware::Result<Response> {
-        tracing::debug!("[LOGGING MIDDLEWARE] Request sent: {:?}", req);
+        debug!("Request sent: {:?}", req);
         let res = next.run(req, extensions).await;
-        tracing::debug!("[LOGGING MIDDLEWARE] Response received: {:?}", res);
+        debug!("Response received: {:?}", res);
         res
     }
 }
@@ -115,16 +116,16 @@ impl RetryableStrategy for Retry500 {
         match res {
             // retry if temporary API outage: 500, 502, 503, or 504
             Ok(success) if transient_codes.contains(&success.status()) => {
-                tracing::debug!(
-                    "[RETRY MIDDLEWARE] Retrying request due to temporary API outage: {}",
+                debug!(
+                    "Retrying request due to temporary API outage: {}",
                     success.status()
                 );
                 Some(Retryable::Transient)
             }
             // cause a panic if client error: 400s
             Ok(success) if unrecoverable_codes.contains(&success.status()) => {
-                tracing::debug!(
-                    "[RETRY MIDDLEWARE] Request failed with fatal client error: {}",
+                debug!(
+                    "Request failed with fatal client error: {}",
                     success.status()
                 );
                 Some(Retryable::Fatal)
@@ -133,8 +134,8 @@ impl RetryableStrategy for Retry500 {
             Ok(_success) => None,
             // but maybe retry a request failure due to local network issue
             Err(error) => {
-                tracing::debug!(
-                    "[RETRY MIDDLEWARE] Request failed with network error: {}",
+                debug!(
+                    "Request failed with network error: {}",
                     error
                 );
                 default_on_request_failure(error)

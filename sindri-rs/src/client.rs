@@ -50,8 +50,6 @@ pub struct SindriClient {
 
 impl SindriClient {
     pub fn new(auth_options: Option<AuthOptions>, polling_options: Option<PollingOptions>) -> Self {
-        // Initialize tracing subscriber if not already initialized
-        let _ = tracing_subscriber::fmt::try_init();
 
         let mut headers = HeaderMap::new();
         headers.insert(
@@ -120,7 +118,6 @@ impl SindriClient {
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
         info!("Creating new circuit from project: {}", project);
         debug!("Circuit tags: {:?}, metadata: {:?}", tags, meta);
-
 
         // Validate tags if provided
         let tag_rules = Regex::new(r"^[a-zA-Z0-9_.-]+$").unwrap();
@@ -290,9 +287,10 @@ mod tests {
     use super::*;
     use tracing_test::traced_test;
     use wiremock::{
-        matchers::{header_exists, method},
+        matchers::{header_exists, method, path},
         Mock, MockServer, ResponseTemplate,
     };
+    use crate::BoojumCircuitInfoResponse;
 
     #[test]
     fn test_new_client_with_options() {
@@ -438,48 +436,53 @@ mod tests {
         assert!(circuit.unwrap_err().to_string().contains("ಠ_ಠ"));
     }
 
-    #[tokio::test]
-    #[traced_test]
-    async fn test_circuit_creation_logging() {
+    async fn mock_compile_server() -> MockServer {
         // Setup mock server
         let mock_server = wiremock::MockServer::start().await;
-        
+    
+        // Setup mock responses
+        wiremock::Mock::given(method("POST"))
+            .and(path("/api/v1/circuit/create"))
+            .respond_with(ResponseTemplate::new(200)
+                .set_body_json(CircuitInfoResponse::Boojum(Box::new(BoojumCircuitInfoResponse {
+                    circuit_id: "test_circuit_123".to_string(),
+                    ..Default::default()
+                }))))
+            .mount(&mock_server)
+            .await;
+    
+        wiremock::Mock::given(method("GET"))
+            .and(path("/api/v1/circuit/test_circuit_123/status"))
+            .respond_with(ResponseTemplate::new(200)
+                .set_body_json(CircuitInfoResponse::Boojum(Box::new(BoojumCircuitInfoResponse {
+                    status: JobStatus::Ready,
+                    ..Default::default()
+                }))))
+            .mount(&mock_server)
+            .await;
+    
+        // The circuit detail is returned from the method, but does not influence logging
+        wiremock::Mock::given(method("GET"))
+            .and(path("/api/v1/circuit/test_circuit_123/detail"))
+            .respond_with(ResponseTemplate::new(200))
+            .mount(&mock_server)
+            .await;
+
+        mock_server
+    }
+
+    #[tokio::test]
+    #[traced_test]
+    async fn test_verbose_logging() {
+
+        let mock_server = mock_compile_server().await;
+
         // Create client with test configuration
         let auth_options = AuthOptions {
             api_key: Some("test_key".to_string()),
             base_url: Some(mock_server.uri()),
         };
         let client = SindriClient::new(Some(auth_options), None);
-    
-        // Setup mock responses
-        wiremock::Mock::given(wiremock::matchers::method("POST"))
-            .and(wiremock::matchers::path("/api/v1/circuit/create"))
-            .respond_with(wiremock::ResponseTemplate::new(200)
-                .set_body_json(serde_json::json!({
-                    "circuit_id": "test_circuit_123",
-                    "status": "Pending"
-                })))
-            .mount(&mock_server)
-            .await;
-    
-        wiremock::Mock::given(wiremock::matchers::method("GET"))
-            .and(wiremock::matchers::path("/api/v1/circuit/test_circuit_123/status"))
-            .respond_with(wiremock::ResponseTemplate::new(200)
-                .set_body_json(serde_json::json!({
-                    "status": "Ready"
-                })))
-            .mount(&mock_server)
-            .await;
-    
-        wiremock::Mock::given(wiremock::matchers::method("GET"))
-            .and(wiremock::matchers::path("/api/v1/circuit/test_circuit_123/detail"))
-            .respond_with(wiremock::ResponseTemplate::new(200)
-                .set_body_json(serde_json::json!({
-                    "circuit_id": "test_circuit_123",
-                    "status": "Ready"
-                })))
-            .mount(&mock_server)
-            .await;
     
         // Create a temporary test directory
         let temp_dir = tempfile::tempdir().unwrap();
@@ -492,11 +495,26 @@ mod tests {
             None,
             None
         ).await;
-    
-        // Assert logs contain expected messages
+
+        // Create method logs (debug + info level)
         assert!(logs_contain("Creating new circuit from project"));
         assert!(logs_contain("Uploading circuit to Sindri"));
         assert!(logs_contain("Circuit created with ID: test_circuit_123"));
-        assert!(logs_contain("Circuit compilation completed successfully"));
+        assert!(logs_contain("Circuit compilation completed"));
+        // Logs from the request/response (debug level)
+        // Ensure we see exactly three (create, status, detail)
+        logs_assert(|lines: &[&str]| {
+            match lines.iter().filter(|line| line.contains("Request sent")).count() {
+                3 => Ok(()),
+                n => Err(format!("Expected three logs for request outbound, but found {}", n)),
+            }
+        });
+        logs_assert(|lines: &[&str]| {
+            match lines.iter().filter(|line| line.contains("Response received")).count() {
+                3 => Ok(()),
+                n => Err(format!("Expected three logs for response inbound, but found {}", n)),
+            }
+        });
     }
+
 }
