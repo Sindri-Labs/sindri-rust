@@ -1,3 +1,5 @@
+//! # The primary module for interacting with Sindri's API.
+
 use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Duration};
 
 use openapi::{
@@ -24,12 +26,67 @@ use crate::{
 #[cfg(any(feature = "record", feature = "replay"))]
 use crate::custom_middleware::vcr_middleware;
 
+/// Configuration options for authenticating with the Sindri API.
+///
+/// This struct is used to configure authentication when initializing a [`SindriClient`].
+/// While these options can be passed directly in code, it is generally recommended to
+/// set them using environment variables instead (`SINDRI_API_KEY` and `SINDRI_BASE_URL`).
+///
+/// # Fields
+///
+/// * `api_key` - Optional API key for authentication. If not provided, falls back to `SINDRI_API_KEY` environment variable
+/// * `base_url` - Optional base URL for API requests. Should be left as `None` except for internal development purposes.
+///                If not provided, falls back to `SINDRI_BASE_URL` environment variable, then to the default production URL
+/// 
+/// # Examples
+///
+/// ```
+/// use sindri_rs::client::AuthOptions;
+///
+/// // Explicitly passing API key within code
+/// let auth = AuthOptions {
+///     api_key: Some("my_api_key".to_string()),
+///     base_url: None, // Use default production URL
+/// };
+/// ```
 #[derive(Default, Debug, Clone)]
 pub struct AuthOptions {
     pub api_key: Option<String>,
     pub base_url: Option<String>,
 }
 
+/// Configuration options for polling behavior when waiting for long-running operations.
+///
+/// This struct is used to configure how a [`SindriClient`] polls Sindri's API while
+/// waiting for operations like circuit compilation or proof generation to complete.
+/// It can be provided during client initialization or modified afterwards through
+/// the client's `polling_options` field.
+///
+/// # Fields
+///
+/// * `interval` - Duration to wait between API status checks (default: 1 second)
+/// * `timeout` - Optional maximum duration to wait for operation completion (default: 10 minutes)
+/// 
+/// # Examples
+///
+/// ```
+/// use sindri_rs::client::{SindriClient, PollingOptions};
+/// use std::time::Duration;
+///
+/// // Create client with custom polling options
+/// let polling = PollingOptions {
+///     interval: Duration::from_secs(5),
+///     timeout: Some(Duration::from_secs(1800)), // 30 minutes
+/// };
+/// let client = SindriClient::new(None, Some(polling));
+///
+/// // Or modify polling options after creation
+/// let mut client = SindriClient::new(None, None);
+/// client.polling_options.timeout = Some(Duration::from_secs(1800));
+/// ```
+///
+/// The default values are suitable for most use cases and only need to be adjusted
+/// when working with circuits or proofs that are known to require longer processing times.
 #[derive(Debug, Clone)]
 pub struct PollingOptions {
     pub interval: Duration,
@@ -42,6 +99,9 @@ impl Default for PollingOptions {
 }
 
 
+/// The [`SindriClient`] struct encapsulates all the necessary methods and properties
+///  required to communicate effectively with the Sindri API, handling tasks
+///  like uploads of circuits or guest code and proof generation.
 #[derive(Debug)]
 pub struct SindriClient {
     config: Configuration,
@@ -49,6 +109,24 @@ pub struct SindriClient {
 }
 
 impl SindriClient {
+    /// Creates a new Sindri API client.
+    ///
+    /// # Arguments
+    /// 
+    /// * `auth_options` - Optional authentication configuration. If not provided, will attempt to read from environment variables
+    /// * `polling_options` - Optional polling configuration for long-running operations
+    ///
+    /// # Environment Variables
+    ///
+    /// * `SINDRI_API_KEY` - API key for authentication (if auth_options not provided)
+    /// * `SINDRI_BASE_URL` - Base URL for API requests (if auth_options not provided)
+    /// 
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// let client = SindriClient::new(None, None); // inferring your API key from `SINDRI_API_KEY`
+    /// ```
     pub fn new(auth_options: Option<AuthOptions>, polling_options: Option<PollingOptions>) -> Self {
 
         let mut headers = HeaderMap::new();
@@ -99,17 +177,44 @@ impl SindriClient {
         Self { config, polling_options: polling_options.unwrap_or_default() }
     }
 
+    /// Returns the configured API key
     pub fn api_key(&self) -> Option<&str> {
         self.config.bearer_access_token.as_deref()
     }
 
+    /// Returns the configured base URL for API requests
     pub fn base_url(&self) -> &str {
         &self.config.base_path
     }
 
-    /// Uploads a circuit project to Sindri. Upon successful upload, the method polls
-    /// to track the compilation status of the project.
-    /// Returns a CircuitInfoResponse object with the circuit id and other metadata.
+    /// Creates and deploys a new circuit from a local project.
+    ///
+    /// In order to generate proofs on Sindri, you must first deploy the zero-knowledge circuit or 
+    /// guest code with this method. Upon deployment, this method continuously polls the service to 
+    /// track the compilation status until the process either completes successfully or fails.
+    /// 
+    /// # Arguments
+    ///
+    /// * `project` - Path to a local project directory or an archive file (.zip, .tar, .tar.gz, .tgz)
+    /// * `tags` - Optional list of tags to identify the circuit
+    /// * `meta` - Optional metadata (key-value pairs) to associate with the circuit
+    ///
+    /// # Returns
+    ///
+    /// Returns circuit information on successful compilation, or error if compilation fails or times out.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::new(None, None);
+    /// let circuit = client.create_circuit(
+    ///     "path/to/circuit".to_string(),
+    ///     Some(vec!["a_custom_tag".to_string()]), 
+    ///     Some(HashMap::from([("key".to_string(), "value".to_string())]))
+    /// ).await?;
+    /// ```
     pub async fn create_circuit(
         &self,
         project: String,
@@ -177,12 +282,52 @@ impl SindriClient {
         Ok(circuit_info)
     }
 
+    /// Deletes a circuit by ID.
+    ///
+    /// # Arguments
+    ///
+    /// * `circuit_id` - ID of the circuit to delete
+    /// 
+    /// # Warning
+    ///
+    /// Once deleted, the circuit will no longer be viewable on the Sindri dashboard
+    /// and you will not be able to generate proofs from it. You should only delete a circuit
+    /// if its existence may cause confusion or misuse.
     pub async fn delete_circuit(&self, circuit_id: &str) -> Result<(), Box<dyn std::error::Error>> {
         info!("Deleting circuit with ID: {}", circuit_id);
         circuit_delete(&self.config, circuit_id).await?;
         Ok(())
     }
 
+    /// Downloads and saves a project's source code.
+    /// 
+    /// This method allows you to retrieve the original source code that was uploaded to Sindri for a given circuit.
+    /// The code is downloaded as a tarball (.tar.gz) and saved to the specified location. This is useful for:
+    /// 
+    /// - Obtaining code from public circuits to use as examples or templates
+    /// - Retrieving your own previously deployed circuits
+    /// - Backing up circuit source code
+    /// - Collaborating by sharing circuit implementations 
+    ///
+    /// # Arguments
+    ///
+    /// * `circuit_id` - ID of the circuit to clone
+    /// * `download_path` - Path where the circuit archive should be saved
+    /// * `override_max_project_size` - Optional maximum allowed size in bytes (defaults to 2GB)
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::new(None, None);
+    /// 
+    /// client.clone_circuit(
+    ///     "abc123", 
+    ///     "path/to/save/circuit.tar.gz".to_string(),
+    ///     None
+    /// ).await?;
+    /// ```
     pub async fn clone_circuit(&self, circuit_id: &str, download_path: String, override_max_project_size: Option<usize>) -> Result<(), Box<dyn std::error::Error>> {
         info!("Cloning circuit with ID: {}", circuit_id);
         debug!("Download path: {}", download_path);
@@ -207,6 +352,28 @@ impl SindriClient {
         Ok(())
     }
 
+    /// Retrieves the details of a circuit.
+    /// 
+    /// You can use this method to get the status, metadata, and other details of a circuit.
+    ///
+    /// # Arguments
+    ///
+    /// * `circuit_id` - ID of the circuit to retrieve
+    /// * `include_verification_key` - Whether to include the verification key in the response
+    /// 
+    ///  # Returns
+    /// 
+    /// A [`CircuitInfoResponse`] object containing the circuit details.  
+    /// The enum variant corresponds to the type of circuit deployed.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::new(None, None);
+    /// let circuit = client.get_circuit("abc123", None).await?;
+    /// ```
     pub async fn get_circuit(
         &self,
         circuit_id: &str,
@@ -217,6 +384,37 @@ impl SindriClient {
         Ok(circuit_info)
     }
 
+    /// Creates and generates a proof for a circuit.
+    ///
+    /// This method initiates proof generation and automatically polls the Sindri API until the proof
+    /// is either successfully generated or fails. The polling interval and timeout can be configured
+    /// through the client's `polling_options`.
+    /// 
+    /// # Arguments
+    ///
+    /// * `circuit_id` - ID of the circuit to prove
+    /// * `proof_input` - Input values for the proof. Can be provided as a JSON object, &str, or String.
+    ///                   The format (JSON, TOML, base64, etc.) should match your circuit's expected input structure.
+    /// * `meta` - Optional metadata key-value pairs
+    /// * `verify` - Whether to verify the proof (server-side) after generation. A proof status
+    ///              of `Failed` would be returned if the proof is not valid.
+    /// * `prover_implementation` - Optional specific prover implementation to use.
+    ///                            This field is generally for internal development only.
+    ///                            Sindri automatically selects the most performant implementation
+    ///                            based on your project's deployment details.
+    ///
+    /// # Returns
+    ///
+    /// Returns proof information on successful generation, or error if generation fails or times out.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::new(None, None);
+    /// let proof = client.prove_circuit("abc123", "x=10,y=20", None, None, None).await?;
+    /// ```
     pub async fn prove_circuit(
         &self,
         circuit_id: &str,
@@ -264,12 +462,54 @@ impl SindriClient {
         Ok(proof_info)
     }
 
+    /// Deletes a proof by ID.
+    ///
+    /// # Arguments
+    ///
+    /// * `proof_id` - ID of the proof to delete
+    /// 
+    /// # Warning
+    ///
+    /// Once deleted, the proof will no longer be viewable on the Sindri dashboard. 
+    /// You should only delete a proof if its existence may cause confusion and retrieval
+    /// of the wrong proof details.
     pub async fn delete_proof(&self, proof_id: &str) -> Result<(), Box<dyn std::error::Error>> {
         info!("Deleting proof with ID: {}", proof_id);
         proof_delete(&self.config, proof_id).await?;
         Ok(())
     }
 
+    /// Gets information about a proof.
+    ///
+    /// This method allows you to retrieve details about a previously generated proof, including
+    /// the proof data itself and any public outputs. While `prove_circuit()` returns
+    /// the same information immediately after generation, this method is particularly useful for:
+    /// 
+    /// - Retrieving details of historical proofs
+    /// - Fetching public outputs from previous proof generations
+    /// - Verifying proof status after system interruptions
+    /// - Downloading proof data for external verification
+    ///
+    /// # Arguments
+    ///
+    /// * `proof_id` - ID of the proof to retrieve
+    /// * `include_proof` - Whether to include the proof data in the response
+    /// * `include_public` - Whether to include public inputs/outputs in the response
+    /// * `include_verification_key` - Whether to include the verification key in the response
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::new(None, None);
+    /// 
+    /// // Get just the proof status
+    /// let basic_info = client.get_proof("abc123", None, None, None).await?;
+    /// 
+    /// // Get just the public outputs
+    /// let proof_with_outputs = client.get_proof("abc123", None, Some(true), None).await?;
+    /// ```
     pub async fn get_proof(
         &self,
         proof_id: &str,

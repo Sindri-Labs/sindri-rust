@@ -1,3 +1,12 @@
+//! Custom middleware definitions for the SindriClient. 
+//! 
+//! Important types of middleware implemented here:
+//! 
+//! - `HeaderDeduplicatorMiddleware`: Removes duplicate headers from requests (bugfix for openapi client).
+//! - `LoggingMiddleware`: Logs requests and responses.
+//! - `Retry500`: Implements a retry policy for 500-series errors.
+//! - `VCRMiddleware`: Records and replays requests for (internal) testing purposes.
+
 use std::{collections::HashSet, time::Duration};
 
 use http::Extensions;

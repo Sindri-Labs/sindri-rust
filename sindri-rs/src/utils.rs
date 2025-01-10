@@ -1,3 +1,5 @@
+//! Utility functions for Sindri Rust SDK (mainly local file managers called by client methods)
+
 use std::{error::Error, io::Read, path::Path};
 
 use flate2::{write::GzEncoder, Compression};

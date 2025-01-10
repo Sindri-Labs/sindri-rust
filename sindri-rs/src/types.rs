@@ -140,9 +140,14 @@ impl_circuit_info!(
     Boojum, Circom, Halo2, Gnark, Jolt, Noir, Plonky2, Sp1
 );
 
-// Wrapper type to allow for conversion between our internal type and the openapi type
-// This allows the external client method `prove_circuit` to be agnostic to the type of proof input
-// (string literal, owned string, or serde_json::Value.)
+
+/// A wrapper type around [`InternalProofInput`] that provides convenient conversions from
+/// various input formats for circuit proofs.
+///
+/// This type supports automatic conversion from:
+/// - String literals (`&str`)
+/// - Owned strings (`String`)
+/// - JSON values (`serde_json::Value`)
 #[derive(Clone, Debug, PartialEq)]
 pub struct ProofInput(pub InternalProofInput);
 
