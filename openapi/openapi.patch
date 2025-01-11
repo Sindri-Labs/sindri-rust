@@ -72,14 +72,15 @@ index 4b91bf9..02d0781 100644
      let local_var_req = local_var_req_builder.build()?;
      let local_var_resp = local_var_client.execute(local_var_req).await?;
 diff --git b/openapi/src/apis/mod.rs a/openapi/src/apis/mod.rs
-index d1c0ef5..cf832c5 100644
+index d1c0ef5..4918336 100644
 --- b/openapi/src/apis/mod.rs
 +++ a/openapi/src/apis/mod.rs
-@@ -102,5 +102,6 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
+@@ -102,5 +102,7 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
  pub mod authorization_api;
  pub mod circuits_api;
  pub mod proofs_api;
 -
++#[allow(dead_code)]
 +mod internal_api;
 +pub use internal_api::{circuit_download, circuit_status, CircuitStatusError, proof_status, ProofStatusError};
  pub mod configuration;
@@ -144,3 +145,15 @@ index c7f703a..6dfb4f6 100644
 +     }
 + }
  
+diff --git b/openapi/src/models/validation_error_response.rs a/openapi/src/models/validation_error_response.rs
+index f57ef5d..8c120de 100644
+--- b/openapi/src/models/validation_error_response.rs
++++ a/openapi/src/models/validation_error_response.rs
+@@ -25,7 +25,6 @@ pub struct ValidationErrorResponse {
+ }
+ 
+ impl ValidationErrorResponse {
+-    /// 
+     pub fn new(error: String, location: String, message: String) -> ValidationErrorResponse {
+         ValidationErrorResponse {
+             error,
