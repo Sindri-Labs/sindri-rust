@@ -17,7 +17,6 @@ use openapi::{
 };
 use regex::Regex;
 use reqwest::header::{HeaderMap, HeaderValue};
-use reqwest_retry::policies::ExponentialBackoffTimed;
 use tracing::{debug, info, warn};
 
 use crate::{
@@ -151,7 +150,7 @@ impl SindriClient {
         )
         .with(HeaderDeduplicatorMiddleware)
         .with(LoggingMiddleware)
-        .with(retry_client::<ExponentialBackoffTimed>(None));
+        .with(retry_client(None));
 
         #[cfg(any(feature = "record", feature = "replay"))]
         {

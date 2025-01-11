@@ -156,7 +156,7 @@ impl RetryableStrategy for Retry500 {
 /// Default behavior is a retry at random times between 1s and 8s for a default maximum duration of 60s.
 ///
 /// The retry policy is configurable with `max_duration` which defaults to 60s.
-pub fn retry_client<T: reqwest_retry::RetryPolicy + std::marker::Sync + std::marker::Send>(
+pub fn retry_client(
     max_duration: Option<Duration>,
 ) -> RetryTransientMiddleware<ExponentialBackoffTimed, Retry500> {
     let retry_policy = ExponentialBackoff::builder()
@@ -206,7 +206,6 @@ mod tests {
     use std::time::{Duration, Instant};
 
     use reqwest::header::{HeaderMap, HeaderValue};
-    use reqwest_retry::policies::ExponentialBackoffTimed;
     use wiremock::{
         matchers::{header, method},
         Mock, MockServer, ResponseTemplate,
@@ -268,7 +267,7 @@ mod tests {
                 .build()
                 .expect("Could not build client"),
         )
-        .with(retry_client::<ExponentialBackoffTimed>(Some(
+        .with(retry_client(Some(
             Duration::from_secs(15),
         )))
         .build();
@@ -303,7 +302,7 @@ mod tests {
                 .build()
                 .expect("Could not build client"),
         )
-        .with(retry_client::<ExponentialBackoffTimed>(None))
+        .with(retry_client(None))
         .build();
 
         let request = client.get(mock_server.uri()).build().unwrap();
