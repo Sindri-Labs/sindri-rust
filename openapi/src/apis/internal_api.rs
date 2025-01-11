@@ -1111,7 +1111,7 @@ pub async fn sindri_manifest_schema(
 /// Upload avatar for the team
 pub async fn team_avatar_upload(
     configuration: &configuration::Configuration,
-    files: Vec<std::path::PathBuf>,
+    _files: Vec<std::path::PathBuf>,
 ) -> Result<models::TeamMeResponse, Error<TeamAvatarUploadError>> {
     let local_var_configuration = configuration;
 
@@ -1134,7 +1134,7 @@ pub async fn team_avatar_upload(
     if let Some(ref local_var_token) = local_var_configuration.bearer_access_token {
         local_var_req_builder = local_var_req_builder.bearer_auth(local_var_token.to_owned());
     };
-    let mut local_var_form = reqwest::multipart::Form::new();
+    let local_var_form = reqwest::multipart::Form::new();
     // TODO: support file upload for 'files' parameter
     local_var_req_builder = local_var_req_builder.multipart(local_var_form);
 

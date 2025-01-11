@@ -25,7 +25,6 @@ pub struct ValidationErrorResponse {
 }
 
 impl ValidationErrorResponse {
-    /// 
     pub fn new(error: String, location: String, message: String) -> ValidationErrorResponse {
         ValidationErrorResponse {
             error,
