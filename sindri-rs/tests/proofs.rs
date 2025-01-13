@@ -48,6 +48,42 @@ async fn test_create_proof_basic() {
     assert_eq!(proof.meta, test_meta);
 }
 
+#[test]
+fn test_create_proof_basic_blocking() {
+    let (_temp_dir, dir_path) = factory::baby_circuit();
+
+    let client = SindriClient::new(None, None);
+
+    // Create circuit first (using blocking version for consistency)
+    let circuit = client
+        .create_circuit_blocking(
+            dir_path.to_string_lossy().to_string(),
+            Some(vec!["prove_basic_blocking".to_string()]),
+            None,
+        )
+        .unwrap();
+    let circuit_identifier = circuit.id();
+
+    let input = r#"{"a": 1, "b": 2}"#;
+    let test_meta = HashMap::from([
+        ("key1".to_string(), "value1".to_string()),
+        ("key2".to_string(), "value2".to_string()),
+    ]);
+    let result = client.prove_circuit_blocking(
+        circuit_identifier,
+        input,
+        Some(test_meta.clone()),
+        None,
+        None,
+    );
+
+    assert!(result.is_ok());
+    let proof = result.unwrap();
+
+    assert!(!proof.proof_id.is_empty());
+    assert_eq!(proof.meta, test_meta);
+}
+
 #[tokio::test]
 async fn test_create_proof_input_modes() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
