@@ -1,4 +1,5 @@
 //! Common types re-exported from the openapi (internal) package.
+use base64::engine::{general_purpose, Engine};
 pub use openapi::models::{
     BoojumCircuitInfoResponse, CircomCircuitInfoResponse, CircuitInfoResponse, CircuitType,
     GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, JobStatus, JoltCircuitInfoResponse,
@@ -180,6 +181,70 @@ impl From<InternalProofInput> for ProofInput {
     }
 }
 
+pub trait ProofInfo {
+    fn get_proof_as_serde_json(&self) -> Result<serde_json::Value, Box<dyn std::error::Error>>;
+    fn get_proof_as_bytes(&self) -> Result<Vec<u8>, Box<dyn std::error::Error>>;
+    // fn to_sp1_proof_with_public(&self) -> Result<sp1_sdk::SP1ProofWithPublicValues, Box<dyn std::error::Error>>;
+}
+
+impl ProofInfo for ProofInfoResponse {
+    /// Returns the unwrapped proof data as a serde_json::Value
+    fn get_proof_as_serde_json(&self) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+        self.proof
+            .clone()
+            .flatten()
+            .ok_or_else(|| "Proof field is not populated".into())
+    }
+
+    /// Extracts proof bytes from base64-encoded proof data.
+    /// Only applicable for Halo2 and Sp1 circuits.
+    fn get_proof_as_bytes(&self) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        let proof_value = self.get_proof_as_serde_json()?;
+        let circuit_type = self.circuit_type;
+
+        // Only proceed if Halo2 or Sp1, where the proof is a single key-value pair
+        // in which the value is a base64-encoded string
+        match circuit_type {
+            CircuitType::Halo2 | CircuitType::Sp1 => {
+                let proof_str = extract_single_value(&proof_value)?
+                    .as_str()
+                    .ok_or("Failed to convert proof to string")?;
+
+                general_purpose::STANDARD
+                    .decode(proof_str)
+                    .map_err(|e| format!("Failed to decode base64: {}", e).into())
+            }
+            _ => Err(format!(
+                "Proof extraction as bytesnot supported for circuit type: {}",
+                circuit_type
+            )
+            .into()),
+        }
+    }
+
+    // fn to_sp1_proof_with_public(&self) -> Result<sp1_sdk::SP1ProofWithPublicValues, Box<dyn std::error::Error>> {
+    //     let proof_bytes = self.get_proof_as_bytes()?;
+    //     let proof: sp1_sdk::SP1ProofWithPublicValues = serde_json::from_slice(&proof_bytes)?;
+    //     Ok(proof)
+    // }
+}
+
+/// Extracts the value from a JSON object that contains exactly one field.
+/// Returns an error if the JSON is not an object or has more/less than one field.
+fn extract_single_value(
+    value: &serde_json::Value,
+) -> Result<&serde_json::Value, Box<dyn std::error::Error>> {
+    match value {
+        serde_json::Value::Object(map) => {
+            if map.len() != 1 {
+                return Err("JSON object must have exactly one field".into());
+            }
+            Ok(map.values().next().unwrap())
+        }
+        _ => Err("Input must be a JSON object".into()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -275,5 +340,47 @@ mod tests {
         // Test InternalProofInput -> ProofInput
         let proof_input: ProofInput = internal.into();
         assert_eq!(proof_input, original);
+    }
+
+    #[test]
+    fn test_proof_into_json_success() {
+        let json_value = serde_json::json!({"pi_a": "256", "pi_b": "256"});
+        let proof_response = ProofInfoResponse {
+            proof: Some(Some(json_value.clone())),
+            ..Default::default()
+        };
+
+        let result = proof_response.get_proof_as_serde_json().unwrap();
+        assert_eq!(result, json_value);
+    }
+
+    #[test]
+    fn test_proof_into_json_none() {
+        let proof_response = ProofInfoResponse {
+            proof: None,
+            status: JobStatus::Queued,
+            ..Default::default()
+        };
+
+        let error = proof_response.get_proof_as_serde_json().unwrap_err();
+        assert_eq!(error.to_string(), "Proof field is not populated");
+    }
+
+    #[test]
+    fn test_extract_single_value() {
+        // Test successful case
+        let json = serde_json::json!({"any_key": "value"});
+        let result = extract_single_value(&json).unwrap();
+        assert_eq!(result, "value");
+
+        // Test multiple fields
+        let json = serde_json::json!({"key1": "value1", "key2": "value2"});
+        let error = extract_single_value(&json).unwrap_err();
+        assert_eq!(error.to_string(), "JSON object must have exactly one field");
+
+        // Test non-object
+        let json = serde_json::json!("not an object");
+        let error = extract_single_value(&json).unwrap_err();
+        assert_eq!(error.to_string(), "Input must be a JSON object");
     }
 }
