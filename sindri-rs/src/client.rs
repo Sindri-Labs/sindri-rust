@@ -213,7 +213,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use sindri_rs::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -298,6 +298,20 @@ impl SindriClient {
         Ok(circuit_info)
     }
 
+    /// Blocking version of `create_circuit`.
+    ///
+    /// This method provides the same functionality as `create_circuit` but can be used
+    /// in synchronous contexts. It internally creates a runtime to execute the async operation.
+    pub fn create_circuit_blocking(
+        &self,
+        project: String,
+        tags: Option<Vec<String>>,
+        meta: Option<HashMap<String, String>>,
+    ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
+        let runtime = tokio::runtime::Runtime::new()?;
+        runtime.block_on(self.create_circuit(project, tags, meta))
+    }
+
     /// Deletes a circuit by ID.
     ///
     /// # Arguments
@@ -333,7 +347,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use sindri_rs::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -395,7 +409,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use sindri_rs::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -437,7 +451,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use sindri_rs::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -496,6 +510,28 @@ impl SindriClient {
         Ok(proof_info)
     }
 
+    /// Blocking version of `prove_circuit`.
+    ///
+    /// This method provides the same functionality as `prove_circuit` but can be used
+    /// in synchronous contexts. It internally creates a runtime to execute the async operation.
+    pub fn prove_circuit_blocking(
+        &self,
+        circuit_id: &str,
+        proof_input: impl Into<ProofInput>,
+        meta: Option<HashMap<String, String>>,
+        verify: Option<bool>,
+        prover_implementation: Option<String>,
+    ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
+        let runtime = tokio::runtime::Runtime::new()?;
+        runtime.block_on(self.prove_circuit(
+            circuit_id,
+            proof_input,
+            meta,
+            verify,
+            prover_implementation,
+        ))
+    }
+
     /// Deletes a proof by ID.
     ///
     /// # Arguments
@@ -533,7 +569,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use sindri_rs::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);

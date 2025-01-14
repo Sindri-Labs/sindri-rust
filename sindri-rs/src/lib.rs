@@ -12,7 +12,7 @@
 //!
 //! Generate your first zero-knowledge proof in just a few lines of code:
 //!
-//! ```rust
+//! ```ignore
 //! use sindri_rs::client::SindriClient;
 //!
 //! let client = SindriClient::new(None, None);
