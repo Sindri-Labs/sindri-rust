@@ -1,0 +1,9 @@
+[package]
+name = "sp1-proof"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sindri-rs = { path = "../../sindri-rs" }
+sp1-sdk = "=3.0.0"
+tracing-subscriber = "0.3.19"
