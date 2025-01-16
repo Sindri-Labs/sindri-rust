@@ -19,8 +19,15 @@ ignore = "0.4.23"
 tar = "0.4.43"
 rand = "0.8.5"
 regex = "1.11.1"
+base64 = "0.22.1"
 # fork that supports newer reqwest-middleware (see https://github.com/ChorusOne/rvcr/pull/22)
 rvcr = { git = "https://github.com/lededje/rvcr", branch = "update-reqwest-middleware", optional = true }
+
+# Framework-specific dependencies
+sp1-sdk = "=3.0.0"
+rmp-serde = "1.3.0"
+# sp1-sdk-3-0 = { package = "sp1-sdk", version = "=3.0.0" }
+#sp1-sdk-3-3 = { package = "sp1-sdk", version = "=3.3.0" }
 
 [dev-dependencies]
 wiremock = "0.6.2"
@@ -32,3 +39,6 @@ tracing-test = "0.2"
 default = []
 record = ["dep:rvcr"]
 replay = ["dep:rvcr"]
+
+# Framework-specific features
+# sp1-v3 = ["dep:sp1-sdk-3-3"]
