@@ -32,8 +32,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None,     // No custom prover implementation
     )?;
 
-    // Convert the proof to SP1ProofWithPublicValues
+    // Convert the proof to SP1ProofWithPublicValues and get the verifying key
     let sp1_proof = proof_info.to_sp1_proof_with_public()?;
+    let sindri_verifying_key = proof_info.get_sp1_verifying_key()?;
     
     println!("Successfully converted Sindri proof to SP1ProofWithPublicValues");
     println!("Public values: {:?}", sp1_proof.public_values);
@@ -42,8 +43,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Instantiate a local Sp1 Prover Client (unrelated to SindriClient)
     let local_sp1_client = ProverClient::new();
-
-    let sindri_verifying_key = proof_info.get_sp1_verifying_key()?;
     if local_sp1_client.verify(&sp1_proof, &sindri_verifying_key).is_ok() {
         println!("Proof verified successfully");
     } else {
