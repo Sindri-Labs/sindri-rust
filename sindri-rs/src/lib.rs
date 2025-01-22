@@ -44,5 +44,6 @@ pub mod client;
 pub(crate) mod custom_middleware;
 pub(crate) mod utils;
 
+pub mod integrations;
 mod types;
 pub use types::*;

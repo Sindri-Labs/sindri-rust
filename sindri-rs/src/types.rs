@@ -8,10 +8,6 @@ pub use openapi::models::{
 };
 use std::collections::HashMap;
 
-// Framework-specific dependencies
-#[cfg(feature = "sp1-v3")]
-use sp1_sdk::{SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey};
-
 
 /// Helper trait to extract common fields from CircuitInfoResponse
 pub trait CircuitInfo {
@@ -172,15 +168,6 @@ impl From<serde_json::Value> for ProofInput {
     }
 }
 
-impl TryFrom<SP1Stdin> for ProofInput {
-    type Error = serde_json::Error;
-
-    fn try_from(stdin: SP1Stdin) -> Result<Self, Self::Error> {
-        let stdin_str = serde_json::to_string(&stdin)?;
-        Ok(ProofInput(InternalProofInput::String(stdin_str)))
-    }
-}
-
 // Convert from our wrapper type to the original type
 impl From<ProofInput> for InternalProofInput {
     fn from(input: ProofInput) -> Self {
@@ -198,10 +185,6 @@ impl From<InternalProofInput> for ProofInput {
 pub trait ProofInfo {
     fn get_proof_as_serde_json(&self) -> Result<serde_json::Value, Box<dyn std::error::Error>>;
     fn get_proof_as_bytes(&self) -> Result<Vec<u8>, Box<dyn std::error::Error>>;
-    #[cfg(feature = "sp1-v3")]
-    fn to_sp1_proof_with_public(&self) -> Result<SP1ProofWithPublicValues, Box<dyn std::error::Error>>;
-    #[cfg(feature = "sp1-v3")]
-    fn get_sp1_verifying_key(&self) -> Result<SP1VerifyingKey, Box<dyn std::error::Error>>;
 }
 
 impl ProofInfo for ProofInfoResponse {
@@ -237,20 +220,6 @@ impl ProofInfo for ProofInfoResponse {
             )
             .into()),
         }
-    }
-
-    #[cfg(feature = "sp1-v3")]
-    fn to_sp1_proof_with_public(&self) -> Result<sp1_sdk::SP1ProofWithPublicValues, Box<dyn std::error::Error>> {
-        let proof_bytes = self.get_proof_as_bytes()?;
-        let proof: SP1ProofWithPublicValues = rmp_serde::from_slice(&proof_bytes)?;
-        Ok(proof)
-    }
-
-    #[cfg(feature = "sp1-v3")]
-    fn get_sp1_verifying_key(&self) -> Result<SP1VerifyingKey, Box<dyn std::error::Error>> {
-        let verifying_key = self.verification_key.clone().flatten().ok_or("Verifying key is not populated")?;
-        let verifying_key_sp1: SP1VerifyingKey = serde_json::from_value(verifying_key)?;
-        Ok(verifying_key_sp1)
     }
 
 }
