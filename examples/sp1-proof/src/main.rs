@@ -1,5 +1,5 @@
-use sindri_rs::{client::SindriClient, ProofInfo, ProofInput};
-use sp1_sdk::{ProverClient, SP1Stdin};
+use sindri_rs::{client::SindriClient, integrations::sp1::SP1ProofInfo, ProofInput};
+use sp1_sdk::SP1Stdin;
 use tracing_subscriber::{fmt, EnvFilter};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -40,14 +40,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Public values: {:?}", sp1_proof.public_values);
 
     // Verify the proof locally
-
-    // Instantiate a local Sp1 Prover Client (unrelated to SindriClient)
-    let local_sp1_client = ProverClient::new();
-    if local_sp1_client.verify(&sp1_proof, &sindri_verifying_key).is_ok() {
-        println!("Proof verified successfully");
-    } else {
-        println!("Proof verification failed");
-    }
+    proof_info.verify_sp1_proof_locally(&sindri_verifying_key)?;
+    println!("Proof verified successfully");
 
     Ok(())
 } 
