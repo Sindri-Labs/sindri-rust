@@ -53,4 +53,4 @@ jobs:
         run: cargo build --verbose
 
       - name: Run sindri-rs unit tests
-        run: cargo test --package sindri-rs --lib --verbose
+        run: cargo test --package sindri-rs --lib --features sp1-v3 --verbose

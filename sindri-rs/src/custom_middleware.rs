@@ -267,9 +267,7 @@ mod tests {
                 .build()
                 .expect("Could not build client"),
         )
-        .with(retry_client(Some(
-            Duration::from_secs(15),
-        )))
+        .with(retry_client(Some(Duration::from_secs(15))))
         .build();
 
         // Make the request
