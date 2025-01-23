@@ -63,13 +63,12 @@ fn test_create_circuit_blocking() {
         ("key2".to_string(), "value2".to_string()),
     ]);
 
-    let result = client
-        .create_circuit_blocking(
-            dir_path.to_string_lossy().to_string(),
-            Some(test_tags.clone()),
-            Some(test_meta.clone()),
-        );
-        
+    let result = client.create_circuit_blocking(
+        dir_path.to_string_lossy().to_string(),
+        Some(test_tags.clone()),
+        Some(test_meta.clone()),
+    );
+
     assert!(result.is_ok());
     let circuit = result.unwrap();
 

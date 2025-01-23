@@ -3,11 +3,10 @@ use sp1_sdk::SP1Stdin;
 use tracing_subscriber::{fmt, EnvFilter};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     // Initialize the tracing subscriber to optionally seeSindriClient logs
     fmt().with_env_filter(EnvFilter::from_default_env()).init();
 
-    // Create a new Sindri client 
+    // Create a new Sindri client
     // Your api key is read from the SINDRI_API_KEY environment variable
     let client = SindriClient::new(None, None);
 
@@ -23,19 +22,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     stdin.write(&x);
     stdin.write(&y);
     let proof_input = ProofInput::try_from(stdin)?;
-    
+
     let proof_info = client.prove_circuit_blocking(
         format!("{project_team}/{project_name}:{circuit_tag}").as_str(),
         proof_input,
-        None,     // Don't need to attach meta data
-        None,     // Don't require server-side validity check
-        None,     // No custom prover implementation
+        None, // Don't need to attach meta data
+        None, // Don't require server-side validity check
+        None, // No custom prover implementation
     )?;
 
     // Convert the proof to SP1ProofWithPublicValues and get the verifying key
     let sp1_proof = proof_info.to_sp1_proof_with_public()?;
     let sindri_verifying_key = proof_info.get_sp1_verifying_key()?;
-    
+
     println!("Successfully converted Sindri proof to SP1ProofWithPublicValues");
     println!("Public values: {:?}", sp1_proof.public_values);
 
@@ -44,4 +43,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Proof verified successfully");
 
     Ok(())
-} 
+}

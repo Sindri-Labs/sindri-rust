@@ -8,7 +8,6 @@ pub use openapi::models::{
 };
 use std::collections::HashMap;
 
-
 /// Helper trait to extract common fields from CircuitInfoResponse
 pub trait CircuitInfo {
     fn compute_time_sec(&self) -> Option<f64>;
@@ -221,7 +220,6 @@ impl ProofInfo for ProofInfoResponse {
             .into()),
         }
     }
-
 }
 
 /// Extracts the value from a JSON object that contains exactly one field.
