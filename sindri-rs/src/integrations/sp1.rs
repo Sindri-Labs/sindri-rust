@@ -58,3 +58,109 @@ impl SP1ProofInfo for ProofInfoResponse {
         local_sp1_client.verify(&sp1_proof, verifying_key).map_err(|e| e.into())
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sp1_stdin_conversion() {
+        // Create sample SP1Stdin
+        let x = 1u32;
+        let mut stdin = SP1Stdin::new();
+        stdin.write(&x);
+
+        // Convert to ProofInput
+        let proof_input = ProofInput::try_from(stdin).unwrap();
+        
+        // Verify the conversion
+        if let ProofInput(InternalProofInput::String(stdin_str)) = proof_input {
+            let roundtrip: SP1Stdin = serde_json::from_str(&stdin_str).unwrap();
+            let value = u32::from_le_bytes(roundtrip.buffer[0][..4].try_into().unwrap());
+            assert_eq!(value, x);
+        } else {
+            panic!("ProofInput should contain InternalProofInput::String variant");
+        }
+    }
+
+    #[test]
+    fn test_sp1_proof_info() {
+        let mockresponse = r#"{
+            "proof_id": "ff02b570-4ba7-4245-9a26-dd22cd63721d",
+            "circuit_name": "not_equal_guest",
+            "project_name": "not_equal_guest",
+            "circuit_id": "767decb6-33da-4dc5-8675-149846756edd",
+            "circuit_type": "sp1",
+            "date_created": "2025-01-23T00:54:44.305Z",
+            "meta": {},
+            "perform_verify": true,
+            "status": "Ready",
+            "finished_processing": true,
+            "verified": true,
+            "team": "Sindri",
+            "team_avatar_url": "https://static.sindri.app/team_avatars/0665d27c-c3d6-76b7-8000-d81b5767ac43.png",
+            "team_slug": "sindri",
+            "circuit_team": "Sindri",
+            "circuit_team_avatar_url": "https://static.sindri.app/team_avatars/0665d27c-c3d6-76b7-8000-d81b5767ac43.png",
+            "circuit_team_slug": "sindri",
+            "compute_time": "P0DT00H01M41.940077S",
+            "compute_time_sec": 101.940077,
+            "compute_times": {
+                "prove": 100.81364,
+                "total": 101.94008,
+                "clean_up": 0.00728,
+                "file_setup": 0.16965,
+                "save_results": 0.52199,
+                "verify_check": 0.42751
+            },
+            "file_size": 5065,
+            "proof": {
+                "proof": "lIGlUGxvbmuUktlKNDk3MzA2MTg5MTUyMzA1NDU5MjE1Mjg2MzQ0ODYxNTc1NjE3NjE4OTM4Mzc2OTg3NDA1MzYwOTI0NjI1ODM0NzgwOTMxMjk5MzHZTDY0MjQzMzYwNzk0MjQxNjc5MDI4OTAzNDc5MjYzMTcyOTAwNjAxNjUwOTk4MDU5NDA2MjAwNTk4Mzk3MTY2NjAyNDkzNjU1NTMxODHaBsAyZjJlYmFlNTI0ODE3YmZkNzQ3MzgxMTQ0MmE1NTY2Njc1M2YyOGRlYWM1YjRmY2RjMmU3YTI2ZTA2ZmM5ODM1MDYzYmE1YmViYjI3NTA0MjkzZGNhNDdkNjJlZjNjNGExNzY4MmZiNmI0MTM0M2JkN2Y5YzkyYmViOTI1ZGRkZjJkNzNiOTcyOTY5ZDZiMGI5ZTRhZjI0NzM0NTNiOTFhYmU1YTQ5YzdmZDUwYTllZjg1ZGRiZDQ4OGE5MzFjNmYwYTJhNDhiMTE0MGYyMzYyZThhNGNhYWMzMWRkZWY0MTdlMWI3M2ZjM2FmMzZmYTllMmQwYmRhZjZlOGI5MDY1Mjc4NzcwYjZjY2VlMjg5MTdhNDVmMjYzZjFiYTQ0MGNjZWZhZjMwNmI2NmEwNjhmMTIzNzAxMmRiMTJmZTgxYjBlNTIyNDgxYmRlMDExM2QyY2QwNzk5YWVmMzkyMzU1NjU4YzAyMGZlMGFjZGIxMzEzY2EzZTdmNWRmNGE2ZGYxNjZjNmI2NDc4ZjBhYjA1ZjgzZTFlMzc4MzNiMmFiY2IwOTQ1NzI2OTAyY2QyODBhZDIzZGIwZmNlZjA3ZTUzMjU1M2FmNTE1YjFiY2RkN2E3Y2E0NmQ4MWY2MzQ3MjVjNjJhZmJhYzFkMDI0YjVhMmY2OGY1MGJjZDdmYjU0ZjIzNzAwZmJjOGZiM2U1ZTQ3ODI1ZGFmODg5MmJjNzA3YTQxZjg2YWU2OGViNjhmOGFkMTAyOTU2NTMwN2Y4NTMxMDA4OGEwZDIxY2QzY2Q2MGUzZmQzNmIyZWRmZWMzNzBkMjUyZTg0ZGEyMTNmYzM3NWJjZmU1ZmEzOTAxZGU0MmRmZjkxNGViY2YxMmEzZGJhZmNjYTg0YmQxMTMyOGZhYTE3NzI3MWNmODUxMDY3N2Y3ZjNjZjhlNDQ0ZWM4ZTFjM2Q1MjM1Yjk4N2MzY2VkZGFkNjUyMTRhYjdlNTBiNGZhMmY2ZTYxNzA5N2YwMmNkNWE3YjE3MGUyZDBkNGYwZmExYTM5ZTNlOTY1MzQyNTVmMzAzMWQ1NDg3NzEzOWEyOTQ2NmQ1YzM5YjdkOTlkMDliZjEwMDU4MDBjYTllMWJkM2VhNWMzOTM0NjY1ZmJkYjQ5NzBlOGE1ZGQ4ODgwMmNiNmQzM2FlMTkyZjY2MGE1MzNjNTQ2OWZhNTZmNjJkNzE0ZTE2ZWNjMDJlNWZjODc4Y2E0YjAxNDAwMjk2MGY1ZmY5NGQ2OTY0ZTFmNzgyNzM4MzFiZmQwMTlkYTMyZGZhMmExOTE1Mjk4Y2NmMTZhYWE2N2ExNWZiNmJiNTJmNGVkMWMzM2UwZGMzYjRhYmQyMDkxMDVjNzk0MmVjMjlkNjA0Y2FiZDMyNWU1N2U1NTUxNzZmMzA1MmFhNzMzYmEzZjgyZDNiNmYzM2YzMzg5NDA2OTg5NDJkM2ZmZTI2ZjBmNTg3OGEwOTBkZGM4N2I4YzJkMTFlNWQ4MjQ1N2JkOWE5YTVkOWE5ODJjNWVkMGJmZTkwN2YzOGMzNzgxYWMwYzRiYTZiYzg0YjUyYTYzNTViMTMwM2E3NjE4Mjc2ZGZkMjM3NTk0ZGM5Y2RkYTY4N2U4MmFmOGUxMzgxMDRmMGFlMTc3NjUyZmJkZjBhZTU4ZDE0ODRkZTY1N2JhMjU3ZTJhMmY2NzgxYjliYjRmYWRmMmE1Nzg5OTcxNTBjMDRkZDk0MTI4YjNjODkwNDI2MmY3OGUwY2M2MWM5Nzg3MDE1YWI2NTFjZGY1NjQ4NjQxNmIxODYxNTQ4NDYyNGMyM2QxZDcwOTI4MzU4NjVkYTY4MmZmY2NjMmY0N2ZiNGQ4MTZjMDM1ODA2ZmExNjAzNjI5OGExNTNiYTY3MTU3MmMyZDdiNDZjOGM2OTgzYTFmNTY2YzUwZDZjYjEzNGJjYzlkODJhY2FhMWQ3MTM3MTI1NzcxMGVkMTE0ODBmODE3NTQwOTNiYTRjNWQ0NDA3OTczNzFlNmRhYjQwOTQ0MDA3YzQ2MDhmNWI1OTc0YjFiNzE4NzQyZDcyYTUwMzJhYmM2MTYxNTk5M2ZlYjI2ODlkODUzOTFhODMyZTExYjhhYjk3NjgzOWRkODA5NDM3ZmRjODhiNWIwN2JmMjlhZGRkM2ExNzBmMjFkMjRjMjVjMjIzYjExMzk2ZjViNTQ3YTlhNmNmYzVjYmEyOGQ5YjBiOGY0MzhhMDFmODI1ZWJjOTRlMTBkMDk5NjkyOTYyZjI5ZTdkM2EyMGJlMmVmNDRjN2FjZDRhMTI1ZTY5N2Q2NzI0YWQ3NjI5ZWTaBxAyZjJlYmFlNTI0ODE3YmZkNzQ3MzgxMTQ0MmE1NTY2Njc1M2YyOGRlYWM1YjRmY2RjMmU3YTI2ZTA2ZmM5ODM1MDYzYmE1YmViYjI3NTA0MjkzZGNhNDdkNjJlZjNjNGExNzY4MmZiNmI0MTM0M2JkN2Y5YzkyYmViOTI1ZGRkZjJkNzNiOTcyOTY5ZDZiMGI5ZTRhZjI0NzM0NTNiOTFhYmU1YTQ5YzdmZDUwYTllZjg1ZGRiZDQ4OGE5MzFjNmYwYTJhNDhiMTE0MGYyMzYyZThhNGNhYWMzMWRkZWY0MTdlMWI3M2ZjM2FmMzZmYTllMmQwYmRhZjZlOGI5MDY1Mjc4NzcwYjZjY2VlMjg5MTdhNDVmMjYzZjFiYTQ0MGNjZWZhZjMwNmI2NmEwNjhmMTIzNzAxMmRiMTJmZTgxYjBlNTIyNDgxYmRlMDExM2QyY2QwNzk5YWVmMzkyMzU1NjU4YzAyMGZlMGFjZGIxMzEzY2EzZTdmNWRmNGE2ZGYyNmYwZjU4NzhhMDkwZGRjODdiOGMyZDExZTVkODI0NTdiZDlhOWE1ZDlhOTgyYzVlZDBiZmU5MDdmMzhjMzc4MWFjMGM0YmE2YmM4NGI1MmE2MzU1YjEzMDNhNzYxODI3NmRmZDIzNzU5NGRjOWNkZGE2ODdlODJhZjhlMTM4MTE2NmM2YjY0NzhmMGFiMDVmODNlMWUzNzgzM2IyYWJjYjA5NDU3MjY5MDJjZDI4MGFkMjNkYjBmY2VmMDdlNTMyNTUzYWY1MTViMWJjZGQ3YTdjYTQ2ZDgxZjYzNDcyNWM2MmFmYmFjMWQwMjRiNWEyZjY4ZjUwYmNkN2ZiNTRmMjM3MDBmYmM4ZmIzZTVlNDc4MjVkYWY4ODkyYmM3MDdhNDFmODZhZTY4ZWI2OGY4YWQxMDI5NTY1MzA3Zjg1MzEwMDg4YTBkMjFjZDNjZDYwZTNmZDM2YjJlZGZlYzM3MGQyNTJlODRkYTIxM2ZjMzc1YmNmZTVmYTM5MDFkZTQyZGZmOTE0ZWJjZjEyYTNkYmFmY2NhODRiZDExMzI4ZmFhMTc3MjcxY2Y4NTEwNjc3ZjdmM2NmOGU0NDRlYzhlMWMzZDUyMzViOTg3YzNjZWRkYWQ2NTIxNGFiN2U1MGI0ZmEyZjZlNjE3MDk3ZjAyY2Q1YTdiMTcwZTJkMGQ0ZjBjMDRkZDk0MTI4YjNjODkwNDI2MmY3OGUwY2M2MWM5Nzg3MDE1YWI2NTFjZGY1NjQ4NjQxNmIxODYxNTQ4NDYyNGMyM2QxZDcwOTI4MzU4NjVkYTY4MmZmY2NjMmY0N2ZiNGQ4MTZjMDM1ODA2ZmExNjAzNjI5OGExNTNiYTY3MDAwMDAwMDcxMWQyZmZkOWM5YzM3M2MzMTYyN2E3YjdlZmFjNzRiMWZhMjcxN2UxMDlmMWI4Mjg3NmEwNWU1NzEyNmI5ZTVmMGZhMWEzOWUzZTk2NTM0MjU1ZjMwMzFkNTQ4NzcxMzlhMjk0NjZkNWMzOWI3ZDk5ZDA5YmYxMDA1ODAwY2E5ZTFiZDNlYTVjMzkzNDY2NWZiZGI0OTcwZThhNWRkODg4MDJjYjZkMzNhZTE5MmY2NjBhNTMzYzU0NjlmYTU2ZjYyZDcxNGUxNmVjYzAyZTVmYzg3OGNhNGIwMTQwMDI5NjBmNWZmOTRkNjk2NGUxZjc4MjczODMxYmZkMDE5ZGEzMmRmYTJhMTkxNTI5OGNjZjE2YWFhNjdhMTVmYjZiYjUyZjRlZDFjMzNlMGRjM2I0YWJkMjA5MTA1Yzc5NDJlYzI5ZDYwNGNhYmQzMjVlNTdlNTU1MTc2ZjMwNTJhYTczM2JhM2Y4MmQzYjZmMzNmMzM4OTQwNjk4OTQyZDNmZmUwMzJhYmM2MTYxNTk5M2ZlYjI2ODlkODUzOTFhODMyZTExYjhhYjk3NjgzOWRkODA5NDM3ZmRjODhiNWIwN2JmMTU3MmMyZDdiNDZjOGM2OTgzYTFmNTY2YzUwZDZjYjEzNGJjYzlkODJhY2FhMWQ3MTM3MTI1NzcxMGVkMTE0ODBmODE3NTQwOTNiYTRjNWQ0NDA3OTczNzFlNmRhYjQwOTQ0MDA3YzQ2MDhmNWI1OTc0YjFiNzE4NzQyZDcyYTUwNGYwYWUxNzc2NTJmYmRmMGFlNThkMTQ4NGRlNjU3YmEyNTdlMmEyZjY3ODFiOWJiNGZhZGYyYTU3ODk5NzE1MDAwMDAwMDEyOWFkZGQzYTE3MGYyMWQyNGMyNWMyMjNiMTEzOTZmNWI1NDdhOWE2Y2ZjNWNiYTI4ZDliMGI4ZjQzOGEwMWY4MjVlYmM5NGUxMGQwOTk2OTI5NjJmMjllN2QzYTIwYmUyZWY0NGM3YWNkNGExMjVlNjk3ZDY3MjRhZDc2MjllZNwAIFTMvczKzOPMrcy4PUzM6cztzJHM2cyaMczaMMyGzOLMsRfMq8zzaFFkzOnM8syNeGcLBZOSlMzoAwAAlMzQBwAAAJCRkZEApnYzLjAuMA=="
+            },
+            "public": null,
+            "queue_time": "P0DT00H00M00.523819S",
+            "queue_time_sec": 0.523819,
+            "smart_contract_calldata": null,
+            "has_smart_contract_calldata": false,
+            "has_verification_key": true,
+            "verification_key": {
+                "vk": {
+                    "commit": {
+                        "value": [1209974576, 1699531240, 1324110888, 637989123, 62921783, 507849012, 849436694, 1215033405],
+                        "_marker": null
+                    },
+                    "pc_start": 2103080,
+                    "chip_information": [
+                        ["MemoryProgram", {"log_n": 19, "shift": 1}, {"width": 6, "height": 524288}],
+                        ["Program", {"log_n": 19, "shift": 1}, {"width": 37, "height": 524288}],
+                        ["Byte", {"log_n": 16, "shift": 1}, {"width": 11, "height": 65536}]
+                    ],
+                    "chip_ordering": {
+                        "Byte": 2,
+                        "MemoryProgram": 0,
+                        "Program": 1
+                    }
+                }
+            },
+            "warnings": null,
+            "error": null
+        }"#;
+        
+        // Parse the response and assert success
+        let proof_info: ProofInfoResponse = serde_json::from_str(mockresponse)
+            .expect("Failed to parse mock response JSON");
+        
+        // Extract proof and verify it can be converted to SP1 format
+        let _ = proof_info.to_sp1_proof_with_public()
+            .expect("Failed to convert proof to SP1 format");
+        
+        // Extract and validate verifying key
+        let sp1_verifying_key = proof_info.get_sp1_verifying_key()
+            .expect("Failed to get SP1 verifying key");
+        
+        // Verify the proof locally
+        proof_info.verify_sp1_proof_locally(&sp1_verifying_key)
+            .expect("Failed to verify SP1 proof locally");
+    }
+}
