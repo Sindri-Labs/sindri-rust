@@ -3,9 +3,13 @@ name = "sindri-rs"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name="cargo-sindri"
+
 [dependencies]
 async-trait = "0.1.83"
 base64 = "0.22.1"
+clap = { version = "4.0", features = ["derive"] }
 flate2 = "1.0.35"
 http = "1.2.0"
 ignore = "0.4.23"
