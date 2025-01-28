@@ -4824,6 +4824,7 @@ dependencies = [
  "clap",
  "console",
  "predicates",
+ "regex",
  "sindri-rs",
  "tokio",
  "wiremock",

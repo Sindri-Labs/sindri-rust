@@ -9,6 +9,7 @@ name="cargo-sindri"
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }
 console = "0.15.10"
+regex = "1.11.1"
 sindri-rs = { path = "../sindri-rs"}
 
 [dev-dependencies]

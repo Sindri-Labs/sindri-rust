@@ -2,10 +2,12 @@ use std::collections::HashMap;
 
 use clap::{command, Parser, Subcommand};
 use console::style;
+use regex::Regex;
 
 use sindri_rs::{
     client::{AuthOptions, SindriClient},
     CircuitInfo,
+    JobStatus,
 };
 
 #[derive(Parser)]
@@ -63,18 +65,25 @@ fn main() {
             tags,
             meta,
         } => {
-            println!("{}", style("Creating circuit...").bold());
+            println!("{}", style("Deploying...").bold());
 
             // Convert metadata strings into HashMap
+            let meta_rules = Regex::new(r"^[a-zA-Z0-9]+=[a-zA-Z0-9]+$").unwrap();
             let metadata = meta.map(|pairs| {
                 pairs
                     .into_iter()
                     .filter_map(|pair| {
-                        let mut parts = pair.splitn(2, '=');
-                        Some((
-                            parts.next()?.to_string(),
-                            parts.next().unwrap_or_default().to_string(),
-                        ))
+                        if meta_rules.is_match(&pair) {
+                            let mut parts = pair.splitn(2, '=');
+                            Some((
+                                parts.next()?.to_string(),
+                                parts.next().unwrap_or_default().to_string(),
+                            ))
+                        } else {
+                            eprintln!("{}", style("Circuit creation failed ❌").bold());
+                            eprintln!("{}", style(format!("\"{pair}\" is not a valid metadata pair.")).red());
+                            std::process::exit(1);
+                        }
                     })
                     .collect::<HashMap<String, String>>()
             });
@@ -83,18 +92,25 @@ fn main() {
             match client.create_circuit_blocking(project, tags, metadata) {
                 Ok(response) => {
                     // Gather circuit identifiers from response
-                    let uuid = response.id();
-                    let team = response.team_slug();
-                    let project_name = response.project_name();
-                    let first_tag = response.tags().first().cloned().unwrap_or_default();
-
-                    println!("{}", style("  ✓ Circuit created successfully!").cyan());
-                    println!("\n{}", style("To generate a proof from this deployment, you can use either:").bold());
-                    println!("• Circuit UUID: {}", style(uuid).cyan());
-                    println!("• Identifier:  {}", style(format!("{}/{}:{}", team, project_name, first_tag)).cyan());
+                    let status = *response.status();
+                    if status == JobStatus::Ready {
+                        let uuid = response.id();
+                        let team = response.team_slug();
+                        let project_name = response.project_name();
+                        let first_tag = response.tags().first().cloned().unwrap_or_default();
+    
+                        println!("{}", style("  ✓ Circuit created successfully!").cyan());
+                        println!("\n{}", style("To generate a proof from this deployment, you can use either:").bold());
+                        println!("• Circuit UUID: {}", style(uuid).cyan());
+                        println!("• Identifier:  {}", style(format!("{}/{}:{}", team, project_name, first_tag)).cyan());
+                    } else {
+                        eprintln!("{}", style("Circuit creation failed ❌").bold());
+                        eprintln!("{}", style(response.error().unwrap_or_default()).red());
+                        std::process::exit(1);
+                    }
                 }
                 Err(e) => {
-                    eprintln!("{}", style("Circuit creation failed ❌").red().bold());
+                    eprintln!("{}", style("Circuit creation failed ❌").bold());
                     eprintln!("{}", style(e).red());
                     std::process::exit(1);
                 }
