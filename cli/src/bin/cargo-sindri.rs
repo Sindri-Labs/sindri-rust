@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use clap::{command, Parser, Subcommand};
+use console::style;
 
 use sindri_rs::{
     client::{AuthOptions, SindriClient},
@@ -62,6 +63,8 @@ fn main() {
             tags,
             meta,
         } => {
+            println!("{}", style("Creating circuit...").bold());
+
             // Convert metadata strings into HashMap
             let metadata = meta.map(|pairs| {
                 pairs
@@ -75,8 +78,8 @@ fn main() {
                     })
                     .collect::<HashMap<String, String>>()
             });
-
-            // Create circuit and block until complete
+            println!("{}", style(format!("  ✓ Valid metadata pairs specified: {}", metadata.as_ref().map_or(0, |t| t.len()))).cyan());
+            
             match client.create_circuit_blocking(project, tags, metadata) {
                 Ok(response) => {
                     // Gather circuit identifiers from response
@@ -85,13 +88,14 @@ fn main() {
                     let project_name = response.project_name();
                     let first_tag = response.tags().first().cloned().unwrap_or_default();
 
-                    println!("Circuit created successfully!");
-                    println!("To generate a proof from this deployment, you can use either");
-                    println!("the circuit UUID: {}", uuid);
-                    println!("or identifier: {}/{}:{}", team, project_name, first_tag);
+                    println!("{}", style("  ✓ Circuit created successfully!").cyan());
+                    println!("\n{}", style("To generate a proof from this deployment, you can use either:").bold());
+                    println!("• Circuit UUID: {}", style(uuid).cyan());
+                    println!("• Identifier:  {}", style(format!("{}/{}:{}", team, project_name, first_tag)).cyan());
                 }
                 Err(e) => {
-                    eprintln!("Error creating circuit\n {}", e);
+                    eprintln!("{}", style("Circuit creation failed ❌").red().bold());
+                    eprintln!("{}", style(e).red());
                     std::process::exit(1);
                 }
             }

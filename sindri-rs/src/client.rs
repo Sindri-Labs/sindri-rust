@@ -28,6 +28,11 @@ use crate::{
 #[cfg(any(feature = "record", feature = "replay"))]
 use crate::custom_middleware::vcr_middleware;
 
+#[cfg(feature = "rich-terminal")]
+use console::style;
+#[cfg(feature = "rich-terminal")]
+use indicatif::{ProgressBar, ProgressStyle};
+
 /// Configuration options for authenticating with the Sindri API.
 ///
 /// This struct is used to configure authentication when initializing a [`SindriClient`].
@@ -340,6 +345,8 @@ impl SindriClient {
                 }
             }
         }
+        #[cfg(feature = "rich-terminal")]
+        println!("{}", style(format!("  ✓ Valid tags specified: {}", tags.as_ref().map_or(0, |t| t.len()))).cyan());
 
         // Load the project into a byte array whether it is a compressed
         // file already or a directory
@@ -353,21 +360,44 @@ impl SindriClient {
                 if !extension_regex.is_match(&project) {
                     return Err("Project is not a zip file or tarball".into());
                 }
+                #[cfg(feature = "rich-terminal")]
+                println!("{}", style("  ✓ Detected compressed project file").cyan());
                 fs::read(&project)?
             }
             _ => return Err("Project is not a file or directory".into()),
         };
 
         info!("Uploading circuit to Sindri");
+        #[cfg(feature = "rich-terminal")]
+        println!("{}", style("Uploading circuit...").bold());
+
+        #[cfg(feature = "rich-terminal")]
+        let pb = ProgressBar::new_spinner();
+        #[cfg(feature = "rich-terminal")]
+        pb.enable_steady_tick(Duration::from_millis(120));
+        #[cfg(feature = "rich-terminal")]
+        pb.set_style(
+            ProgressStyle::with_template("{spinner} {msg:.cyan}")
+                .unwrap()
+                .tick_strings(&crate::utils::CLOCK_TICKS),
+        );
+        #[cfg(feature = "rich-terminal")]
+        pb.set_message("Sending files to circuit create endpoint...");
+
         let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
 
         let circuit_id = response.id();
         info!("Circuit created with ID: {}", circuit_id);
 
-        let mut status = circuit_status(&self.config, circuit_id).await?;
-        debug!("Initial circuit status: {:?}", status.status);
+        #[cfg(feature = "rich-terminal")]
+        let mut current_status = *response.status();
+        #[cfg(feature = "rich-terminal")]
+        pb.set_message(format!("Job status: {}", current_status));
 
         let start_time = std::time::Instant::now();
+        let mut status = circuit_status(&self.config, circuit_id).await?;
+        debug!("Initial circuit status: {:?}", status.status);
+        
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
             if let Some(timeout) = self.polling_options.timeout {
                 if start_time.elapsed() > timeout {
@@ -379,6 +409,11 @@ impl SindriClient {
             }
             std::thread::sleep(self.polling_options.interval);
             status = circuit_status(&self.config, circuit_id).await?;
+            #[cfg(feature = "rich-terminal")]
+            if status.status != current_status {
+                pb.set_message(format!("Job status: {}", status.status));
+                current_status = status.status;
+            }
         }
 
         match status.status {
