@@ -167,8 +167,7 @@ pub fn retry_client(
 
 /// Returns record & replay middleware for testing purposes
 #[cfg(any(feature = "record", feature = "replay"))]
-pub fn vcr_middleware() -> VCRMiddleware {
-    let bundle = std::path::PathBuf::from("tests/recordings/replay.vcr.json");
+pub fn vcr_middleware(bundle: std::path::PathBuf) -> VCRMiddleware {
     let mut vcr = VCRMiddleware::try_from(bundle.clone()).unwrap();
 
     vcr = vcr.with_modify_request(|req| {

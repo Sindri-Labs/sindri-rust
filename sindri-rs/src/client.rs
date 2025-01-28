@@ -154,9 +154,18 @@ impl SindriClient {
 
         #[cfg(any(feature = "record", feature = "replay"))]
         {
+            // Do not apply vcr to unit tests
             if !cfg!(test) {
-                // Do not apply to unit tests
-                client_builder = client_builder.with(vcr_middleware());
+                let bundle = std::env::var("VCR_PATH")
+                    .unwrap_or_else(|_| "tests/recordings/replay.vcr.json".to_string());
+                let bundle_path = std::path::PathBuf::from(&bundle);
+
+                #[cfg(feature = "replay")]
+                if !bundle_path.exists() {
+                    panic!("Recording not found at: {}", bundle_path.display());
+                }
+
+                client_builder = client_builder.with(vcr_middleware(bundle_path));
             }
         }
 
