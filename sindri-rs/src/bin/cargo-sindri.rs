@@ -1,6 +1,11 @@
-use clap::{command, Parser, Subcommand};
-use sindri_rs::client::{AuthOptions, SindriClient};
 use std::collections::HashMap;
+
+use clap::{command, Parser, Subcommand};
+
+use sindri_rs::{
+    CircuitInfo,
+    client::{AuthOptions, SindriClient},
+};
 
 
 #[derive(Parser)]
@@ -74,11 +79,20 @@ fn main() {
 
             // Create circuit and block until complete
             match client.create_circuit_blocking(project, tags, metadata) {
-                Ok(_response) => {
+                Ok(response) => {
+                    // Gather circuit identifiers from response
+                    let uuid = response.id();
+                    let team = response.team();
+                    let project_name = response.project_name();
+                    let first_tag = response.tags().first().cloned().unwrap_or_default();
+
                     println!("Circuit created successfully!");
+                    println!("To generate a proof from this deployment, you can use either");
+                    println!("the circuit UUID: {}", uuid);
+                    println!("or identifier: {}/{}:{}", team, project_name, first_tag);
                 }
                 Err(e) => {
-                    eprintln!("Error creating circuit: {}", e);
+                    eprintln!("Error creating circuit\n {}", e);
                     std::process::exit(1);
                 }
             }
