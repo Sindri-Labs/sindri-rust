@@ -3,10 +3,9 @@ use std::collections::HashMap;
 use clap::{command, Parser, Subcommand};
 
 use sindri_rs::{
-    CircuitInfo,
     client::{AuthOptions, SindriClient},
+    CircuitInfo,
 };
-
 
 #[derive(Parser)]
 #[command(name = "cargo", bin_name = "cargo")]
@@ -98,12 +97,12 @@ fn main() {
             }
         }
     }
-} 
+}
 
 #[cfg(test)]
 mod tests {
-    use assert_cmd::prelude::*; 
-    use predicates::prelude::*; 
+    use assert_cmd::prelude::*;
+    use predicates::prelude::*;
     use std::process::Command;
 
     use wiremock::{
@@ -125,14 +124,15 @@ mod tests {
         let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
 
         let circuit_path = "tests/factory/circuit.tar.gz";
-    
+
         cmd.env("SINDRI_API_KEY", "invalid");
-        cmd.arg("sindri").arg("deploy").arg(circuit_path).arg("--tags").arg("failure");
+        cmd.arg("sindri")
+            .arg("deploy")
+            .arg(circuit_path)
+            .arg("--tags")
+            .arg("failure");
         cmd.assert()
             .failure()
             .stderr(predicate::str::contains("Unauthorized"));
-
     }
-
-
 }

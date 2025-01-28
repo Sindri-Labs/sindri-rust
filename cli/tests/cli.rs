@@ -1,5 +1,5 @@
-use assert_cmd::prelude::*; 
-use predicates::prelude::*; 
+use assert_cmd::prelude::*;
+use predicates::prelude::*;
 use std::process::Command;
 
 #[tokio::test]
@@ -9,7 +9,11 @@ async fn test_cli_deploy() -> Result<(), Box<dyn std::error::Error>> {
 
     let circuit_path = "tests/factory/circuit.tar.gz";
 
-    cmd.arg("sindri").arg("deploy").arg(circuit_path).arg("--tags").arg("success");
+    cmd.arg("sindri")
+        .arg("deploy")
+        .arg(circuit_path)
+        .arg("--tags")
+        .arg("success");
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("Circuit created successfully!"));

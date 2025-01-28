@@ -156,7 +156,8 @@ impl SindriClient {
         {
             // Do not apply vcr to unit tests
             if !cfg!(test) {
-                let bundle = std::env::var("VCR_PATH").unwrap_or_else(|_| "tests/recordings/replay.vcr.json".to_string());
+                let bundle = std::env::var("VCR_PATH")
+                    .unwrap_or_else(|_| "tests/recordings/replay.vcr.json".to_string());
                 let bundle_path = std::path::PathBuf::from(&bundle);
 
                 #[cfg(feature = "replay")]
