@@ -217,8 +217,6 @@ impl SindriClient {
 
     /// Sets the API key for this client.
     ///
-    /// This method allows for fluent configuration of the client after creation.
-    ///
     /// # Examples
     ///
     /// ```
@@ -233,8 +231,7 @@ impl SindriClient {
     }
 
     /// Sets the base URL for this client.
-    ///
-    /// This method allows for fluent configuration of the client after creation.
+    /// 
     /// Should be left as default except for internal development purposes.
     ///
     /// # Examples
@@ -252,8 +249,6 @@ impl SindriClient {
 
     /// Sets the polling interval for this client.
     ///
-    /// This method allows for fluent configuration of the client after creation.
-    ///
     /// # Examples
     ///
     /// ```
@@ -270,8 +265,6 @@ impl SindriClient {
 
     /// Sets the polling timeout for this client.
     ///
-    /// This method allows for fluent configuration of the client after creation.
-    ///
     /// # Examples
     ///
     /// ```
@@ -287,8 +280,6 @@ impl SindriClient {
     }
 
     /// Removes the polling timeout for this client.
-    ///
-    /// This method allows for fluent configuration of the client after creation.
     ///
     /// # Examples
     ///
