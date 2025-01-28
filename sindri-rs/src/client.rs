@@ -112,6 +112,17 @@ pub struct SindriClient {
     pub polling_options: PollingOptions,
 }
 
+impl Default for SindriClient {
+    /// Creates a new Sindri API client with default options.
+    /// 
+    /// This is equivalent to calling `SindriClient::new(None, None)`.
+    /// Authentication will be read from environment variables and default polling options will be used.
+    fn default() -> Self {
+        Self::new(None, None)
+    }
+}
+
+
 impl SindriClient {
     /// Creates a new Sindri API client.
     ///
@@ -202,6 +213,94 @@ impl SindriClient {
     /// Returns the configured base URL for API requests
     pub fn base_url(&self) -> &str {
         &self.config.base_path
+    }
+
+    /// Sets the API key for this client.
+    ///
+    /// This method allows for fluent configuration of the client after creation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_api_key("my_api_key");
+    /// ```
+    pub fn with_api_key(mut self, api_key: impl Into<String>) -> Self {
+        self.config.bearer_access_token = Some(api_key.into());
+        self
+    }
+
+    /// Sets the base URL for this client.
+    ///
+    /// This method allows for fluent configuration of the client after creation.
+    /// Should be left as default except for internal development purposes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_base_url("https://custom.sindri.app");
+    /// ```
+    pub fn with_base_url(mut self, base_url: impl Into<String>) -> Self {
+        self.config.base_path = base_url.into();
+        self
+    }
+
+    /// Sets the polling interval for this client.
+    ///
+    /// This method allows for fluent configuration of the client after creation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// use std::time::Duration;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_polling_interval(Duration::from_secs(5));
+    /// ```
+    pub fn with_polling_interval(mut self, interval: Duration) -> Self {
+        self.polling_options.interval = interval;
+        self
+    }
+
+    /// Sets the polling timeout for this client.
+    ///
+    /// This method allows for fluent configuration of the client after creation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// use std::time::Duration;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_timeout(Duration::from_secs(1800)); // 30 minutes
+    /// ```
+    pub fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.polling_options.timeout = Some(timeout);
+        self
+    }
+
+    /// Removes the polling timeout for this client.
+    ///
+    /// This method allows for fluent configuration of the client after creation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_no_timeout();
+    /// ```
+    pub fn with_no_timeout(mut self) -> Self {
+        self.polling_options.timeout = None;
+        self
     }
 
     /// Creates and deploys a new circuit from a local project.
