@@ -722,16 +722,42 @@ mod tests {
     }
 
     #[test]
+    fn test_builder_methods() {
+        // Test chaining all builder methods
+        let client = SindriClient::default()
+            .with_api_key("test_key")
+            .with_base_url("https://example.com")
+            .with_polling_interval(Duration::from_secs(5))
+            .with_timeout(Duration::from_secs(300));
+
+        // Verify all settings were applied correctly
+        assert_eq!(client.api_key(), Some("test_key"));
+        assert_eq!(client.base_url(), "https://example.com");
+        assert_eq!(client.polling_options.interval, Duration::from_secs(5));
+        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+    }
+
+    #[test]
+    fn test_with_no_timeout() {
+        // Test that with_no_timeout removes the timeout
+        let client = SindriClient::default()
+            .with_timeout(Duration::from_secs(300))
+            .with_no_timeout();
+
+        assert_eq!(client.polling_options.timeout, None);
+    }
+
+    #[test]
     fn test_new_client_with_env_vars() {
         temp_env::with_vars(
             vec![
                 ("SINDRI_API_KEY", Some("env_test_key")),
-                ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
+                ("SINDRI_BASE_URL", Some("https://example.com")),
             ],
             || {
                 let client = SindriClient::new(None, None);
                 assert_eq!(client.api_key(), Some("env_test_key"));
-                assert_eq!(client.base_url(), "https://fake.sindri.app");
+                assert_eq!(client.base_url(), "https://example.com");
             },
         );
     }
@@ -741,17 +767,17 @@ mod tests {
         temp_env::with_vars(
             vec![
                 ("SINDRI_API_KEY", Some("env_test_key")),
-                ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
+                ("SINDRI_BASE_URL", Some("https://example.com")),
             ],
             || {
                 let auth_options = AuthOptions {
                     api_key: Some("test_key".to_string()),
-                    base_url: Some("https://other.sindri.app".to_string()),
+                    base_url: Some("https://other.example.com".to_string()),
                 };
                 let client = SindriClient::new(Some(auth_options), None);
                 // authoptions should override env vars
                 assert_eq!(client.api_key(), Some("test_key"));
-                assert_eq!(client.base_url(), "https://other.sindri.app");
+                assert_eq!(client.base_url(), "https://other.example.com");
             },
         );
     }
