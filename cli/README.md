@@ -8,7 +8,7 @@ An alternative Sindri CLI, written in typescript and distributed as a npm packag
 Install the CLI directly from this repository via:
 
 ```bash
-cargo install --path cli
+cargo install --path cli --locked
 ```
 
 ## Usage

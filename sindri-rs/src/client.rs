@@ -28,6 +28,11 @@ use crate::{
 #[cfg(any(feature = "record", feature = "replay"))]
 use crate::custom_middleware::vcr_middleware;
 
+#[cfg(feature = "rich-terminal")]
+use console::style;
+#[cfg(feature = "rich-terminal")]
+use indicatif::{ProgressBar, ProgressStyle};
+
 /// Configuration options for authenticating with the Sindri API.
 ///
 /// This struct is used to configure authentication when initializing a [`SindriClient`].
@@ -111,6 +116,17 @@ pub struct SindriClient {
     config: Configuration,
     pub polling_options: PollingOptions,
 }
+
+impl Default for SindriClient {
+    /// Creates a new Sindri API client with default options.
+    /// 
+    /// This is equivalent to calling `SindriClient::new(None, None)`.
+    /// Authentication will be read from environment variables and default polling options will be used.
+    fn default() -> Self {
+        Self::new(None, None)
+    }
+}
+
 
 impl SindriClient {
     /// Creates a new Sindri API client.
@@ -204,6 +220,85 @@ impl SindriClient {
         &self.config.base_path
     }
 
+    /// Sets the API key for this client.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_api_key("my_api_key");
+    /// ```
+    pub fn with_api_key(mut self, api_key: impl Into<String>) -> Self {
+        self.config.bearer_access_token = Some(api_key.into());
+        self
+    }
+
+    /// Sets the base URL for this client.
+    /// 
+    /// Should be left as default except for internal development purposes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_base_url("https://custom.sindri.app");
+    /// ```
+    pub fn with_base_url(mut self, base_url: impl Into<String>) -> Self {
+        self.config.base_path = base_url.into();
+        self
+    }
+
+    /// Sets the polling interval for this client.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// use std::time::Duration;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_polling_interval(Duration::from_secs(5));
+    /// ```
+    pub fn with_polling_interval(mut self, interval: Duration) -> Self {
+        self.polling_options.interval = interval;
+        self
+    }
+
+    /// Sets the polling timeout for this client.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// use std::time::Duration;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_timeout(Duration::from_secs(1800)); // 30 minutes
+    /// ```
+    pub fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.polling_options.timeout = Some(timeout);
+        self
+    }
+
+    /// Removes the polling timeout for this client.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sindri_rs::client::SindriClient;
+    /// 
+    /// let client = SindriClient::default()
+    ///     .with_no_timeout();
+    /// ```
+    pub fn with_no_timeout(mut self) -> Self {
+        self.polling_options.timeout = None;
+        self
+    }
+
     /// Creates and deploys a new circuit from a local project.
     ///
     /// In order to generate proofs on Sindri, you must first deploy the zero-knowledge circuit or
@@ -250,6 +345,8 @@ impl SindriClient {
                 }
             }
         }
+        #[cfg(feature = "rich-terminal")]
+        println!("{}", style(format!("  ✓ Valid tags specified: {}", tags.as_ref().map_or(0, |t| t.len()))).cyan());
 
         // Load the project into a byte array whether it is a compressed
         // file already or a directory
@@ -263,21 +360,44 @@ impl SindriClient {
                 if !extension_regex.is_match(&project) {
                     return Err("Project is not a zip file or tarball".into());
                 }
+                #[cfg(feature = "rich-terminal")]
+                println!("{}", style("  ✓ Detected compressed project file").cyan());
                 fs::read(&project)?
             }
             _ => return Err("Project is not a file or directory".into()),
         };
 
         info!("Uploading circuit to Sindri");
+        #[cfg(feature = "rich-terminal")]
+        println!("{}", style("Uploading circuit...").bold());
+
+        #[cfg(feature = "rich-terminal")]
+        let pb = ProgressBar::new_spinner();
+        #[cfg(feature = "rich-terminal")]
+        pb.enable_steady_tick(Duration::from_millis(120));
+        #[cfg(feature = "rich-terminal")]
+        pb.set_style(
+            ProgressStyle::with_template("{spinner} {msg:.cyan}")
+                .unwrap()
+                .tick_strings(&crate::utils::CLOCK_TICKS),
+        );
+        #[cfg(feature = "rich-terminal")]
+        pb.set_message("Sending files to circuit create endpoint...");
+
         let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
 
         let circuit_id = response.id();
         info!("Circuit created with ID: {}", circuit_id);
 
-        let mut status = circuit_status(&self.config, circuit_id).await?;
-        debug!("Initial circuit status: {:?}", status.status);
+        #[cfg(feature = "rich-terminal")]
+        let mut current_status = *response.status();
+        #[cfg(feature = "rich-terminal")]
+        pb.set_message(format!("Job status: {}", current_status));
 
         let start_time = std::time::Instant::now();
+        let mut status = circuit_status(&self.config, circuit_id).await?;
+        debug!("Initial circuit status: {:?}", status.status);
+        
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
             if let Some(timeout) = self.polling_options.timeout {
                 if start_time.elapsed() > timeout {
@@ -289,6 +409,11 @@ impl SindriClient {
             }
             std::thread::sleep(self.polling_options.interval);
             status = circuit_status(&self.config, circuit_id).await?;
+            #[cfg(feature = "rich-terminal")]
+            if status.status != current_status {
+                pb.set_message(format!("Job status: {}", status.status));
+                current_status = status.status;
+            }
         }
 
         match status.status {
@@ -632,16 +757,42 @@ mod tests {
     }
 
     #[test]
+    fn test_builder_methods() {
+        // Test chaining all builder methods
+        let client = SindriClient::default()
+            .with_api_key("test_key")
+            .with_base_url("https://example.com")
+            .with_polling_interval(Duration::from_secs(5))
+            .with_timeout(Duration::from_secs(300));
+
+        // Verify all settings were applied correctly
+        assert_eq!(client.api_key(), Some("test_key"));
+        assert_eq!(client.base_url(), "https://example.com");
+        assert_eq!(client.polling_options.interval, Duration::from_secs(5));
+        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+    }
+
+    #[test]
+    fn test_with_no_timeout() {
+        // Test that with_no_timeout removes the timeout
+        let client = SindriClient::default()
+            .with_timeout(Duration::from_secs(300))
+            .with_no_timeout();
+
+        assert_eq!(client.polling_options.timeout, None);
+    }
+
+    #[test]
     fn test_new_client_with_env_vars() {
         temp_env::with_vars(
             vec![
                 ("SINDRI_API_KEY", Some("env_test_key")),
-                ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
+                ("SINDRI_BASE_URL", Some("https://example.com")),
             ],
             || {
                 let client = SindriClient::new(None, None);
                 assert_eq!(client.api_key(), Some("env_test_key"));
-                assert_eq!(client.base_url(), "https://fake.sindri.app");
+                assert_eq!(client.base_url(), "https://example.com");
             },
         );
     }
@@ -651,17 +802,17 @@ mod tests {
         temp_env::with_vars(
             vec![
                 ("SINDRI_API_KEY", Some("env_test_key")),
-                ("SINDRI_BASE_URL", Some("https://fake.sindri.app")),
+                ("SINDRI_BASE_URL", Some("https://example.com")),
             ],
             || {
                 let auth_options = AuthOptions {
                     api_key: Some("test_key".to_string()),
-                    base_url: Some("https://other.sindri.app".to_string()),
+                    base_url: Some("https://other.example.com".to_string()),
                 };
                 let client = SindriClient::new(Some(auth_options), None);
                 // authoptions should override env vars
                 assert_eq!(client.api_key(), Some("test_key"));
-                assert_eq!(client.base_url(), "https://other.sindri.app");
+                assert_eq!(client.base_url(), "https://other.example.com");
             },
         );
     }

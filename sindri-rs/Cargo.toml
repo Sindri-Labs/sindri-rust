@@ -21,6 +21,10 @@ tracing = "0.1.41"
 tracing-subscriber = "0.3"
 tokio = { version = "1.42.0", features = ["full"] }
 
+# Optional dependencies
+console = { version = "0.15.10", optional = true }
+indicatif = { version = "0.17.10", optional = true }
+
 # Integration test dependencies
 # fork that supports newer reqwest-middleware (see https://github.com/ChorusOne/rvcr/pull/22)
 rvcr = { git = "https://github.com/lededje/rvcr", branch = "update-reqwest-middleware", optional = true }
@@ -41,6 +45,9 @@ default = []
 # Record and replay middleware, for internal testing
 record = ["dep:rvcr"]
 replay = ["dep:rvcr"]
+
+# CLI-specific features
+rich-terminal = ["dep:console", "dep:indicatif"]
 
 # Framework-specific features
 sp1-v3 = ["dep:sp1-sdk-v3", "dep:rmp-serde"]

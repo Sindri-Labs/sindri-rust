@@ -55,7 +55,7 @@ async fn test_create_circuit() {
 fn test_create_circuit_blocking() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     let test_tags = vec!["tag1".to_string(), "tag2".to_string()];
     let test_meta = HashMap::from([
@@ -92,7 +92,7 @@ fn test_create_circuit_blocking() {
 async fn test_delete_circuit() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
     let result = client
         .create_circuit(
             dir_path.to_string_lossy().to_string(),
@@ -116,7 +116,7 @@ async fn test_delete_circuit() {
 async fn test_clone_circuit() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     let result = client
         .create_circuit(

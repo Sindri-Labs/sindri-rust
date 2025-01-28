@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a new Sindri client
     // Your api key is read from the SINDRI_API_KEY environment variable
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     // For more details on this public circuit, visit https://sindri.app/z/sindri/not_equal_guest/
     let project_team = "sindri";

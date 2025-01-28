@@ -10,7 +10,7 @@ mod factory;
 async fn test_create_proof_basic() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     // Due to parallel execution of tests, the circuit with tag "latest" may not exist or be ready yet
     // We use tags to distinguish tests run on the same circuit
@@ -52,7 +52,7 @@ async fn test_create_proof_basic() {
 fn test_create_proof_basic_blocking() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     // Create circuit first (using blocking version for consistency)
     let circuit = client
@@ -88,7 +88,7 @@ fn test_create_proof_basic_blocking() {
 async fn test_create_proof_input_modes() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     // Due to parallel execution of tests, the circuit with tag "latest" may not exist or be ready yet
     // We use tags to distinguish tests run on the same circuit
@@ -129,7 +129,7 @@ async fn test_create_proof_input_modes() {
 async fn test_delete_proof() {
     let (_temp_dir, dir_path) = factory::baby_circuit();
 
-    let client = SindriClient::new(None, None);
+    let client = SindriClient::default();
 
     let result = client
         .create_circuit(

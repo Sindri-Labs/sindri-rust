@@ -4,6 +4,10 @@ use std::{error::Error, io::Read, path::Path};
 
 use flate2::{write::GzEncoder, Compression};
 use ignore::WalkBuilder;
+#[cfg(feature = "rich-terminal")]
+use console::style;
+#[cfg(feature = "rich-terminal")]
+use indicatif::{ProgressBar, ProgressStyle};
 
 // Global recommended maximum on circuit uploads
 const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
@@ -11,6 +15,39 @@ const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
 // Designated names for special purpose files
 pub const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
 pub const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
+pub const CLOCK_TICKS: [&str; 12] = [
+    "  🕛 ",
+    "  🕐 ",
+    "  🕑 ",
+    "  🕒 ",
+    "  🕓 ",
+    "  🕔 ",
+    "  🕕 ",
+    "  🕖 ",
+    "  🕗 ",
+    "  🕘 ",
+    "  🕙 ",
+    "  🕚 "
+];
+
+/// Formats bytes into human readable string with appropriate unit
+#[cfg(feature = "rich-terminal")]
+fn format_size(bytes: usize) -> String {
+    const UNITS: [&str; 4] = ["B", "KB", "MB", "GB"];
+    let mut size = bytes as f64;
+    let mut unit_index = 0;
+
+    while size >= 1024.0 && unit_index < UNITS.len() - 1 {
+        size /= 1024.0;
+        unit_index += 1;
+    }
+
+    if unit_index == 0 {
+        format!("{} {}", size as usize, UNITS[unit_index])
+    } else {
+        format!("{:.2} {}", size, UNITS[unit_index])
+    }
+}
 
 /// When a user submits a path to the circuit create method, we prepare the directory
 /// of the circuit project as a compressed tarfile which is sent as multipart/form data.
@@ -25,6 +62,8 @@ pub async fn compress_directory(
     dir: &Path,
     override_max_project_size: Option<usize>,
 ) -> Result<Vec<u8>, Box<dyn Error>> {
+    #[cfg(feature = "rich-terminal")]
+    println!("{}", style("Preparing circuit files...").bold());
     // Check for Sindri manifest
     let manifest_path = dir.join(SINDRI_MANIFEST_FILENAME);
     if !manifest_path.exists() {
@@ -39,8 +78,23 @@ pub async fn compress_directory(
     serde_json::from_str::<serde_json::Value>(&manifest_contents)
         .map_err(|e| format!("Invalid JSON in {}: {}", SINDRI_MANIFEST_FILENAME, e))?;
 
+    #[cfg(feature = "rich-terminal")]
+    println!("{}", style("  ✓ Valid Sindri manifest found").cyan());
+
     let mut contents = Vec::new();
     {
+        #[cfg(feature = "rich-terminal")]
+        let pb = ProgressBar::new_spinner();
+        #[cfg(feature = "rich-terminal")]
+        pb.set_style(
+            ProgressStyle::with_template("{spinner} {msg:.cyan}")
+                .unwrap()
+                .tick_strings(&crate::utils::CLOCK_TICKS),
+        );
+        #[cfg(feature = "rich-terminal")]
+        pb.set_message("Compressing project files...");
+
+
         let buffer = std::io::Cursor::new(&mut contents);
         let enc = GzEncoder::new(buffer, Compression::default());
         let mut tar = tar::Builder::new(enc);
@@ -70,6 +124,16 @@ pub async fn compress_directory(
             automatically exclude them on your next upload.", MAX_PROJECT_SIZE, SINDRI_IGNORE_FILENAME
         ).into());
     }
+
+    #[cfg(feature = "rich-terminal")]
+    println!(
+        "{}",
+        style(format!(
+            "  ✓ Successfully prepared {} upload",
+            format_size(contents.len())
+        ))
+        .cyan()
+    );
 
     Ok(contents)
 }
