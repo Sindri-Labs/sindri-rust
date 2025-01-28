@@ -23,7 +23,7 @@ pub trait CircuitInfo {
     fn queue_time_sec(&self) -> Option<f64>;
     fn status(&self) -> &JobStatus;
     fn tags(&self) -> &Vec<String>;
-    fn team(&self) -> &str;
+    fn team_slug(&self) -> &str;
 }
 
 macro_rules! impl_circuit_info {
@@ -134,10 +134,10 @@ macro_rules! impl_circuit_info {
                 }
             }
 
-            fn team(&self) -> &str {
+            fn team_slug(&self) -> &str {
                 match self {
                     $(
-                        CircuitInfoResponse::$variant(response) => &response.team,
+                        CircuitInfoResponse::$variant(response) => &response.team_slug,
                     )*
                 }
             }

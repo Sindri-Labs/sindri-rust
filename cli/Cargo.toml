@@ -1,0 +1,21 @@
+[package]
+name = "sindri-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name="cargo-sindri"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+sindri-rs = { path = "../sindri-rs"}
+
+[dev-dependencies]
+assert_cmd = "2.0.16"
+predicates = "3.1.3"
+tokio = { version = "1.0", features = ["full"] }
+
+[features]
+default = []
+record = ["sindri-rs/record"]
+replay = ["sindri-rs/replay"]

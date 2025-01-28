@@ -4817,10 +4817,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "sindri-rs"
+name = "sindri-cli"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
+ "clap",
+ "predicates",
+ "sindri-rs",
+ "tokio",
+]
+
+[[package]]
+name = "sindri-rs"
+version = "0.1.0"
+dependencies = [
  "async-trait",
  "base64 0.22.1",
  "clap",
@@ -4828,7 +4838,6 @@ dependencies = [
  "http 1.2.0",
  "ignore",
  "openapi",
- "predicates",
  "rand",
  "regex",
  "reqwest 0.12.9",

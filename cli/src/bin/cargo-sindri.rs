@@ -82,7 +82,7 @@ fn main() {
                 Ok(response) => {
                     // Gather circuit identifiers from response
                     let uuid = response.id();
-                    let team = response.team();
+                    let team = response.team_slug();
                     let project_name = response.project_name();
                     let first_tag = response.tags().first().cloned().unwrap_or_default();
 
