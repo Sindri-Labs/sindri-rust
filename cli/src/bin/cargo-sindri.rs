@@ -99,3 +99,40 @@ fn main() {
         }
     }
 } 
+
+#[cfg(test)]
+mod tests {
+    use assert_cmd::prelude::*; 
+    use predicates::prelude::*; 
+    use std::process::Command;
+
+    use wiremock::{
+        matchers::{method, path},
+        ResponseTemplate,
+    };
+
+    #[tokio::test]
+    async fn test_cli_deploy_unauthorized() {
+        let mock_server = wiremock::MockServer::start().await;
+
+        // Setup mock responses
+        wiremock::Mock::given(method("POST"))
+            .and(path("/api/v1/circuit/create"))
+            .respond_with(ResponseTemplate::new(401))
+            .mount(&mock_server)
+            .await;
+
+        let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
+
+        let circuit_path = "tests/factory/circuit.tar.gz";
+    
+        cmd.env("SINDRI_API_KEY", "invalid");
+        cmd.arg("sindri").arg("deploy").arg(circuit_path).arg("--tags").arg("failure");
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains("Unauthorized"));
+
+    }
+
+
+}
