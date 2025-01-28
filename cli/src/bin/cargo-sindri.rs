@@ -49,6 +49,12 @@ pub enum Commands {
     },
 }
 
+fn handle_circuit_error(message: &str) -> ! {
+    eprintln!("{}", style("Circuit creation failed ❌").bold());
+    eprintln!("{}", style(message).red());
+    std::process::exit(1);
+}
+
 fn main() {
     let Cargo::Sindri(args) = Cargo::parse();
 
@@ -80,9 +86,7 @@ fn main() {
                                 parts.next().unwrap_or_default().to_string(),
                             ))
                         } else {
-                            eprintln!("{}", style("Circuit creation failed ❌").bold());
-                            eprintln!("{}", style(format!("\"{pair}\" is not a valid metadata pair.")).red());
-                            std::process::exit(1);
+                            handle_circuit_error(&format!("\"{pair}\" is not a valid metadata pair."));
                         }
                     })
                     .collect::<HashMap<String, String>>()
@@ -104,16 +108,12 @@ fn main() {
                         println!("• Circuit UUID: {}", style(uuid).cyan());
                         println!("• Identifier:  {}", style(format!("{}/{}:{}", team, project_name, first_tag)).cyan());
                     } else {
-                        eprintln!("{}", style("Circuit creation failed ❌").bold());
-                        eprintln!("{}", style(response.error().unwrap_or_default()).red());
-                        std::process::exit(1);
+                        handle_circuit_error(&response.error().unwrap_or_default())
                     }
                 }
                 Err(e) => {
-                    eprintln!("{}", style("Circuit creation failed ❌").bold());
-                    eprintln!("{}", style(e).red());
-                    std::process::exit(1);
-                }
+                    handle_circuit_error(&e.to_string())
+                    }
             }
         }
     }
