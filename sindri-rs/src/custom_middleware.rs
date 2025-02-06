@@ -216,7 +216,7 @@ impl Middleware for ZstdRequestCompressionMiddleware {
         req: Request,
         extensions: &mut Extensions,
         next: Next<'_>,
-    ) -> Result<Response> {
+    ) -> reqwest_middleware::Result<Response> {
         // If the request has a sizable body, compress it using zstd.
         if let Some(bytes) = req
             .body()
