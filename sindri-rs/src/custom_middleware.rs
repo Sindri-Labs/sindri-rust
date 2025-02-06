@@ -272,7 +272,7 @@ mod tests {
 
     use async_compression::tokio::bufread::ZstdDecoder;
     use reqwest::header::{HeaderMap, HeaderValue};
-    use tokio_util::io::StreamReader;
+    use tokio::io::BufReader;
     use wiremock::{
         matchers::{header, method},
         Mock, MockServer, ResponseTemplate,
@@ -414,8 +414,8 @@ mod tests {
 
         // Decompress the body.
         let cursor = Cursor::new(compressed_body.clone());
-        let stream_reader = StreamReader::new(cursor);
-        let mut decoder = ZstdDecoder::new(stream_reader);
+        let buf_reader = BufReader::new(cursor);
+        let mut decoder = ZstdDecoder::new(buf_reader);
         let mut decompressed_body = Vec::new();
         decoder.read_to_end(&mut decompressed_body).await.unwrap();
 
