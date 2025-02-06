@@ -15,7 +15,7 @@ curl -L \
 cat openapi.json | jq -r '.content' | base64 -d | jq '.' > openapi_decoded.json
 
 # Generate the client
-npx @openapitools/openapi-generator-cli generate -i openapi_decoded.json -g rust -o ./openapi --additional-properties=supportMiddleware=true
+npx @openapitools/openapi-generator-cli@2.16.3 generate -i openapi_decoded.json -g rust -o ./openapi --additional-properties=supportMiddleware=true
 
 # Format the client.
 cargo fmt -- ./openapi/
