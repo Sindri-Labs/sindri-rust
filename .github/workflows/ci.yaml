@@ -28,9 +28,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check formatting
-        run: |
-          exit 0  # TODO: Remove after formatting.
-          cargo fmt --check
+        run: cargo fmt --check
 
       - name: Install Clippy
         run: rustup component add clippy
