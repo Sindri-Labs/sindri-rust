@@ -267,11 +267,11 @@ impl Middleware for ZstdRequestCompressionMiddleware {
 mod tests {
     use super::*;
 
+    use std::io::Cursor;
     use std::time::{Duration, Instant};
 
     use async_compression::tokio::bufread::ZstdDecoder;
     use reqwest::header::{HeaderMap, HeaderValue};
-    use tokio::io::AsyncReadExt;
     use tokio_util::io::StreamReader;
     use wiremock::{
         matchers::{header, method},
@@ -407,14 +407,18 @@ mod tests {
         let response = client.execute(request).await.unwrap();
         assert_eq!(response.status(), 200);
 
+        // Make the request and retrieve the compressed body.
         let received_request = mock_server.received_requests().await.unwrap();
         assert_eq!(received_request.len(), 1);
         let compressed_body = &received_request[0].body;
-        let mut decoder = ZstdDecoder::new(StreamReader::new(tokio::io::duplex(1024).1));
-        decoder.get_mut().write_all(compressed_body).await.unwrap();
-        decoder.get_mut().shutdown().await.unwrap();
+
+        // Decompress the body.
+        let cursor = Cursor::new(compressed_body.clone());
+        let stream_reader = StreamReader::new(cursor);
+        let mut decoder = ZstdDecoder::new(stream_reader);
         let mut decompressed_body = Vec::new();
         decoder.read_to_end(&mut decompressed_body).await.unwrap();
+
         assert_eq!(
             decompressed_body,
             original_body.as_bytes(),
