@@ -9,6 +9,7 @@ services:
     volumes:
       - .:/workspace
       - git:/usr/local/cargo/git
+      - npm:/root/.npm
       - registry:/usr/local/cargo/registry
       - rustup:/usr/local/rustup
       - sp1:/root/.sp1
@@ -23,6 +24,7 @@ services:
 
 volumes:
   git:
+  npm:
   registry:
   rustup:
   sp1:
