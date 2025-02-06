@@ -18,7 +18,7 @@ cat openapi.json | jq -r '.content' | base64 -d | jq '.' > openapi_decoded.json
 npx @openapitools/openapi-generator-cli@2.16.3 generate -i openapi_decoded.json -g rust -o ./openapi --additional-properties=supportMiddleware=true
 
 # Format the client.
-cargo fmt -- ./openapi/
+rustfmt ./openapi/
 
 # Patch over the generated client with some manual changes
 git apply openapi/openapi.patch
