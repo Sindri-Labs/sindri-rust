@@ -272,6 +272,7 @@ mod tests {
 
     use async_compression::tokio::bufread::ZstdDecoder;
     use reqwest::header::{HeaderMap, HeaderValue};
+    use tokio::io::AsyncReadExt;
     use tokio::io::BufReader;
     use wiremock::{
         matchers::{header, method},
@@ -380,11 +381,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_zstd_request_compression() {
-        let mock_server = MockServer::start().await;
-
         let original_body = "A".repeat(ZSTD_MIN_BODY_SIZE);
 
-        let mock = Mock::given(method("POST"))
+        let mock_server = MockServer::start().await;
+        let _mock = Mock::given(method("POST"))
             .and(header("Content-Encoding", "zstd"))
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
