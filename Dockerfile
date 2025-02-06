@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y \
     default-jre \
     git \
     jq \
-    npx \
-    nodejs
+    nodejs \
+    npm
 
 # Source a local `.bashrc` file from the working directory if it exists.
 RUN echo '[[ -f /workspace/.bashrc ]] && source /workspace/.bashrc' >> ~/.bashrc
