@@ -30,6 +30,9 @@ jobs:
       - name: Cache rust files
         uses: Swatinem/rust-cache@v2
 
+      - name: Check formatting
+        run: cargo fmt --check
+
       - name: Install Clippy
         run: rustup component add clippy
 
