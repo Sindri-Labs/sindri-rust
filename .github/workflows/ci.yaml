@@ -2,14 +2,14 @@ name: CI Workflows
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
     # Do not run on draft pull requests
     types:
-    - opened
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
 
 jobs:
   lint-and-test:
@@ -27,21 +27,8 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-registry-
-
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-index-
+      - name: Cache rust files
+        uses: Swatinem/rust-cache@v2
 
       - name: Install Clippy
         run: rustup component add clippy
