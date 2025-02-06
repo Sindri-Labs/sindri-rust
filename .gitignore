@@ -1,4 +1,6 @@
 /target/
+/.bashrc
+/.bash_history
 .env
 /sindri-rs/tests/recordings/
 .vscode/
