@@ -6,16 +6,14 @@
 //! - `LoggingMiddleware`: Logs requests and responses.
 //! - `Retry500`: Implements a retry policy for 500-series errors.
 //! - `VCRMiddleware`: Records and replays requests for (internal) testing purposes.
+//! - `ZstdRequestCompressionMiddleware`: Compresses request bodies using zstd.
 
-use std::{collections::HashSet, time::Duration, Arc};
+use std::{collections::HashSet, sync::Arc, time::Duration};
 
 use async_compression::tokio::write::ZstdEncoder;
 use async_trait::async_trait;
 use http::Extensions;
-use reqwest::{
-    header::HeaderValue, header::CONTENT_ENCODING, Body, Request, Request, Response, Response,
-    StatusCode,
-};
+use reqwest::{header::HeaderValue, header::CONTENT_ENCODING, Body, Request, Response, StatusCode};
 use reqwest_middleware::{Middleware, Next, Result};
 use reqwest_retry::{
     default_on_request_failure,
