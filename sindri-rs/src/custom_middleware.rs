@@ -14,7 +14,7 @@ use async_compression::tokio::write::ZstdEncoder;
 use async_trait::async_trait;
 use http::Extensions;
 use reqwest::{header::HeaderValue, header::CONTENT_ENCODING, Body, Request, Response, StatusCode};
-use reqwest_middleware::{Middleware, Next, Result};
+use reqwest_middleware::{Middleware, Next};
 use reqwest_retry::{
     default_on_request_failure,
     policies::{ExponentialBackoff, ExponentialBackoffTimed},
