@@ -7,11 +7,16 @@
 //! - `Retry500`: Implements a retry policy for 500-series errors.
 //! - `VCRMiddleware`: Records and replays requests for (internal) testing purposes.
 
-use std::{collections::HashSet, time::Duration};
+use std::{collections::HashSet, time::Duration, Arc};
 
+use async_compression::tokio::write::ZstdEncoder;
+use async_trait::async_trait;
 use http::Extensions;
-use reqwest::{Request, Response, StatusCode};
-use reqwest_middleware::{Middleware, Next};
+use reqwest::{
+    header::HeaderValue, header::CONTENT_ENCODING, Body, Request, Request, Response, Response,
+    StatusCode,
+};
+use reqwest_middleware::{Middleware, Next, Result};
 use reqwest_retry::{
     default_on_request_failure,
     policies::{ExponentialBackoff, ExponentialBackoffTimed},
@@ -19,7 +24,12 @@ use reqwest_retry::{
 };
 #[cfg(any(feature = "record", feature = "replay"))]
 use rvcr::{VCRMiddleware, VCRMode};
-use tracing::debug;
+use tokio::io::AsyncWriteExt;
+use tokio_util::io::ReaderStream;
+use tracing::{debug, error};
+
+const ZSTD_BUFFER_SIZE: usize = 4096;
+const ZSTD_MIN_BODY_SIZE: usize = 512;
 
 pub struct HeaderDeduplicatorMiddleware;
 
@@ -198,6 +208,63 @@ pub fn vcr_middleware(bundle: std::path::PathBuf) -> VCRMiddleware {
     vcr
 }
 
+#[derive(Debug)]
+pub struct ZstdRequestCompressionMiddleware;
+
+#[async_trait]
+impl Middleware for ZstdRequestCompressionMiddleware {
+    async fn handle(
+        &self,
+        req: Request,
+        extensions: &mut Extensions,
+        next: Next<'_>,
+    ) -> Result<Response> {
+        // If the request has a sizable body, compress it using zstd.
+        if let Some(bytes) = req
+            .body()
+            .and_then(|b| b.as_bytes())
+            .filter(|b| b.len() >= ZSTD_MIN_BODY_SIZE)
+        {
+            // Create a new request with the same properties.
+            let (method, url, headers, version) = (
+                req.method().clone(),
+                req.url().clone(),
+                req.headers().clone(),
+                req.version(),
+            );
+            let mut new_req = Request::new(method, url);
+            *new_req.headers_mut() = headers;
+            *new_req.version_mut() = version;
+
+            // Swap out the body with a zstd compressed stream of the original.
+            let (writer, reader) = tokio::io::duplex(ZSTD_BUFFER_SIZE);
+            let body_arc = Arc::new(bytes.to_vec());
+            let body_clone = Arc::clone(&body_arc);
+            tokio::spawn(async move {
+                let mut encoder = ZstdEncoder::new(writer);
+                if let Err(error) = encoder.write_all(&body_clone).await {
+                    error!("Failed to compress body: {}", error);
+                }
+                let _ = encoder.shutdown().await;
+            });
+            new_req
+                .body_mut()
+                .replace(Body::wrap_stream(ReaderStream::new(reader)));
+
+            // Set the `Content-Encoding: zstd` header.
+            new_req
+                .headers_mut()
+                .insert(CONTENT_ENCODING, HeaderValue::from_static("zstd"));
+
+            // Proceed with the new request.
+            return next.run(new_req, extensions).await;
+        }
+
+        // If no body needs to be compressed, proceed with the original request.
+        next.run(req, extensions).await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -308,5 +375,45 @@ mod tests {
         let num_retries = mock_server.received_requests().await.unwrap().len();
 
         assert_eq!(num_retries, 1);
+    }
+
+    #[tokio::test]
+    async fn test_zstd_request_compression() {
+        let mock_server = MockServer::start().await;
+
+        let original_body = "A".repeat(ZSTD_MIN_BODY_SIZE);
+
+        let mock = Mock::given(method("POST"))
+            .and(header("Content-Encoding", "zstd"))
+            .respond_with(ResponseTemplate::new(200))
+            .expect(1)
+            .mount_as_scoped(&mock_server)
+            .await;
+
+        let client = reqwest_middleware::ClientBuilder::new(
+            reqwest::Client::builder()
+                .build()
+                .expect("Could not build client"),
+        )
+        .with(ZstdRequestCompressionMiddleware)
+        .build();
+
+        let request = client
+            .post(mock_server.uri())
+            .body(original_body.to_string())
+            .build()
+            .unwrap();
+        let response = client.execute(request).await.unwrap();
+        assert_eq!(response.status(), 200);
+
+        let received_request = mock_server.received_requests().await.unwrap();
+        assert_eq!(received_request.len(), 1);
+        let compressed_body = &received_request[0].body;
+        let decompressed_body = zstd::decode_all(&compressed_body[..]).unwrap();
+        assert_eq!(
+            decompressed_body,
+            original_body.as_bytes(),
+            "Decompressed body does not match original input."
+        );
     }
 }
