@@ -1,3 +1,8 @@
+#! /bin/bash
+
+# Use the project root as the working directory.
+cd "$(dirname "$0")/../"
+
 # Download the open api spec that has been downgraded to v3.0.3
 curl -L \
   -H "Accept: application/vnd.github+json" \
@@ -10,11 +15,12 @@ curl -L \
 cat openapi.json | jq -r '.content' | base64 -d | jq '.' > openapi_decoded.json
 
 # Generate the client
-npx @openapitools/openapi-generator-cli generate -i openapi_decoded.json -g rust -o ../openapi --additional-properties=supportMiddleware=true
+npx @openapitools/openapi-generator-cli generate -i openapi_decoded.json -g rust -o ./openapi --additional-properties=supportMiddleware=true
 
 # Patch over the generated client with some manual changes
-cd .. && git apply openapi/openapi.patch && cd scripts
+git apply openapi/openapi.patch
 
 # Remove the spec files
 rm openapi.json
 rm openapi_decoded.json
+rm openapitools.json
