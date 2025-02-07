@@ -206,6 +206,11 @@ pub fn vcr_middleware(bundle: std::path::PathBuf) -> VCRMiddleware {
     vcr
 }
 
+/// Middleware for request and response compression handling.
+///
+/// This implementation compresses request bodies as a stream if the body size
+/// is at least `ZSTD_MIN_BODY_SIZE` and decompresses response bodies if the
+/// `Content-Encoding: zstd` header is present.
 #[derive(Debug)]
 pub struct ZstdRequestCompressionMiddleware;
 
