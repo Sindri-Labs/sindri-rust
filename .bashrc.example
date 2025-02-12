@@ -1,0 +1,19 @@
+# This file contains examples of customizations you can add to `.bashrc`.
+# Anything you add to the local `.bashrc` file will automatically be sourced
+# when you run `docker compose exec -it sindri-rust bash` to enter the  container.
+
+#
+# Bash History Improvements
+#
+
+# Store the history file in the local working directory.
+export HISTFILE=/workspace/.bash_history
+# Ignore duplicate history entries.
+export HISTCONTROL=ignoredups:erasedup
+# Store a lot of history commands in memory and on disk, respectively.
+export HISTSIZE=100000
+export HISTFILESIZE=1000000
+# Append to history instead of overwriting it.
+shopt -s histappend
+# Save and reload history after every command.
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"

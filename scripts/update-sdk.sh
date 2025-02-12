@@ -1,3 +1,8 @@
+#! /bin/bash
+
+# Use the location of the script as the working directory.
+cd "$(dirname "$0")"
+
 # Download the open api spec that has been downgraded to v3.0.3
 curl -L \
   -H "Accept: application/vnd.github+json" \
@@ -10,11 +15,18 @@ curl -L \
 cat openapi.json | jq -r '.content' | base64 -d | jq '.' > openapi_decoded.json
 
 # Generate the client
-npx @openapitools/openapi-generator-cli generate -i openapi_decoded.json -g rust -o ../openapi --additional-properties=supportMiddleware=true
+npx @openapitools/openapi-generator-cli@2.16.3 generate -i openapi_decoded.json -g rust -o ../openapi --additional-properties=supportMiddleware=true
+
+# Move up to the project root.
+cd ..
+
+# Format the client.
+rustfmt $(find ./openapi/ -name "*.rs")
 
 # Patch over the generated client with some manual changes
-cd .. && git apply openapi/openapi.patch && cd scripts
+git apply openapi/openapi.patch
 
-# Remove the spec files
+# Move back into scripts and remove the spec files.
+cd ./scripts/
 rm openapi.json
 rm openapi_decoded.json
