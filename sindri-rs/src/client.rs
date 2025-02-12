@@ -20,7 +20,10 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use tracing::{debug, info, warn};
 
 use crate::{
-    custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
+    custom_middleware::{
+        retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware,
+        ZstdRequestCompressionMiddleware,
+    },
     types::{CircuitInfo, ProofInput},
     utils::compress_directory,
 };
@@ -160,12 +163,14 @@ impl SindriClient {
         let mut client_builder = reqwest_middleware::ClientBuilder::new(
             reqwest::Client::builder()
                 .default_headers(headers)
+                .zstd(true)
                 .build()
                 .expect("Could not build client"),
         )
         .with(HeaderDeduplicatorMiddleware)
         .with(LoggingMiddleware)
-        .with(retry_client(None));
+        .with(retry_client(None))
+        .with(ZstdRequestCompressionMiddleware);
 
         #[cfg(any(feature = "record", feature = "replay"))]
         {
