@@ -6,8 +6,7 @@ use regex::Regex;
 
 use sindri_rs::{
     client::{AuthOptions, SindriClient},
-    CircuitInfo,
-    JobStatus,
+    CircuitInfo, JobStatus,
 };
 
 #[derive(Parser)]
@@ -86,13 +85,22 @@ fn main() {
                                 parts.next().unwrap_or_default().to_string(),
                             ))
                         } else {
-                            handle_circuit_error(&format!("\"{pair}\" is not a valid metadata pair."));
+                            handle_circuit_error(&format!(
+                                "\"{pair}\" is not a valid metadata pair."
+                            ));
                         }
                     })
                     .collect::<HashMap<String, String>>()
             });
-            println!("{}", style(format!("  ✓ Valid metadata pairs specified: {}", metadata.as_ref().map_or(0, |t| t.len()))).cyan());
-            
+            println!(
+                "{}",
+                style(format!(
+                    "  ✓ Valid metadata pairs specified: {}",
+                    metadata.as_ref().map_or(0, |t| t.len())
+                ))
+                .cyan()
+            );
+
             match client.create_circuit_blocking(project, tags, metadata) {
                 Ok(response) => {
                     // Gather circuit identifiers from response
@@ -102,18 +110,23 @@ fn main() {
                         let team = response.team_slug();
                         let project_name = response.project_name();
                         let first_tag = response.tags().first().cloned().unwrap_or_default();
-    
+
                         println!("{}", style("  ✓ Circuit created successfully!").cyan());
-                        println!("\n{}", style("To generate a proof from this deployment, you can use either:").bold());
+                        println!(
+                            "\n{}",
+                            style("To generate a proof from this deployment, you can use either:")
+                                .bold()
+                        );
                         println!("• Circuit UUID: {}", style(uuid).cyan());
-                        println!("• Identifier:  {}", style(format!("{}/{}:{}", team, project_name, first_tag)).cyan());
+                        println!(
+                            "• Identifier:  {}",
+                            style(format!("{}/{}:{}", team, project_name, first_tag)).cyan()
+                        );
                     } else {
                         handle_circuit_error(&response.error().unwrap_or_default())
                     }
                 }
-                Err(e) => {
-                    handle_circuit_error(&e.to_string())
-                    }
+                Err(e) => handle_circuit_error(&e.to_string()),
             }
         }
     }

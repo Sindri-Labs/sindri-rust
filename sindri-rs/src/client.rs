@@ -20,7 +20,10 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use tracing::{debug, info, warn};
 
 use crate::{
-    custom_middleware::{retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware},
+    custom_middleware::{
+        retry_client, HeaderDeduplicatorMiddleware, LoggingMiddleware,
+        ZstdRequestCompressionMiddleware,
+    },
     types::{CircuitInfo, ProofInput},
     utils::compress_directory,
 };
@@ -119,14 +122,13 @@ pub struct SindriClient {
 
 impl Default for SindriClient {
     /// Creates a new Sindri API client with default options.
-    /// 
+    ///
     /// This is equivalent to calling `SindriClient::new(None, None)`.
     /// Authentication will be read from environment variables and default polling options will be used.
     fn default() -> Self {
         Self::new(None, None)
     }
 }
-
 
 impl SindriClient {
     /// Creates a new Sindri API client.
@@ -161,12 +163,14 @@ impl SindriClient {
         let mut client_builder = reqwest_middleware::ClientBuilder::new(
             reqwest::Client::builder()
                 .default_headers(headers)
+                .zstd(true)
                 .build()
                 .expect("Could not build client"),
         )
         .with(HeaderDeduplicatorMiddleware)
         .with(LoggingMiddleware)
-        .with(retry_client(None));
+        .with(retry_client(None))
+        .with(ZstdRequestCompressionMiddleware);
 
         #[cfg(any(feature = "record", feature = "replay"))]
         {
@@ -226,7 +230,7 @@ impl SindriClient {
     ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::default()
     ///     .with_api_key("my_api_key");
     /// ```
@@ -236,14 +240,14 @@ impl SindriClient {
     }
 
     /// Sets the base URL for this client.
-    /// 
+    ///
     /// Should be left as default except for internal development purposes.
     ///
     /// # Examples
     ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::default()
     ///     .with_base_url("https://custom.sindri.app");
     /// ```
@@ -259,7 +263,7 @@ impl SindriClient {
     /// ```
     /// use sindri_rs::client::SindriClient;
     /// use std::time::Duration;
-    /// 
+    ///
     /// let client = SindriClient::default()
     ///     .with_polling_interval(Duration::from_secs(5));
     /// ```
@@ -275,7 +279,7 @@ impl SindriClient {
     /// ```
     /// use sindri_rs::client::SindriClient;
     /// use std::time::Duration;
-    /// 
+    ///
     /// let client = SindriClient::default()
     ///     .with_timeout(Duration::from_secs(1800)); // 30 minutes
     /// ```
@@ -290,7 +294,7 @@ impl SindriClient {
     ///
     /// ```
     /// use sindri_rs::client::SindriClient;
-    /// 
+    ///
     /// let client = SindriClient::default()
     ///     .with_no_timeout();
     /// ```
@@ -346,7 +350,14 @@ impl SindriClient {
             }
         }
         #[cfg(feature = "rich-terminal")]
-        println!("{}", style(format!("  ✓ Valid tags specified: {}", tags.as_ref().map_or(0, |t| t.len()))).cyan());
+        println!(
+            "{}",
+            style(format!(
+                "  ✓ Valid tags specified: {}",
+                tags.as_ref().map_or(0, |t| t.len())
+            ))
+            .cyan()
+        );
 
         // Load the project into a byte array whether it is a compressed
         // file already or a directory
@@ -397,7 +408,7 @@ impl SindriClient {
         let start_time = std::time::Instant::now();
         let mut status = circuit_status(&self.config, circuit_id).await?;
         debug!("Initial circuit status: {:?}", status.status);
-        
+
         while !matches!(status.status, JobStatus::Ready | JobStatus::Failed) {
             if let Some(timeout) = self.polling_options.timeout {
                 if start_time.elapsed() > timeout {
@@ -769,7 +780,10 @@ mod tests {
         assert_eq!(client.api_key(), Some("test_key"));
         assert_eq!(client.base_url(), "https://example.com");
         assert_eq!(client.polling_options.interval, Duration::from_secs(5));
-        assert_eq!(client.polling_options.timeout, Some(Duration::from_secs(300)));
+        assert_eq!(
+            client.polling_options.timeout,
+            Some(Duration::from_secs(300))
+        );
     }
 
     #[test]
