@@ -2,10 +2,10 @@
 
 use std::{error::Error, io::Read, path::Path};
 
-use flate2::{write::GzEncoder, Compression};
-use ignore::WalkBuilder;
 #[cfg(feature = "rich-terminal")]
 use console::style;
+use flate2::{write::GzEncoder, Compression};
+use ignore::WalkBuilder;
 #[cfg(feature = "rich-terminal")]
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -16,18 +16,8 @@ const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
 pub const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
 pub const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
 pub const CLOCK_TICKS: [&str; 12] = [
-    "  🕛 ",
-    "  🕐 ",
-    "  🕑 ",
-    "  🕒 ",
-    "  🕓 ",
-    "  🕔 ",
-    "  🕕 ",
-    "  🕖 ",
-    "  🕗 ",
-    "  🕘 ",
-    "  🕙 ",
-    "  🕚 "
+    "  🕛 ", "  🕐 ", "  🕑 ", "  🕒 ", "  🕓 ", "  🕔 ", "  🕕 ", "  🕖 ", "  🕗 ", "  🕘 ",
+    "  🕙 ", "  🕚 ",
 ];
 
 /// Formats bytes into human readable string with appropriate unit
@@ -93,7 +83,6 @@ pub async fn compress_directory(
         );
         #[cfg(feature = "rich-terminal")]
         pb.set_message("Compressing project files...");
-
 
         let buffer = std::io::Cursor::new(&mut contents);
         let enc = GzEncoder::new(buffer, Compression::default());
