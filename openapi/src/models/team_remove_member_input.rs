@@ -11,16 +11,23 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TeamRemoveMemberInput : Client input to remove a user from a team.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct PagedProofInfoResponse {
-    #[serde(rename = "items")]
-    pub items: Vec<models::ProofInfoResponse>,
-    #[serde(rename = "count")]
-    pub count: i32,
+pub struct TeamRemoveMemberInput {
+    /// The slug of the team to remove the user from.
+    #[serde(rename = "team_slug")]
+    pub team_slug: String,
+    /// The username of the user to remove.
+    #[serde(rename = "username")]
+    pub username: String,
 }
 
-impl PagedProofInfoResponse {
-    pub fn new(items: Vec<models::ProofInfoResponse>, count: i32) -> PagedProofInfoResponse {
-        PagedProofInfoResponse { items, count }
+impl TeamRemoveMemberInput {
+    /// Client input to remove a user from a team.
+    pub fn new(team_slug: String, username: String) -> TeamRemoveMemberInput {
+        TeamRemoveMemberInput {
+            team_slug,
+            username,
+        }
     }
 }

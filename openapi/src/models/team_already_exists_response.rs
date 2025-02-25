@@ -11,16 +11,27 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TeamAlreadyExistsResponse : Action: Attempt to create a team with team_slug. Error: A team with this slug already exists.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct PagedProofInfoResponse {
-    #[serde(rename = "items")]
-    pub items: Vec<models::ProofInfoResponse>,
-    #[serde(rename = "count")]
-    pub count: i32,
+pub struct TeamAlreadyExistsResponse {
+    #[serde(rename = "error")]
+    pub error: String,
+    #[serde(rename = "exception_id", skip_serializing_if = "Option::is_none")]
+    pub exception_id: Option<Box<models::ExceptionId>>,
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "team_slug")]
+    pub team_slug: String,
 }
 
-impl PagedProofInfoResponse {
-    pub fn new(items: Vec<models::ProofInfoResponse>, count: i32) -> PagedProofInfoResponse {
-        PagedProofInfoResponse { items, count }
+impl TeamAlreadyExistsResponse {
+    /// Action: Attempt to create a team with team_slug. Error: A team with this slug already exists.
+    pub fn new(error: String, message: String, team_slug: String) -> TeamAlreadyExistsResponse {
+        TeamAlreadyExistsResponse {
+            error,
+            exception_id: None,
+            message,
+            team_slug,
+        }
     }
 }

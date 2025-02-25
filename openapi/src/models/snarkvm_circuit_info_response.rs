@@ -11,9 +11,9 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// JoltCircuitInfoResponse : Response for getting Jolt circuit info.
+/// SnarkvmCircuitInfoResponse : Response for getting SnarkVM circuit info.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct JoltCircuitInfoResponse {
+pub struct SnarkvmCircuitInfoResponse {
     /// A unique identifier generated for the circuit. UUID4 format.
     #[serde(rename = "circuit_id")]
     pub circuit_id: String,
@@ -88,25 +88,16 @@ pub struct JoltCircuitInfoResponse {
     pub warnings: Option<Vec<String>>,
     #[serde(rename = "error", deserialize_with = "Option::deserialize")]
     pub error: Option<String>,
-    /// The commitment scheme used in the Jolt zkVM prover.
-    #[serde(rename = "commitment_scheme")]
-    pub commitment_scheme: String,
-    /// Whether the Rust standard library is enabled for the guest code.
-    #[serde(rename = "std_enabled")]
-    pub std_enabled: bool,
-    /// The Jolt frontend version tag.
-    #[serde(rename = "jolt_version")]
-    pub jolt_version: String,
-    /// The name of the circuit project specified in the included Cargo.toml file.
-    #[serde(rename = "package_name")]
-    pub package_name: String,
-    /// The name of the guest function in the user's uploaded guest code.
-    #[serde(rename = "guest_function")]
-    pub guest_function: String,
+    /// The main.aleo function name.
+    #[serde(rename = "function_name")]
+    pub function_name: String,
+    /// The network.
+    #[serde(rename = "network")]
+    pub network: String,
 }
 
-impl JoltCircuitInfoResponse {
-    /// Response for getting Jolt circuit info.
+impl SnarkvmCircuitInfoResponse {
+    /// Response for getting SnarkVM circuit info.
     pub fn new(
         circuit_id: String,
         circuit_name: String,
@@ -136,13 +127,10 @@ impl JoltCircuitInfoResponse {
         verification_key: Option<serde_json::Value>,
         warnings: Option<Vec<String>>,
         error: Option<String>,
-        commitment_scheme: String,
-        std_enabled: bool,
-        jolt_version: String,
-        package_name: String,
-        guest_function: String,
-    ) -> JoltCircuitInfoResponse {
-        JoltCircuitInfoResponse {
+        function_name: String,
+        network: String,
+    ) -> SnarkvmCircuitInfoResponse {
+        SnarkvmCircuitInfoResponse {
             circuit_id,
             circuit_name,
             project_name,
@@ -175,23 +163,20 @@ impl JoltCircuitInfoResponse {
             verification_key,
             warnings,
             error,
-            commitment_scheme,
-            std_enabled,
-            jolt_version,
-            package_name,
-            guest_function,
+            function_name,
+            network,
         }
     }
 }
 /// The development framework used to write the circuit. This is specified during creation in the included sindri.json file.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum CircuitType {
-    #[serde(rename = "jolt")]
-    Jolt,
+    #[serde(rename = "snarkvm")]
+    Snarkvm,
 }
 
 impl Default for CircuitType {
     fn default() -> CircuitType {
-        Self::Jolt
+        Self::Snarkvm
     }
 }

@@ -11,16 +11,27 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TeamCreateInput : Client input to create a team.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct PagedProofInfoResponse {
-    #[serde(rename = "items")]
-    pub items: Vec<models::ProofInfoResponse>,
-    #[serde(rename = "count")]
-    pub count: i32,
+pub struct TeamCreateInput {
+    /// A description of the team.
+    #[serde(rename = "description", skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The display name of the team.
+    #[serde(rename = "display_name", skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+    /// The unique slug for the team (used for routing).
+    #[serde(rename = "slug")]
+    pub slug: String,
 }
 
-impl PagedProofInfoResponse {
-    pub fn new(items: Vec<models::ProofInfoResponse>, count: i32) -> PagedProofInfoResponse {
-        PagedProofInfoResponse { items, count }
+impl TeamCreateInput {
+    /// Client input to create a team.
+    pub fn new(slug: String) -> TeamCreateInput {
+        TeamCreateInput {
+            description: None,
+            display_name: None,
+            slug,
+        }
     }
 }

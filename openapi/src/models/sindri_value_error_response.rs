@@ -11,16 +11,24 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// SindriValueErrorResponse : Response for SindriValueError
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct PagedProofInfoResponse {
-    #[serde(rename = "items")]
-    pub items: Vec<models::ProofInfoResponse>,
-    #[serde(rename = "count")]
-    pub count: i32,
+pub struct SindriValueErrorResponse {
+    #[serde(rename = "error")]
+    pub error: String,
+    #[serde(rename = "exception_id", skip_serializing_if = "Option::is_none")]
+    pub exception_id: Option<Box<models::ExceptionId>>,
+    #[serde(rename = "message", skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
 }
 
-impl PagedProofInfoResponse {
-    pub fn new(items: Vec<models::ProofInfoResponse>, count: i32) -> PagedProofInfoResponse {
-        PagedProofInfoResponse { items, count }
+impl SindriValueErrorResponse {
+    /// Response for SindriValueError
+    pub fn new(error: String) -> SindriValueErrorResponse {
+        SindriValueErrorResponse {
+            error,
+            exception_id: None,
+            message: None,
+        }
     }
 }

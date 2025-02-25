@@ -11,16 +11,17 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TeamInviteInput : Client input to invite a user to a team.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct PagedProofInfoResponse {
-    #[serde(rename = "items")]
-    pub items: Vec<models::ProofInfoResponse>,
-    #[serde(rename = "count")]
-    pub count: i32,
+pub struct TeamInviteInput {
+    /// The email address of the user to invite.
+    #[serde(rename = "email")]
+    pub email: String,
 }
 
-impl PagedProofInfoResponse {
-    pub fn new(items: Vec<models::ProofInfoResponse>, count: i32) -> PagedProofInfoResponse {
-        PagedProofInfoResponse { items, count }
+impl TeamInviteInput {
+    /// Client input to invite a user to a team.
+    pub fn new(email: String) -> TeamInviteInput {
+        TeamInviteInput { email }
     }
 }
