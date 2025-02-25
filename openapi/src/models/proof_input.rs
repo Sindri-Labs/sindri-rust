@@ -10,14 +10,25 @@
 
 use crate::models;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 /// ProofInput : An object mapping proof input variable names to their values. Can be a raw JSON object or a string serialized as JSON or TOML.
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ProofInput {}
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ProofInput {
+    Json(Value),    // For raw JSON objects
+    String(String), // For serialized JSON/TOML strings
+}
+
+impl Default for ProofInput {
+    fn default() -> Self {
+        ProofInput::String(String::new())
+    }
+}
 
 impl ProofInput {
     /// An object mapping proof input variable names to their values. Can be a raw JSON object or a string serialized as JSON or TOML.
     pub fn new() -> ProofInput {
-        ProofInput {}
+        Default::default()
     }
 }

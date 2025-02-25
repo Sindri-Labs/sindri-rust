@@ -73,7 +73,7 @@ pub enum ProofCreateError {
 /// Create a circuit.
 pub async fn circuit_create(
     configuration: &configuration::Configuration,
-    files: Vec<std::path::PathBuf>,
+    files: Vec<u8>,
     meta: Option<std::collections::HashMap<String, String>>,
     tags: Option<Vec<String>>,
 ) -> Result<models::CircuitInfoResponse, Error<CircuitCreateError>> {
@@ -96,23 +96,58 @@ pub async fn circuit_create(
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    let mut multipart_form = reqwest::multipart::Form::new();
-    // TODO: support file upload for 'files' parameter
-    if let Some(param_value) = p_meta {
-        multipart_form = multipart_form.text("meta", param_value.to_string());
+    // Build the request body directly in order to avoid a streaming request
+    // that is incompatible with the retry middleware
+    let boundary = "----------------------------4ebf00fbcf09";
+    req_builder = req_builder.header(
+        "Content-Type",
+        format!("multipart/form-data; boundary={boundary}"),
+    );
+
+    let filename = "rust_sdk_upload.tar.gz";
+    let mut byte_string = Vec::new();
+    byte_string.extend_from_slice(
+        format!(
+            "--{boundary}\r\n\
+            Content-Disposition: form-data; name=\"files\"; filename=\"{filename}\"\r\n\
+            \r\n",
+        )
+        .as_bytes(),
+    );
+    byte_string.extend(p_files);
+    byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of files
+    if let Some(p_tags) = p_tags {
+        for tag in p_tags {
+            byte_string.extend_from_slice(
+                format!(
+                    "--{boundary}\r\n\
+                    Content-Disposition: form-data; name=\"tags\"\r\n\
+                    \r\n\
+                    {tag}\r\n"
+                )
+                .as_bytes(),
+            );
+            byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
+            // End of tag
+        }
     }
-    if let Some(param_value) = p_tags {
-        multipart_form = multipart_form.text(
-            "tags",
-            param_value
-                .into_iter()
-                .map(|p| p.to_string())
-                .collect::<Vec<String>>()
-                .join(",")
-                .to_string(),
+    if let Some(p_meta) = p_meta {
+        let meta_json = serde_json::to_string(&p_meta)?;
+        byte_string.extend_from_slice(
+            format!(
+                "--{boundary}\r\n\
+           Content-Disposition: form-data; name=\"meta\"\r\n\
+           Content-Type: application/json\r\n\
+            \r\n\
+            {meta_json}\r\n"
+            )
+            .as_bytes(),
         );
+        byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
+        // End of meta
     }
-    req_builder = req_builder.multipart(multipart_form);
+    let local_var_body = reqwest::Body::from(byte_string);
+    req_builder = req_builder.body(local_var_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

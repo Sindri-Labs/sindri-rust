@@ -1,3 +1,4 @@
+pub type AnyOfLessThanGreaterThan = serde_json::Value;
 pub mod action_response;
 pub use self::action_response::ActionResponse;
 pub mod api_key_does_not_exist_response;
