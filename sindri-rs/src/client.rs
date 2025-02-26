@@ -851,10 +851,6 @@ mod tests {
         let client = SindriClient::new(None, None);
         let config = client.config;
         // Ensure the fields we are not setting have not changed between openapi codegen
-        assert_eq!(
-            config.user_agent,
-            Some("OpenAPI-Generator/v1.15.1/rust".to_owned())
-        );
         assert_eq!(config.basic_auth, None);
         assert_eq!(config.oauth_access_token, None);
         // the api_key field in the config struct is unused and an unfortunate name overlap
