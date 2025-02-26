@@ -19,6 +19,6 @@ tokio = { version = "1.0", features = ["full"] }
 wiremock = "0.6.2"
 
 [features]
-default = ["sindr/rich-terminal"]
+default = ["sindri/rich-terminal"]
 record = ["sindri/record"]
 replay = ["sindri/replay"]

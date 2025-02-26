@@ -4832,22 +4832,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "sindri-cli"
-version = "0.1.0"
-dependencies = [
- "assert_cmd",
- "clap",
- "console",
- "predicates",
- "regex",
- "sindri-rs",
- "tokio",
- "wiremock",
-]
-
-[[package]]
-name = "sindri-rs"
-version = "0.1.0"
+name = "sindri"
+version = "0.2.0"
 dependencies = [
  "async-compression",
  "async-trait",
@@ -4875,6 +4861,20 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tracing-test",
+ "wiremock",
+]
+
+[[package]]
+name = "sindri-cli"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap",
+ "console",
+ "predicates",
+ "regex",
+ "sindri",
+ "tokio",
  "wiremock",
 ]
 
@@ -5054,7 +5054,7 @@ dependencies = [
 name = "sp1-proof"
 version = "0.1.0"
 dependencies = [
- "sindri-rs",
+ "sindri",
  "sp1-sdk",
  "tracing-subscriber",
 ]
