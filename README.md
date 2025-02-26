@@ -17,7 +17,7 @@ The client handles request/response management and includes built-in robustness 
 Generate your first zero-knowledge proof in just a few lines of code:
 
  ```rust
- use sindri_rs::client::SindriClient;
+ use sindri::client::SindriClient;
 
  let client = SindriClient::new(None, None);
  let circuit = client.create_circuit("path/to/circuit", None, None).await?;

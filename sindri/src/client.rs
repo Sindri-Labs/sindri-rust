@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Duration};
 
-use openapi::{
+use sindri_openapi::{
     apis::{
         circuit_download, circuit_status,
         circuits_api::{

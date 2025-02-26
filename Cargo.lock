@@ -3114,20 +3114,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "openapi"
-version = "1.17.6"
-dependencies = [
- "reqwest 0.12.9",
- "reqwest-middleware",
- "serde",
- "serde_json",
- "serde_repr",
- "serde_with",
- "url",
- "uuid 1.11.0",
-]
-
-[[package]]
 name = "openssl"
 version = "0.10.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4843,7 +4829,6 @@ dependencies = [
  "http 1.2.0",
  "ignore",
  "indicatif",
- "openapi",
  "rand",
  "regex",
  "reqwest 0.12.9",
@@ -4852,6 +4837,7 @@ dependencies = [
  "rmp-serde",
  "rvcr",
  "serde_json",
+ "sindri-openapi",
  "sp1-sdk",
  "tar",
  "temp-env",
@@ -4876,6 +4862,20 @@ dependencies = [
  "sindri",
  "tokio",
  "wiremock",
+]
+
+[[package]]
+name = "sindri-openapi"
+version = "1.17.6"
+dependencies = [
+ "reqwest 0.12.9",
+ "reqwest-middleware",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "serde_with",
+ "url",
+ "uuid 1.11.0",
 ]
 
 [[package]]
