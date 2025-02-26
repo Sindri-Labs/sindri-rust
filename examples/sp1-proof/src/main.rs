@@ -1,4 +1,4 @@
-use sindri_rs::{client::SindriClient, integrations::sp1::SP1ProofInfo, ProofInput};
+use sindri::{client::SindriClient, integrations::sp1::SP1ProofInfo, ProofInput};
 use sp1_sdk::SP1Stdin;
 use tracing_subscriber::{fmt, EnvFilter};
 

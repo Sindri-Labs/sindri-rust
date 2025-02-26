@@ -13,7 +13,7 @@
 //! Generate your first zero-knowledge proof in just a few lines of code:
 //!
 //! ```ignore
-//! use sindri_rs::client::SindriClient;
+//! use sindri::client::SindriClient;
 //!
 //! let client = SindriClient::new(None, None);
 //! let circuit = client.create_circuit("path/to/circuit", None, None).await?;

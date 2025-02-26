@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde_json::json;
 
-use sindri_rs::{client::SindriClient, CircuitInfo, JobStatus};
+use sindri::{client::SindriClient, CircuitInfo, JobStatus};
 
 mod factory;
 
