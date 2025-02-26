@@ -133,7 +133,8 @@ mod tests {
         // Parse the response and assert success
         let proof_info = ProofInfoResponse {
             circuit_type: CircuitType::Sp1,
-            verification_key: serde_json::from_str(manual_vkey).expect("Failed to parse hardcoded verifying key"),
+            verification_key: serde_json::from_str(manual_vkey)
+                .expect("Failed to parse hardcoded verifying key"),
             proof: serde_json::from_str(manual_proof).expect("Failed to parse mock response JSON"),
             ..Default::default()
         };
