@@ -15,8 +15,10 @@ cd ..
 # Format the client.
 rustfmt $(find ./openapi/ -name "*.rs")
 
-# Patch over the generated client with some manual changes
-# git apply openapi/openapi.patch
+# Apply all patches in the openapi/patches directory
+for patch in openapi/patches/*.patch; do
+    git apply "$patch"
+done
 
 # Move back into scripts and remove the spec files.
 cd ./scripts/
