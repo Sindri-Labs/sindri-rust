@@ -3115,7 +3115,7 @@ dependencies = [
 
 [[package]]
 name = "openapi"
-version = "1.15.1"
+version = "1.17.6"
 dependencies = [
  "reqwest 0.12.9",
  "reqwest-middleware",

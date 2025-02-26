@@ -1,0 +1,22 @@
+diff --git a/openapi/src/apis/proofs_api.rs b/openapi/src/apis/proofs_api.rs
+index a357b6c..fa30d5e 100644
+--- a/openapi/src/apis/proofs_api.rs
++++ b/openapi/src/apis/proofs_api.rs
+@@ -81,7 +81,7 @@ pub async fn proof_delete(
+ /// Get info for a specific proof.
+ pub async fn proof_detail(
+     configuration: &configuration::Configuration,
+-    proof_id: Option<&str>,
++    proof_id: &str,
+     include_proof: Option<bool>,
+     include_public: Option<bool>,
+     include_smart_contract_calldata: Option<bool>,
+@@ -97,7 +97,7 @@ pub async fn proof_detail(
+     let uri_str = format!(
+         "{}/api/v1/proof/{proof_id}/detail",
+         configuration.base_path,
+-        proof_id = crate::apis::urlencode(p_proof_id.unwrap())
++        proof_id = crate::apis::urlencode(p_proof_id)
+     );
+     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+ 
