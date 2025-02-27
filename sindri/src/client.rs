@@ -2,6 +2,8 @@
 
 use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Duration};
 
+use regex::Regex;
+use reqwest::header::{HeaderMap, HeaderValue};
 use sindri_openapi::{
     apis::{
         circuit_download, circuit_status,
@@ -15,8 +17,6 @@ use sindri_openapi::{
     },
     models::{CircuitInfoResponse, CircuitProveInput, JobStatus, ProofInfoResponse},
 };
-use regex::Regex;
-use reqwest::header::{HeaderMap, HeaderValue};
 use tracing::{debug, info, warn};
 
 use crate::{
