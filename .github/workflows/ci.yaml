@@ -11,6 +11,9 @@ on:
       - synchronize
       - ready_for_review
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -27,6 +30,11 @@ jobs:
       - name: Cache Rust files
         uses: Swatinem/rust-cache@v2
 
+      - name: Install cargo-nextest
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9
+
       - name: Check formatting
         run: cargo fmt --check
 
@@ -39,8 +47,12 @@ jobs:
       - name: Build
         run: cargo build --verbose
 
-      - name: Run sindri unit tests
-        run: cargo test --package sindri --lib --features sp1-v3 --verbose
+      - name: Run sindri core unit tests
+        run: cargo nextest run -E 'package(sindri) & kind(lib) - test(integrations)'
+
+      - name: Run sindri framework-specific tests
+        run: cargo nextest run -E 'package(sindri) & kind(lib) & test(integrations)'
 
       - name: Run sindri-cli unit tests
-        run: cargo test --package sindri-cli --bin cargo-sindri --verbose
+        run: cargo nextest run -E 'package(sindri-cli) & kind(bin)'
+
