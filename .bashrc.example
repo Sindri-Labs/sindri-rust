@@ -2,6 +2,9 @@
 # Anything you add to the local `.bashrc` file will automatically be sourced
 # when you run `docker compose exec -it sindri-rust bash` to enter the  container.
 
+# Create a shortcut for cargo-nextest
+alias nextest='~/.cargo/bin/cargo-nextest nextest run'
+
 #
 # Bash History Improvements
 #
