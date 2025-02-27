@@ -2,7 +2,9 @@
 
 use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Duration};
 
-use openapi::{
+use regex::Regex;
+use reqwest::header::{HeaderMap, HeaderValue};
+use sindri_openapi::{
     apis::{
         circuit_download, circuit_status,
         circuits_api::{
@@ -15,8 +17,6 @@ use openapi::{
     },
     models::{CircuitInfoResponse, CircuitProveInput, JobStatus, ProofInfoResponse},
 };
-use regex::Regex;
-use reqwest::header::{HeaderMap, HeaderValue};
 use tracing::{debug, info, warn};
 
 use crate::{
@@ -51,7 +51,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 /// # Examples
 ///
 /// ```
-/// use sindri_rs::client::AuthOptions;
+/// use sindri::client::AuthOptions;
 ///
 /// // Explicitly passing API key within code
 /// let auth = AuthOptions {
@@ -80,7 +80,7 @@ pub struct AuthOptions {
 /// # Examples
 ///
 /// ```
-/// use sindri_rs::client::{SindriClient, PollingOptions};
+/// use sindri::client::{SindriClient, PollingOptions};
 /// use std::time::Duration;
 ///
 /// // Create client with custom polling options
@@ -146,7 +146,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     /// let client = SindriClient::new(None, None); // inferring your API key from `SINDRI_API_KEY`
     /// ```
     pub fn new(auth_options: Option<AuthOptions>, polling_options: Option<PollingOptions>) -> Self {
@@ -229,7 +229,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::default()
     ///     .with_api_key("my_api_key");
@@ -246,7 +246,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::default()
     ///     .with_base_url("https://custom.sindri.app");
@@ -261,7 +261,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     /// use std::time::Duration;
     ///
     /// let client = SindriClient::default()
@@ -277,7 +277,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     /// use std::time::Duration;
     ///
     /// let client = SindriClient::default()
@@ -293,7 +293,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::default()
     ///     .with_no_timeout();
@@ -322,7 +322,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```ignore
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
     /// let circuit = client.create_circuit(
@@ -493,7 +493,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```ignore
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
     ///
@@ -555,7 +555,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```ignore
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
     /// let circuit = client.get_circuit("abc123", None).await?;
@@ -597,7 +597,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```ignore
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
     /// let proof = client.prove_circuit("abc123", "x=10,y=20", None, None, None).await?;
@@ -715,7 +715,7 @@ impl SindriClient {
     /// # Examples
     ///
     /// ```ignore
-    /// use sindri_rs::client::SindriClient;
+    /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
     ///

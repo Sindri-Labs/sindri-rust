@@ -8,7 +8,7 @@ use flate2::read::GzDecoder;
 use tar::Archive;
 use tempfile::TempDir;
 
-use sindri_rs::{client::SindriClient, CircuitInfo, CircuitInfoResponse, JobStatus};
+use sindri::{client::SindriClient, CircuitInfo, CircuitInfoResponse, JobStatus};
 
 mod factory;
 

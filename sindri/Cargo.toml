@@ -1,6 +1,6 @@
 [package]
-name = "sindri-rs"
-version = "0.1.0"
+name = "sindri"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
@@ -10,7 +10,7 @@ base64 = "0.22.1"
 flate2 = "1.0.35"
 http = "1.2.0"
 ignore = "0.4.23"
-openapi = { path = "../openapi" }
+sindri-openapi = { path = "../openapi" }
 rand = "0.8.5"
 regex = "1.11.1"
 reqwest = { version = "0.12.9", features = ["json", "multipart", "stream", "zstd"]}

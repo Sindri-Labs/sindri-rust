@@ -3114,20 +3114,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "openapi"
-version = "1.17.6"
-dependencies = [
- "reqwest 0.12.9",
- "reqwest-middleware",
- "serde",
- "serde_json",
- "serde_repr",
- "serde_with",
- "url",
- "uuid 1.11.0",
-]
-
-[[package]]
 name = "openssl"
 version = "0.10.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4832,22 +4818,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "sindri-cli"
-version = "0.1.0"
-dependencies = [
- "assert_cmd",
- "clap",
- "console",
- "predicates",
- "regex",
- "sindri-rs",
- "tokio",
- "wiremock",
-]
-
-[[package]]
-name = "sindri-rs"
-version = "0.1.0"
+name = "sindri"
+version = "0.2.0"
 dependencies = [
  "async-compression",
  "async-trait",
@@ -4857,7 +4829,6 @@ dependencies = [
  "http 1.2.0",
  "ignore",
  "indicatif",
- "openapi",
  "rand",
  "regex",
  "reqwest 0.12.9",
@@ -4866,6 +4837,7 @@ dependencies = [
  "rmp-serde",
  "rvcr",
  "serde_json",
+ "sindri-openapi",
  "sp1-sdk",
  "tar",
  "temp-env",
@@ -4876,6 +4848,34 @@ dependencies = [
  "tracing-subscriber",
  "tracing-test",
  "wiremock",
+]
+
+[[package]]
+name = "sindri-cli"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap",
+ "console",
+ "predicates",
+ "regex",
+ "sindri",
+ "tokio",
+ "wiremock",
+]
+
+[[package]]
+name = "sindri-openapi"
+version = "1.17.6"
+dependencies = [
+ "reqwest 0.12.9",
+ "reqwest-middleware",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "serde_with",
+ "url",
+ "uuid 1.11.0",
 ]
 
 [[package]]
@@ -5054,7 +5054,7 @@ dependencies = [
 name = "sp1-proof"
 version = "0.1.0"
 dependencies = [
- "sindri-rs",
+ "sindri",
  "sp1-sdk",
  "tracing-subscriber",
 ]

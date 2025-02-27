@@ -10,7 +10,7 @@ name="cargo-sindri"
 clap = { version = "4.0", features = ["derive"] }
 console = "0.15.10"
 regex = "1.11.1"
-sindri-rs = { path = "../sindri-rs"}
+sindri = { path = "../sindri"}
 
 [dev-dependencies]
 assert_cmd = "2.0.16"
@@ -19,6 +19,6 @@ tokio = { version = "1.0", features = ["full"] }
 wiremock = "0.6.2"
 
 [features]
-default = ["sindri-rs/rich-terminal"]
-record = ["sindri-rs/record"]
-replay = ["sindri-rs/replay"]
+default = ["sindri/rich-terminal"]
+record = ["sindri/record"]
+replay = ["sindri/replay"]

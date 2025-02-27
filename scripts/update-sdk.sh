@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 wget https://sindri.app/api/openapi.json
 
 # Generate the client
-npx @openapitools/openapi-generator-cli@2.16.3 generate -i openapi.json -g rust -o ../openapi --additional-properties=supportMiddleware=true
+npx @openapitools/openapi-generator-cli@2.16.3 generate -i openapi.json -g rust -o ../openapi --additional-properties=supportMiddleware=true,packageName=sindri-openapi
 
 # Move up to the project root.
 cd ..

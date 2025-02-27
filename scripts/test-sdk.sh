@@ -19,16 +19,16 @@ mode=$1
 case $mode in
     "no-vcr")
         echo "Running tests in no-vcr mode..."
-        cd ../sindri-rs && cargo test
+        cd ../sindri && cargo test
         ;;
     "record")
-        rm -rf ../sindri-rs/tests/recordings/*
+        rm -rf ../sindri/tests/recordings/*
         echo "Running tests in record mode..."
-        cd ../sindri-rs && cargo test --features record
+        cd ../sindri && cargo test --features record
         ;;
     "replay")
         echo "Running tests in replay mode..."
-        cd ../sindri-rs && cargo test --features replay
+        cd ../sindri && cargo test --features replay
         ;;
     *)
         echo "Error: Invalid mode '$mode'"

@@ -1,6 +1,6 @@
 //! Common types re-exported from the openapi (internal) package.
 use base64::engine::{general_purpose, Engine};
-pub use openapi::models::{
+pub use sindri_openapi::models::{
     BoojumCircuitInfoResponse, CircomCircuitInfoResponse, CircuitInfoResponse, CircuitType,
     GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, JobStatus, JoltCircuitInfoResponse,
     NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse,

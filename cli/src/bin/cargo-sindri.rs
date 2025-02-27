@@ -4,7 +4,7 @@ use clap::{command, Parser, Subcommand};
 use console::style;
 use regex::Regex;
 
-use sindri_rs::{
+use sindri::{
     client::{AuthOptions, SindriClient},
     CircuitInfo, JobStatus,
 };

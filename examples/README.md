@@ -1,6 +1,6 @@
 # Sindri Rust SDK Examples
 
-This directory contains example code demonstrating various use cases for the `sindri-rs` SDK.
+This directory contains example code demonstrating various use cases for the `sindri` SDK.
 
 ## Examples Overview
 

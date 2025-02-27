@@ -9,7 +9,7 @@ Through the Sindri API, developers can seamlessly integrate verifiable computati
 Sindri makes zero-knowledge infrastructure simple and accessible, facilitating automation within the most hardware-intensive layer of the ZK app deployment stack.
 
 This repository contains the Sindri Rust SDK, which provides a client for interacting with the Sindri API.
-The [`SindriClient`](./sindri-rs/src/client.rs) struct encapsulates all methods for interacting with the Sindri API.
+The [`SindriClient`](./sindri/src/client.rs) struct encapsulates all methods for interacting with the Sindri API.
 The client handles request/response management and includes built-in robustness features like automatic retries for transient errors.
 
 # Getting Started
@@ -17,7 +17,7 @@ The client handles request/response management and includes built-in robustness 
 Generate your first zero-knowledge proof in just a few lines of code:
 
  ```rust
- use sindri_rs::client::SindriClient;
+ use sindri::client::SindriClient;
 
  let client = SindriClient::new(None, None);
  let circuit = client.create_circuit("path/to/circuit", None, None).await?;
@@ -64,8 +64,8 @@ You should pass this in as the environment variable `GITHUB_TOKEN`.
 
 The `scripts/test-sdk.sh` script has three modes:
 * `no-vcr`: Runs the Sindri API client tests without VCR recording/replaying. This is the standard type of test.
-* `record`: Runs the Sindri API client tests with VCR recording.  If you run this, a file will be saved in `sindri-rs/tests/recordings/` with every request and response made.
-* `replay`: Runs the Sindri API client tests with VCR replaying.  If you run this, the Sindri API client will use the files in `sindri-rs/tests/recordings/` to replay the requests and responses.  This allows us to re-run integration tests without making repetitive calls to the Sindri API.  If any new type of request is made and not found in the recording, the test will fail.
+* `record`: Runs the Sindri API client tests with VCR recording.  If you run this, a file will be saved in `sindri/tests/recordings/` with every request and response made.
+* `replay`: Runs the Sindri API client tests with VCR replaying.  If you run this, the Sindri API client will use the files in `sindri/tests/recordings/` to replay the requests and responses.  This allows us to re-run integration tests without making repetitive calls to the Sindri API.  If any new type of request is made and not found in the recording, the test will fail.
 
 These tests require the environment variables `SINDRI_API_KEY` and `SINDRI_BASE_URL`.
 Those are assumed to be set in an `.env` file in the root of this repo.
