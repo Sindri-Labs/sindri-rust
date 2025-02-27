@@ -137,6 +137,7 @@ mod tests {
     use crate::client::SindriClient;
 
     use std::{
+        collections::HashSet,
         fs::{self, File},
         io::{Cursor, Write},
         path::PathBuf,
@@ -294,5 +295,78 @@ mod tests {
             .unwrap_err()
             .to_string()
             .contains("not a file or directory"));
+    }
+
+    #[tokio::test]
+    async fn test_project_nesting() {
+        // Create a test directory with the current directory as the base
+        let (_temp_dir, dir_path) = create_test_directory();
+
+        let result = compress_directory(&dir_path, None).await;
+        assert!(result.is_ok());
+
+        let compressed_data = result.unwrap();
+        let cursor = Cursor::new(compressed_data);
+        let gz_decoder = GzDecoder::new(cursor);
+        let mut archive = Archive::new(gz_decoder);
+
+        let mut top_level_dirs = HashSet::new();
+        let mut sindri_jsons = HashSet::new();
+
+        for entry in archive.entries().unwrap().filter_map(|e| e.ok()) {
+            let path = entry.path().unwrap();
+            let components: Vec<_> = path.components().collect();
+
+            top_level_dirs.insert(components[0].as_os_str().to_owned());
+            if components.len() == 2 && components[1].as_os_str() == SINDRI_MANIFEST_FILENAME {
+                sindri_jsons.insert(components[1].as_os_str().to_owned());
+            }
+        }
+
+        assert_eq!(
+            top_level_dirs.len(),
+            1,
+            "There should be exactly one top-level directory"
+        );
+        assert_eq!(
+            sindri_jsons.len(),
+            1,
+            "There should be exactly one sindri.json file (inside the top-level directory)"
+        );
+
+        // Change the current directory to the test directory
+        std::env::set_current_dir(&dir_path).unwrap();
+
+        let result = compress_directory(Path::new("."), None).await;
+        assert!(result.is_ok());
+
+        let compressed_data = result.unwrap();
+        let cursor = Cursor::new(compressed_data);
+        let gz_decoder = GzDecoder::new(cursor);
+        let mut archive = Archive::new(gz_decoder);
+
+        let mut top_level_dirs = HashSet::new();
+        let mut sindri_jsons = HashSet::new();
+
+        for entry in archive.entries().unwrap().filter_map(|e| e.ok()) {
+            let path = entry.path().unwrap();
+            let components: Vec<_> = path.components().collect();
+
+            top_level_dirs.insert(components[0].as_os_str().to_owned());
+            if components.len() == 2 && components[1].as_os_str() == SINDRI_MANIFEST_FILENAME {
+                sindri_jsons.insert(components[1].as_os_str().to_owned());
+            }
+        }
+
+        assert_eq!(
+            top_level_dirs.len(),
+            1,
+            "There should be exactly one top-level directory"
+        );
+        assert_eq!(
+            sindri_jsons.len(),
+            1,
+            "There should be exactly one sindri.json file (inside the top-level directory)"
+        );
     }
 }
