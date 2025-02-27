@@ -97,7 +97,11 @@ pub async fn compress_directory(
         for entry in walker.filter_map(Result::ok) {
             let path = entry.path();
             if path.is_file() {
-                let relative_path = path.strip_prefix(dir.parent().unwrap())?;
+                let relative_path = if dir == Path::new(".") {
+                    Path::new("project").join(path.strip_prefix(dir)?)
+                } else {
+                    path.strip_prefix(dir.parent().unwrap())?.to_path_buf()
+                };
                 tar.append_file(relative_path, &mut std::fs::File::open(path)?)?;
             }
         }
