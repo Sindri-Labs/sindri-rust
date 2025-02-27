@@ -34,6 +34,7 @@ rvcr = { git = "https://github.com/lededje/rvcr", branch = "update-reqwest-middl
 # Framework-specific dependencies
 rmp-serde = { version = "1.3.0", optional = true }
 sp1-sdk-v3 = { package = "sp1-sdk", version = "3.0.0", optional = true }
+sp1-sdk-v4 = { package = "sp1-sdk", version = "4.0.0", optional = true }
 
 [dev-dependencies]
 tempfile = "3.2"
@@ -53,3 +54,4 @@ rich-terminal = ["dep:console", "dep:indicatif"]
 
 # Framework-specific features
 sp1-v3 = ["dep:sp1-sdk-v3", "dep:rmp-serde"]
+sp1-v4 = ["dep:sp1-sdk-v4", "dep:rmp-serde"]
