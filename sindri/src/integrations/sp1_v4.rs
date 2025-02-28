@@ -70,7 +70,7 @@ impl SP1ProofInfo for ProofInfoResponse {
         &self,
         verifying_key: &SP1VerifyingKey,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let local_sp1_client = ProverClient::new();
+        let local_sp1_client = ProverClient::from_env();
         let sp1_proof = self.to_sp1_proof_with_public()?;
         local_sp1_client
             .verify(&sp1_proof, verifying_key)
