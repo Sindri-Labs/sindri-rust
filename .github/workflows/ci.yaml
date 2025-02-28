@@ -55,7 +55,7 @@ jobs:
         run: cargo nextest run -E 'package(sindri) & kind(lib) & test(integrations)'
 
       - name: Run sindri integration tests (offline)
-        run: cargo nextest run -E 'package(sindri) & kind(test) & test(offline)' --features replay
+        run: cargo nextest run -E 'package(sindri) & kind(test) & test(end_to_end)' --features replay
 
       - name: Run sindri-cli unit tests
         run: cargo nextest run -E 'package(sindri-cli) & kind(bin)'
