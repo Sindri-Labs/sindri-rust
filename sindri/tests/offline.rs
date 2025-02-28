@@ -11,7 +11,6 @@ async fn end_to_end() {
 
     let test_tags = vec!["tester".to_string()];
 
-
     let result = client
         .create_circuit(
             dir_path.to_string(),
@@ -23,7 +22,7 @@ async fn end_to_end() {
     assert!(result.is_ok());
     let circuit = result.unwrap();
     let circuit_identifier = circuit.id();
-    
+
     assert_eq!(*circuit.status(), JobStatus::Ready);
     assert_eq!(
         circuit.tags().iter().collect::<HashSet<_>>(),
@@ -42,18 +41,11 @@ async fn end_to_end() {
     // Proof test
     let input = r#"{"a": 1, "b": 2}"#;
     let result = client
-        .prove_circuit(
-            circuit_identifier,
-            input,
-            None,
-            None,
-            None,
-        )
+        .prove_circuit(circuit_identifier, input, None, None, None)
         .await;
 
     assert!(result.is_ok());
     let proof = result.unwrap();
 
     assert!(!proof.proof_id.is_empty());
-
 }
