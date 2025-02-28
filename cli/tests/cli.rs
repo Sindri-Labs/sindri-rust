@@ -13,7 +13,7 @@ async fn test_cli_deploy() -> Result<(), Box<dyn std::error::Error>> {
         .arg("deploy")
         .arg(circuit_path)
         .arg("--tags")
-        .arg("success");
+        .arg("tester");
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("Circuit created successfully!"));

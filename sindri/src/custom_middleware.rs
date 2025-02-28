@@ -22,7 +22,10 @@ use reqwest_retry::{
 };
 #[cfg(any(feature = "record", feature = "replay"))]
 use rvcr::{VCRMiddleware, VCRMode};
+#[cfg(any(feature = "record", feature = "replay"))]
+use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
+#[cfg(not(any(feature = "record", feature = "replay")))]
 use tokio_util::io::ReaderStream;
 use tracing::{debug, error};
 
@@ -250,9 +253,21 @@ impl Middleware for ZstdRequestCompressionMiddleware {
                 }
                 let _ = encoder.shutdown().await;
             });
-            new_req
-                .body_mut()
-                .replace(Body::wrap_stream(ReaderStream::new(reader)));
+            #[cfg(not(any(feature = "record", feature = "replay")))]
+            {
+                new_req
+                    .body_mut()
+                    .replace(Body::wrap_stream(ReaderStream::new(reader)));
+            }
+            #[cfg(any(feature = "record", feature = "replay"))]
+            {
+                // Omit streaming for integration tests since VCR requires clonable requests
+                let mut buf = Vec::new();
+                let reader = Arc::new(tokio::sync::Mutex::new(reader));
+                let mut reader_lock = reader.lock().await;
+                reader_lock.read_to_end(&mut buf).await.unwrap();
+                new_req.body_mut().replace(Body::from(buf));
+            }
 
             // Set the `Content-Encoding: zstd` header.
             new_req
