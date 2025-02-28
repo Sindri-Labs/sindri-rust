@@ -17,7 +17,6 @@ services:
       - target:/workspace/target
     working_dir: /workspace
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - SINDRI_API_KEY=${SINDRI_API_KEY:-}
       - SINDRI_BASE_URL=${SINDRI_BASE_URL:-}
     command: ["sleep", "infinity"]
