@@ -1132,7 +1132,7 @@ pub async fn team_avatar_upload(
     files: Vec<std::path::PathBuf>,
 ) -> Result<models::TeamMeResponse, Error<TeamAvatarUploadError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_files = files;
+    let _p_files = files;
 
     let uri_str = format!("{}/api/v1/team/avatar/upload", configuration.base_path);
     let mut req_builder = configuration
@@ -1148,7 +1148,7 @@ pub async fn team_avatar_upload(
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    let mut multipart_form = reqwest::multipart::Form::new();
+    let multipart_form = reqwest::multipart::Form::new();
     // TODO: support file upload for 'files' parameter
     req_builder = req_builder.multipart(multipart_form);
 
