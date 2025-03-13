@@ -6,7 +6,6 @@ homepage = "https://sindri.app/"
 repository = "https://github.com/Sindri-Labs/sindri-rs"
 license = "MIT"
 keywords = ["sindri", "sdk", "api", "zero-knowledge", "zkvm"]
-readme = "README.md"
 
 [workspace]
 resolver = "2"
