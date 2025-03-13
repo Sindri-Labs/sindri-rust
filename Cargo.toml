@@ -3,7 +3,7 @@ version = "0.2.1"
 edition = "2021"
 authors = ["Sindri Labs <support@sindri.app>"]
 homepage = "https://sindri.app/"
-repository = "https://github.com/Sindri-Labs/sindri-rs"
+repository = "https://github.com/Sindri-Labs/sindri-rust"
 license = "MIT"
 keywords = ["sindri", "sdk", "api", "zero-knowledge", "zkvm"]
 

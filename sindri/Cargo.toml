@@ -2,6 +2,7 @@
 name = "sindri"
 description = "Rust SDK for the Sindri API"
 readme = "../README.md"
+documentation = "https://docs.rs/sindri"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
