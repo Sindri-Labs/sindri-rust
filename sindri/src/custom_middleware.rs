@@ -187,6 +187,11 @@ pub fn vcr_middleware(bundle: std::path::PathBuf) -> VCRMiddleware {
             "authorization".to_string(),
             vec!["Bearer REDACTED_TOKEN".to_string()],
         );
+        // Write over version transient user agent
+        req.headers.insert(
+            "user-agent".to_string(),
+            vec!["OpenAPI-Generator/v0.0.0/rust".to_string()],
+        );
     });
 
     vcr = vcr.with_modify_response(|res| {
