@@ -5294,27 +5294,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rvcr"
-version = "0.2.1"
-source = "git+https://github.com/lededje/rvcr?branch=update-reqwest-middleware#74a2e4728067da301eab8d2c00924f61db835245"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.21.7",
- "bytes",
- "chrono",
- "http 1.2.0",
- "lazy_static",
- "reqwest 0.12.9",
- "reqwest-middleware",
- "serde",
- "serde_json",
- "task-local-extensions",
- "tracing",
- "vcr-cassette",
-]
-
-[[package]]
 name = "ryu"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5703,21 +5682,23 @@ dependencies = [
 name = "sindri"
 version = "0.2.0"
 dependencies = [
+ "anyhow",
  "async-compression",
  "async-trait",
  "base64 0.22.1",
+ "chrono",
  "console",
  "flate2",
  "http 1.2.0",
  "ignore",
  "indicatif",
+ "lazy_static",
  "rand",
  "regex",
  "reqwest 0.12.9",
  "reqwest-middleware",
  "reqwest-retry",
  "rmp-serde",
- "rvcr",
  "serde_json",
  "sindri-openapi",
  "sp1-sdk 3.0.0",
@@ -5730,6 +5711,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tracing-test",
+ "vcr-cassette",
  "wiremock",
 ]
 
@@ -6845,15 +6827,6 @@ dependencies = [
  "filetime",
  "libc",
  "xattr",
-]
-
-[[package]]
-name = "task-local-extensions"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba323866e5d033818e3240feeb9f7db2c4296674e4d9e16b97b7bf8f490434e8"
-dependencies = [
- "pin-utils",
 ]
 
 [[package]]

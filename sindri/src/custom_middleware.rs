@@ -10,6 +10,8 @@
 
 use std::{collections::HashSet, sync::Arc, time::Duration};
 
+#[cfg(any(feature = "record", feature = "replay"))]
+use crate::vendor::rvcr::{VCRMiddleware, VCRMode};
 use async_compression::tokio::write::ZstdEncoder;
 use async_trait::async_trait;
 use http::Extensions;
@@ -20,8 +22,6 @@ use reqwest_retry::{
     policies::{ExponentialBackoff, ExponentialBackoffTimed},
     RetryTransientMiddleware, Retryable, RetryableStrategy,
 };
-#[cfg(any(feature = "record", feature = "replay"))]
-use rvcr::{VCRMiddleware, VCRMode};
 #[cfg(any(feature = "record", feature = "replay"))]
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
