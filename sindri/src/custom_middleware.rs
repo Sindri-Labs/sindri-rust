@@ -21,7 +21,7 @@ use reqwest_retry::{
     RetryTransientMiddleware, Retryable, RetryableStrategy,
 };
 #[cfg(any(feature = "record", feature = "replay"))]
-use rvcr::{VCRMiddleware, VCRMode};
+use crate::vendor::rvcr::{VCRMiddleware, VCRMode};
 #[cfg(any(feature = "record", feature = "replay"))]
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;

@@ -47,3 +47,8 @@ pub(crate) mod utils;
 pub mod integrations;
 mod types;
 pub use types::*;
+
+pub mod vendor {
+    #[cfg(any(feature = "record", feature = "replay"))]
+    pub mod rvcr;
+}

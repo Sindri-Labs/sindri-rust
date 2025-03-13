@@ -396,7 +396,7 @@ impl Middleware for VCRMiddleware {
     async fn handle(
         &self,
         req: reqwest::Request,
-        extensions: &mut task_local_extensions::Extensions,
+        extensions: &mut http::Extensions,
         next: reqwest_middleware::Next<'_>,
     ) -> reqwest_middleware::Result<reqwest::Response> {
         let vcr_request = self.request_to_vcr(req.try_clone().unwrap());
