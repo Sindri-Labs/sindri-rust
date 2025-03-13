@@ -503,7 +503,7 @@ impl SindriClient {
     /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::default();
-    /// 
+    ///
     /// let project_build_id = "team_name/project_name:tag";
     /// let download_path = "path/to/save/circuit.tar.gz".to_string();
     ///
@@ -738,7 +738,7 @@ impl SindriClient {
     ///
     /// let client = SindriClient::default();
     /// let proof_id = "uuid-assigned-during-proof-generation";
-    /// 
+    ///
     /// // Get just the proof status
     /// let basic_info = client.get_proof(proof_id, None, None, None).await.unwrap();
     ///
