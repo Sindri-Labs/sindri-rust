@@ -49,7 +49,7 @@ jobs:
         run: cargo build --verbose
 
       - name: Run doc tests
-        run: cargo test --doc
+        run: cargo test --doc --features replay
 
       - name: Run sindri core unit tests
         run: cargo nextest run -E 'package(sindri) & kind(lib) - test(integrations)'

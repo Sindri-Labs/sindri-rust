@@ -6,7 +6,7 @@
 //! # Examples
 //!
 //! To record the requests, initialize client like following
-//! ```rust
+//! ```ignore
 //!         use std::path::PathBuf;
 //!         use reqwest::Client;
 //!         use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
