@@ -1,7 +1,13 @@
 [package]
 name = "sindri-cli"
-version = "0.1.0"
-edition = "2021"
+description = "A command-line interface for interacting with Sindri's API"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
 
 [[bin]]
 name="cargo-sindri"
