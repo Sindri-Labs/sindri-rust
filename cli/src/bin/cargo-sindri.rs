@@ -48,7 +48,7 @@ pub enum Commands {
     },
 }
 
-fn handle_circuit_error(message: &str) -> ! {
+fn handle_deploy_error(message: &str) -> ! {
     eprintln!("{}", style("Circuit creation failed ❌").bold());
     eprintln!("{}", style(message).red());
     std::process::exit(1);
@@ -85,7 +85,7 @@ fn main() {
                                 parts.next().unwrap_or_default().to_string(),
                             ))
                         } else {
-                            handle_circuit_error(&format!(
+                            handle_deploy_error(&format!(
                                 "\"{pair}\" is not a valid metadata pair."
                             ));
                         }
@@ -123,10 +123,10 @@ fn main() {
                             style(format!("{}/{}:{}", team, project_name, first_tag)).cyan()
                         );
                     } else {
-                        handle_circuit_error(&response.error().unwrap_or_default())
+                        handle_deploy_error(&response.error().unwrap_or_default())
                     }
                 }
-                Err(e) => handle_circuit_error(&e.to_string()),
+                Err(e) => handle_deploy_error(&e.to_string()),
             }
         }
     }
