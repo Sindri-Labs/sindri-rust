@@ -5749,7 +5749,7 @@ dependencies = [
 
 [[package]]
 name = "sindri-openapi"
-version = "1.17.6"
+version = "1.17.8"
 dependencies = [
  "reqwest 0.12.9",
  "reqwest-middleware",
