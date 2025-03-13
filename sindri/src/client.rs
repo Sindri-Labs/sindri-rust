@@ -321,15 +321,21 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```no_run
+    /// # tokio_test::block_on(async {
+    /// use std::collections::HashMap;
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
+    /// let project = "path/to/directory/or/tarfile".to_string();
+    /// let tags: Option<Vec<String>> = Some(vec!["a_custom_tag".to_string()]);
+    /// let meta: Option<HashMap<String, String>> = Some(HashMap::from([("key".to_string(), "value".to_string())]));
     /// let circuit = client.create_circuit(
-    ///     "path/to/circuit".to_string(),
-    ///     Some(vec!["a_custom_tag".to_string()]),
-    ///     Some(HashMap::from([("key".to_string(), "value".to_string())]))
-    /// ).await?;
+    ///     project,
+    ///     tags,
+    ///     meta
+    /// ).await.unwrap();
+    /// # });
     /// ```
     pub async fn create_circuit(
         &self,
@@ -492,16 +498,21 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```no_run
+    /// # tokio_test::block_on(async {
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
+    ///
+    /// let project_build_id = "team_name/project_name:tag";
+    /// let download_path = "path/to/save/circuit.tar.gz".to_string();
     ///
     /// client.clone_circuit(
-    ///     "abc123",
-    ///     "path/to/save/circuit.tar.gz".to_string(),
+    ///     project_build_id,
+    ///     download_path,
     ///     None
-    /// ).await?;
+    /// ).await.unwrap();
+    /// # });
     /// ```
     pub async fn clone_circuit(
         &self,
@@ -554,11 +565,14 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```no_run
+    /// # tokio_test::block_on(async {
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
-    /// let circuit = client.get_circuit("abc123", None).await?;
+    /// let client = SindriClient::default();
+    /// let project_build_id = "team_name/project_name:tag";
+    /// let circuit = client.get_circuit(project_build_id, None).await.unwrap();
+    /// # });
     /// ```
     pub async fn get_circuit(
         &self,
@@ -596,11 +610,15 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```no_run
+    /// # tokio_test::block_on(async {
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
-    /// let proof = client.prove_circuit("abc123", "x=10,y=20", None, None, None).await?;
+    /// let client = SindriClient::default();
+    /// let project_build_id = "team_name/project_name:tag";
+    /// let proof_input = "x=10,y=20";
+    /// let proof = client.prove_circuit(project_build_id, proof_input, None, None, None).await.unwrap();
+    /// # });
     /// ```
     pub async fn prove_circuit(
         &self,
@@ -714,16 +732,19 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```no_run
+    /// # tokio_test::block_on(async {
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
+    /// let proof_id = "uuid-assigned-during-proof-generation";
     ///
     /// // Get just the proof status
-    /// let basic_info = client.get_proof("abc123", None, None, None).await?;
+    /// let basic_info = client.get_proof(proof_id, None, None, None).await.unwrap();
     ///
     /// // Get just the public outputs
-    /// let proof_with_outputs = client.get_proof("abc123", None, Some(true), None).await?;
+    /// let proof_with_outputs = client.get_proof(proof_id, None, Some(true), None).await.unwrap();
+    /// # });
     /// ```
     pub async fn get_proof(
         &self,

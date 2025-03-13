@@ -12,13 +12,33 @@
 //!
 //! Generate your first zero-knowledge proof in just a few lines of code:
 //!
-//! ```ignore
-//! use sindri::client::SindriClient;
+//! ```
+//! use std::collections::HashMap;
+//! use sindri::{client::SindriClient, CircuitInfo};
 //!
-//! let client = SindriClient::new(None, None);
-//! let circuit = client.create_circuit("path/to/circuit", None, None).await?;
+//! let client = SindriClient::default();
+//! // Use tags and project metadata to organize and annotate your project builds
+//! let tags: Option<Vec<String>> = None;
+//! let project_metadata: Option<HashMap<String, String>> = None;
+//! # let tags = Some(vec!["tester".to_string()]);
+//! let circuit = client.create_circuit_blocking(
+//!     "../cli/tests/factory/circuit.tar.gz".to_string(),
+//!     tags,
+//!     project_metadata
+//! ).unwrap();
+//!
+//! // Use proof metadata to annotate proofs with additional information and
+//! // pass conditional flags to control whether server-side verification is enabled
 //! let input = r#"{"a": 1, "b": 2}"#;
-//! let proof = client.prove_circuit(circuit.id(), input, None, None, None).await?;
+//! let proof_metadata: Option<HashMap<String, String>> = None;
+//! let verify: Option<bool> = None;
+//! let proof = client.prove_circuit_blocking(
+//!     circuit.id(),
+//!     input,
+//!     proof_metadata,
+//!     verify,
+//!     None, // The default prover implementation is generally recommended
+//! ).unwrap();
 //! ```
 //!
 //! # Key Features
@@ -50,5 +70,5 @@ pub use types::*;
 
 pub mod vendor {
     #[cfg(any(feature = "record", feature = "replay"))]
-    pub mod rvcr;
+    pub(crate) mod rvcr;
 }
