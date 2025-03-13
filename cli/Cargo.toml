@@ -1,7 +1,14 @@
 [package]
 name = "sindri-cli"
-version = "0.1.0"
-edition = "2021"
+description = "A command-line interface for interacting with Sindri's API"
+readme = "README.md"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
 
 [[bin]]
 name="cargo-sindri"
@@ -10,7 +17,7 @@ name="cargo-sindri"
 clap = { version = "4.0", features = ["derive"] }
 console = "0.15.10"
 regex = "1.11.1"
-sindri = { path = "../sindri"}
+sindri = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = "2.0.16"

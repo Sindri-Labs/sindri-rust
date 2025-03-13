@@ -2,9 +2,10 @@
 use base64::engine::{general_purpose, Engine};
 pub use sindri_openapi::models::{
     BoojumCircuitInfoResponse, CircomCircuitInfoResponse, CircuitInfoResponse, CircuitType,
-    GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, JobStatus, JoltCircuitInfoResponse,
-    NoirCircuitInfoResponse, Plonky2CircuitInfoResponse, ProofInfoResponse,
-    ProofInput as InternalProofInput, Sp1CircuitInfoResponse,
+    GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, HermezCircuitInfoResponse, JobStatus,
+    JoltCircuitInfoResponse, NoirCircuitInfoResponse, Plonky2CircuitInfoResponse,
+    ProofInfoResponse, ProofInput as InternalProofInput, SnarkvmCircuitInfoResponse,
+    Sp1CircuitInfoResponse,
 };
 use std::collections::HashMap;
 

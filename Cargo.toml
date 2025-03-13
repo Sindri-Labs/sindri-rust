@@ -1,8 +1,23 @@
+[workspace.package]
+version = "0.2.1" 
+edition = "2021"
+authors = ["Sindri Labs <support@sindri.app>"]
+homepage = "https://sindri.app/"
+repository = "https://github.com/Sindri-Labs/sindri-rs"
+license = "MIT"
+keywords = ["sindri", "sdk", "api", "zero-knowledge", "zkvm"]
+
 [workspace]
 resolver = "2"
 members = [
     "cli",
-    "examples/sp1-proof",
     "openapi",
     "sindri",
 ]
+exclude = [
+    "examples/sp1-proof",
+]
+
+[workspace.dependencies]
+sindri = { path = "sindri", version = "0.2.1" }
+sindri-openapi = { path = "openapi", version = "0.2.1" }

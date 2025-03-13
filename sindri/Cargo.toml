@@ -1,7 +1,14 @@
 [package]
 name = "sindri"
-version = "0.2.0"
-edition = "2021"
+description = "Rust SDK for the Sindri API"
+readme = "../README.md"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
 
 [dependencies]
 async-compression = { version = "0.4.18", features = ["tokio", "zstd"] }
@@ -10,7 +17,7 @@ base64 = "0.22.1"
 flate2 = "1.0.35"
 http = "1.2.0"
 ignore = "0.4.23"
-sindri-openapi = { path = "../openapi" }
+sindri-openapi = { workspace = true }
 rand = "0.8.5"
 regex = "1.11.1"
 reqwest = { version = "0.12.9", features = ["json", "multipart", "stream", "zstd"]}
