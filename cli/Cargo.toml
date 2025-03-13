@@ -16,7 +16,7 @@ name="cargo-sindri"
 clap = { version = "4.0", features = ["derive"] }
 console = "0.15.10"
 regex = "1.11.1"
-sindri = { path = "../sindri"}
+sindri = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = "2.0.16"
