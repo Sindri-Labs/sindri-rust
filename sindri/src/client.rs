@@ -321,7 +321,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -492,7 +492,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -554,7 +554,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -596,7 +596,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
@@ -714,7 +714,7 @@ impl SindriClient {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// use sindri::client::SindriClient;
     ///
     /// let client = SindriClient::new(None, None);
