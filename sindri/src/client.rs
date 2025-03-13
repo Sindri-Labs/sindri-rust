@@ -324,7 +324,7 @@ impl SindriClient {
     /// ```
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
     /// let circuit = client.create_circuit(
     ///     "path/to/circuit".to_string(),
     ///     Some(vec!["a_custom_tag".to_string()]),
@@ -495,7 +495,7 @@ impl SindriClient {
     /// ```
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
     ///
     /// client.clone_circuit(
     ///     "abc123",
@@ -557,7 +557,7 @@ impl SindriClient {
     /// ```
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
     /// let circuit = client.get_circuit("abc123", None).await?;
     /// ```
     pub async fn get_circuit(
@@ -599,7 +599,7 @@ impl SindriClient {
     /// ```
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
     /// let proof = client.prove_circuit("abc123", "x=10,y=20", None, None, None).await?;
     /// ```
     pub async fn prove_circuit(
@@ -717,7 +717,7 @@ impl SindriClient {
     /// ```
     /// use sindri::client::SindriClient;
     ///
-    /// let client = SindriClient::new(None, None);
+    /// let client = SindriClient::default();
     ///
     /// // Get just the proof status
     /// let basic_info = client.get_proof("abc123", None, None, None).await?;
