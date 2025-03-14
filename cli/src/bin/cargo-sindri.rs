@@ -46,10 +46,20 @@ pub enum Commands {
         #[arg(long, value_delimiter = ',')]
         meta: Option<Vec<String>>,
     },
+    /// Clone a circuit
+    Clone {
+        /// Circuit ID to clone, could be a UUID or a team/project:tag identifier
+        #[arg(required = true)]
+        circuit: String,
+
+        /// Directory where the circuit should be downloaded
+        #[arg(required = true)]
+        directory: String,
+    },
 }
 
-fn handle_deploy_error(message: &str) -> ! {
-    eprintln!("{}", style("Circuit creation failed ❌").bold());
+fn handle_operation_error(command: &str, message: &str) -> ! {
+    eprintln!("{}", style(format!("{} failed ❌", command)).bold());
     eprintln!("{}", style(message).red());
     std::process::exit(1);
 }
@@ -85,7 +95,7 @@ fn main() {
                                 parts.next().unwrap_or_default().to_string(),
                             ))
                         } else {
-                            handle_deploy_error(&format!(
+                            handle_operation_error("deploy", &format!(
                                 "\"{pair}\" is not a valid metadata pair."
                             ));
                         }
@@ -123,10 +133,16 @@ fn main() {
                             style(format!("{}/{}:{}", team, project_name, first_tag)).cyan()
                         );
                     } else {
-                        handle_deploy_error(&response.error().unwrap_or_default())
+                        handle_operation_error("deploy", &response.error().unwrap_or_default())
                     }
                 }
-                Err(e) => handle_deploy_error(&e.to_string()),
+                Err(e) => handle_operation_error("deploy", &e.to_string()),
+            }
+        }
+        Commands::Clone { circuit, directory } => {
+            match client.clone_circuit_blocking(&circuit, directory, None) {
+                Ok(_) => println!("Successfully cloned circuit {}", circuit),
+                Err(e) => handle_operation_error("clone", &e.to_string()),
             }
         }
     }

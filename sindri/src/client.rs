@@ -549,6 +549,20 @@ impl SindriClient {
         Ok(())
     }
 
+    /// Blocking version of `clone_circuit`.
+    ///
+    /// This method provides the same functionality as `clone_circuit` but can be used
+    /// in synchronous contexts. It internally creates a runtime to execute the async operation.
+    pub fn clone_circuit_blocking(
+        &self,
+        circuit_id: &str,
+        download_path: String,
+        override_max_project_size: Option<usize>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let runtime = tokio::runtime::Runtime::new()?;
+        runtime.block_on(self.clone_circuit(circuit_id, download_path, override_max_project_size))
+    }
+
     /// Retrieves the details of a circuit.
     ///
     /// You can use this method to get the status, metadata, and other details of a circuit.

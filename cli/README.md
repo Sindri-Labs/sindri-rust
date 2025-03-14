@@ -5,10 +5,10 @@ An alternative Sindri CLI, written in typescript and distributed as a npm packag
 
 ## Installation
 
-Install the CLI directly from this repository via:
+Install the latest Sindri rust CLI via:
 
 ```bash
-cargo install --path cli --locked
+cargo install sindri-cli --force --locked
 ```
 
 ## Usage
