@@ -1,8 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fs, io::Cursor, path::Path};
 
 use clap::{command, Parser, Subcommand};
 use console::style;
+use flate2::read::GzDecoder;
 use regex::Regex;
+use tar::Archive;
 
 use sindri::{
     client::{AuthOptions, SindriClient},
@@ -76,11 +78,37 @@ fn main() {
     println!("{}", client.base_url());
     match args.command {
         Commands::Clone { circuit, directory } => {
-            match client.clone_circuit_blocking(&circuit, directory, None) {
+
+            let download_path = {
+                let p = Path::new(&directory);
+                if p.is_dir() {
+                    handle_operation_error("clone", "Output directory already exists");
+                }
+                match fs::create_dir_all(p) {
+                    Ok(_) => p.join("circuit.tar.gz"),
+                    Err(e) => handle_operation_error("clone", &e.to_string()),
+                }
+            };
+
+            match client.clone_circuit_blocking(&circuit, download_path.to_string_lossy().to_string(), None) {
                 Ok(_) => println!("Successfully cloned circuit {}", circuit),
                 Err(e) => handle_operation_error("clone", &e.to_string()),
             }
+
+            // Unpack the tarball
+            let downloaded = fs::read(&download_path).unwrap();
+            let cursor = Cursor::new(downloaded);
+            let gz_decoder = GzDecoder::new(cursor);
+            let mut archive = Archive::new(gz_decoder);
+            match archive.unpack(&directory) {
+                Ok(_) => println!("Successfully unpacked circuit {}", circuit),
+                Err(e) => handle_operation_error("clone", &e.to_string()),
+            }
+    
+            // Remove the download tarball
+            std::fs::remove_file(&download_path).unwrap();
         },
+        
         Commands::Deploy {
             project,
             tags,
@@ -150,10 +178,11 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    use std::process::Command;
+    
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
-    use std::process::Command;
-
+    use tempfile::TempDir;
     use wiremock::{
         matchers::{method, path},
         ResponseTemplate,
@@ -182,6 +211,9 @@ mod tests {
     #[tokio::test]
     async fn test_cli_clone_circuit() {
 
+        let temp_dir = TempDir::new().unwrap();
+        let dir_path = temp_dir.path().to_path_buf();
+
         let mock_server = wiremock::MockServer::start().await;
 
         let circuit_id = "123e4567-e89b-12d3-a456-426614174000";
@@ -201,9 +233,10 @@ mod tests {
         .mount(&mock_server)
         .await;
         
+        let circuit_body = std::fs::read("tests/factory/circuit.tar.gz").unwrap();
         wiremock::Mock::given(method("GET"))
             .and(path(format!("/api/v1/circuit/{}/download", circuit_id)))
-            .respond_with(ResponseTemplate::new(200))
+            .respond_with(ResponseTemplate::new(200).set_body_bytes(circuit_body))
             .mount(&mock_server)
             .await;
 
@@ -212,7 +245,7 @@ mod tests {
             .arg("clone")
             .arg(circuit_id)
             .arg("--directory")
-            .arg("output")
+            .arg(dir_path.join("circuit").to_string_lossy().to_string())
             .arg("--base-url")
             .arg(mock_server.uri());
 

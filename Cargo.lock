@@ -5723,9 +5723,12 @@ dependencies = [
  "assert_cmd",
  "clap",
  "console",
+ "flate2",
  "predicates",
  "regex",
  "sindri",
+ "tar",
+ "tempfile",
  "tokio",
  "wiremock",
 ]
