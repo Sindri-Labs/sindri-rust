@@ -39,7 +39,7 @@ pub enum Commands {
         circuit: String,
 
         /// Directory where the circuit should be downloaded
-        #[arg(required = true)]
+        #[arg(long, default_value = ".")]
         directory: String,
     },
     /// Deploy a circuit
@@ -73,7 +73,7 @@ fn main() {
         base_url: args.base_url,
     };
     let client = SindriClient::new(Some(auth), None);
-
+    println!("{}", client.base_url());
     match args.command {
         Commands::Clone { circuit, directory } => {
             match client.clone_circuit_blocking(&circuit, directory, None) {
@@ -159,16 +159,10 @@ mod tests {
         ResponseTemplate,
     };
 
+    use sindri::{BoojumCircuitInfoResponse, CircuitInfoResponse, JobStatus};
+
     #[tokio::test]
     async fn test_cli_deploy_unauthorized() {
-        let mock_server = wiremock::MockServer::start().await;
-
-        // Setup mock responses
-        wiremock::Mock::given(method("POST"))
-            .and(path("/api/v1/circuit/create"))
-            .respond_with(ResponseTemplate::new(401))
-            .mount(&mock_server)
-            .await;
 
         let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
 
@@ -183,5 +177,47 @@ mod tests {
         cmd.assert()
             .failure()
             .stderr(predicate::str::contains("Unauthorized"));
+    }
+
+    #[tokio::test]
+    async fn test_cli_clone_circuit() {
+
+        let mock_server = wiremock::MockServer::start().await;
+
+        let circuit_id = "123e4567-e89b-12d3-a456-426614174000";
+
+        // Setup mock responses
+        wiremock::Mock::given(method("GET"))
+        .and(path(format!("/api/v1/circuit/{}/detail", circuit_id)))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
+                BoojumCircuitInfoResponse {
+                    status: JobStatus::Ready,
+                    file_size: Some(100),
+                    ..Default::default()
+                },
+            ))),
+        )
+        .mount(&mock_server)
+        .await;
+        
+        wiremock::Mock::given(method("GET"))
+            .and(path(format!("/api/v1/circuit/{}/download", circuit_id)))
+            .respond_with(ResponseTemplate::new(200))
+            .mount(&mock_server)
+            .await;
+
+        let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
+        cmd.arg("sindri")
+            .arg("clone")
+            .arg(circuit_id)
+            .arg("--directory")
+            .arg("output")
+            .arg("--base-url")
+            .arg(mock_server.uri());
+
+        cmd.assert()
+            .success()
+            .stdout(predicate::str::contains("Successfully cloned circuit"));
     }
 }
