@@ -41,8 +41,8 @@ pub enum Commands {
         circuit: String,
 
         /// Directory where the circuit should be downloaded
-        #[arg(long, default_value = ".")]
-        directory: String,
+        #[arg(long)]
+        directory: Option<String>,
     },
     /// Deploy a circuit
     Deploy {
@@ -79,8 +79,15 @@ fn main() {
     match args.command {
         Commands::Clone { circuit, directory } => {
 
+            let circuit_regex = Regex::new(r"^(?:([-a-zA-Z0-9_]+)\/)?([-a-zA-Z0-9_]+)(?::([-a-zA-Z0-9_.]+))?$").unwrap();
+            let captures = circuit_regex.captures(&circuit).unwrap_or_else(|| {
+                handle_operation_error("clone", "Invalid circuit identifier");
+            });
+            let circuit_name = captures[2].to_string();
+            let output_directory = directory.unwrap_or_else(|| circuit_name);
+            
             let download_path = {
-                let p = Path::new(&directory);
+                let p = Path::new(&output_directory);
                 if p.is_dir() {
                     handle_operation_error("clone", "Output directory already exists");
                 }
@@ -92,7 +99,13 @@ fn main() {
 
             match client.clone_circuit_blocking(&circuit, download_path.to_string_lossy().to_string(), None) {
                 Ok(_) => println!("Successfully cloned circuit {}", circuit),
-                Err(e) => handle_operation_error("clone", &e.to_string()),
+                Err(e) => {
+                    if e.to_string().contains("404") {
+                        handle_operation_error("clone", "Circuit does not exist or you lack permission to access it.");
+                    } else {
+                        handle_operation_error("clone", &e.to_string());
+                    }
+                }
             }
 
             // Unpack the tarball
@@ -100,7 +113,7 @@ fn main() {
             let cursor = Cursor::new(downloaded);
             let gz_decoder = GzDecoder::new(cursor);
             let mut archive = Archive::new(gz_decoder);
-            match archive.unpack(&directory) {
+            match archive.unpack(&output_directory) {
                 Ok(_) => println!("Successfully unpacked circuit {}", circuit),
                 Err(e) => handle_operation_error("clone", &e.to_string()),
             }
