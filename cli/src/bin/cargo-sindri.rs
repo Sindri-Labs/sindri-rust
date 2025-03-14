@@ -32,6 +32,16 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Clone a circuit
+    Clone {
+        /// Circuit ID to clone, could be a UUID or a team/project:tag identifier
+        #[arg(required = true)]
+        circuit: String,
+
+        /// Directory where the circuit should be downloaded
+        #[arg(required = true)]
+        directory: String,
+    },
     /// Deploy a circuit
     Deploy {
         /// Path to circuit project directory or archive
@@ -45,16 +55,6 @@ pub enum Commands {
         /// Optional metadata key-value pairs (format: key=value,key2=value2)
         #[arg(long, value_delimiter = ',')]
         meta: Option<Vec<String>>,
-    },
-    /// Clone a circuit
-    Clone {
-        /// Circuit ID to clone, could be a UUID or a team/project:tag identifier
-        #[arg(required = true)]
-        circuit: String,
-
-        /// Directory where the circuit should be downloaded
-        #[arg(required = true)]
-        directory: String,
     },
 }
 
@@ -75,6 +75,12 @@ fn main() {
     let client = SindriClient::new(Some(auth), None);
 
     match args.command {
+        Commands::Clone { circuit, directory } => {
+            match client.clone_circuit_blocking(&circuit, directory, None) {
+                Ok(_) => println!("Successfully cloned circuit {}", circuit),
+                Err(e) => handle_operation_error("clone", &e.to_string()),
+            }
+        },
         Commands::Deploy {
             project,
             tags,
@@ -137,12 +143,6 @@ fn main() {
                     }
                 }
                 Err(e) => handle_operation_error("deploy", &e.to_string()),
-            }
-        }
-        Commands::Clone { circuit, directory } => {
-            match client.clone_circuit_blocking(&circuit, directory, None) {
-                Ok(_) => println!("Successfully cloned circuit {}", circuit),
-                Err(e) => handle_operation_error("clone", &e.to_string()),
             }
         }
     }
