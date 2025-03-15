@@ -292,7 +292,7 @@ mod tests {
 
         cmd.assert()
             .success()
-            .stdout(predicate::str::contains("Successfully cloned circuit"));
+            .stdout(predicate::str::contains("Circuit downloaded to:"));
 
         // Check that dir_path/sindri.json exists
         let sindri_json_path = dir_path.join("circuit").join("sindri.json");
