@@ -5,15 +5,33 @@ An alternative Sindri CLI, written in typescript and distributed as a npm packag
 
 ## Installation
 
-Install the CLI directly from this repository via:
+Install the latest Sindri rust CLI via:
 
 ```bash
-cargo install --path cli --locked
+cargo install sindri-cli --force --locked
 ```
 
 ## Usage
 
+### Clone a Circuit
+
+Retrieve the original source code that was uploaded to Sindri for a given project build via:
+
+```bash
+cargo sindri clone <CIRCUIT> < [OPTIONS]
+```
+
+#### Arguments
+- `<CIRCUIT>`: UUID or project build identifier to clone
+
+#### Options
+- `--directory <DIR>`: Path where the circuit should be saved (defaults to circuit name)
+- `--api-key <KEY>`: Sindri API key (overrides SINDRI_API_KEY env var)
+- `--base-url <URL>`: Sindri API base URL (overrides SINDRI_BASE_URL env var)
+
 ### Deploy a Circuit
+
+Upload your local DSL circuit or zkVM code to Sindri so that you can generate proofs via:
 
 ```bash
 cargo sindri deploy <PATH> [OPTIONS]

@@ -509,8 +509,7 @@ impl SindriClient {
     ///
     /// client.clone_circuit(
     ///     project_build_id,
-    ///     download_path,
-    ///     None
+    ///     download_path
     /// ).await.unwrap();
     /// # });
     /// ```
@@ -518,28 +517,10 @@ impl SindriClient {
         &self,
         circuit_id: &str,
         download_path: String,
-        override_max_project_size: Option<usize>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Cloning circuit with ID: {}", circuit_id);
         debug!("Download path: {}", download_path);
-        // Ensure circuit exists, is ready, and is not too large
-        let circuit_info = circuit_detail(&self.config, circuit_id, None).await?;
-        if *circuit_info.status() != JobStatus::Ready {
-            warn!("Circuit does not indicate ready status");
-            return Err("Circuit does not indicate ready status".into());
-        }
-        if circuit_info.file_size().unwrap_or(0) as u64
-            > override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024) as u64
-        {
-            // 2GB
-            warn!(
-                "Circuit tarball is larger than {} bytes.",
-                override_max_project_size.unwrap_or(2 * 1024 * 1024 * 1024)
-            );
-            return Err(format!("Circuit tarball is larger than {} bytes. If you still want to clone it, pass a larger size into `override_max_project_size`", override_max_project_size.unwrap_or(2* 1024 * 1024 * 1024)).into());
-        }
 
-        // Then, download the circuit
         let download_response = circuit_download(&self.config, circuit_id, None).await?;
         debug!("Circuit downloaded successfully");
         // Write the circuit to the specified path
@@ -547,6 +528,19 @@ impl SindriClient {
         file.write_all(&download_response.bytes().await?)?;
         info!("Circuit written to {}", download_path);
         Ok(())
+    }
+
+    /// Blocking version of `clone_circuit`.
+    ///
+    /// This method provides the same functionality as `clone_circuit` but can be used
+    /// in synchronous contexts. It internally creates a runtime to execute the async operation.
+    pub fn clone_circuit_blocking(
+        &self,
+        circuit_id: &str,
+        download_path: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let runtime = tokio::runtime::Runtime::new()?;
+        runtime.block_on(self.clone_circuit(circuit_id, download_path))
     }
 
     /// Retrieves the details of a circuit.

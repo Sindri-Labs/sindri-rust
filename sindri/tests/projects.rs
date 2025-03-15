@@ -131,25 +131,9 @@ async fn test_clone_circuit() {
 
     let clone_temp_dir = TempDir::new().unwrap();
     let clone_file_path = clone_temp_dir.path().join("clone.tar.gz");
-    let mut clone_result = client
-        .clone_circuit(
-            circuit.id(),
-            clone_file_path.to_string_lossy().to_string(),
-            Some(10),
-        )
-        .await;
-    assert!(clone_result.is_err());
-    assert!(clone_result
-        .unwrap_err()
-        .to_string()
-        .contains("tarball is larger than"));
 
-    clone_result = client
-        .clone_circuit(
-            circuit.id(),
-            clone_file_path.to_string_lossy().to_string(),
-            None,
-        )
+    let clone_result = client
+        .clone_circuit(circuit.id(), clone_file_path.to_string_lossy().to_string())
         .await;
     assert!(clone_result.is_ok());
 
