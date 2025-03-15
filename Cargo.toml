@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.2.1" 
+version = "0.2.2"
 edition = "2021"
 authors = ["Sindri Labs <support@sindri.app>"]
 homepage = "https://sindri.app/"
@@ -19,5 +19,5 @@ exclude = [
 ]
 
 [workspace.dependencies]
-sindri = { path = "sindri", version = "0.2.1" }
-sindri-openapi = { path = "openapi", version = "0.2.1" }
+sindri = { path = "sindri", version = "0.2.2" }
+sindri-openapi = { path = "openapi", version = "0.2.2" }
