@@ -78,6 +78,8 @@ fn main() {
 
     match args.command {
         Commands::Clone { circuit, directory } => {
+            println!("{}", style("Cloning...").bold());
+
             let circuit_regex =
                 Regex::new(r"^(?:([-a-zA-Z0-9_]+)\/)?([-a-zA-Z0-9_]+)(?::([-a-zA-Z0-9_.]+))?$")
                     .unwrap();
@@ -86,40 +88,45 @@ fn main() {
                     .get(2)
                     .map(|m| m.as_str().to_string())
                     .unwrap_or_else(|| {
-                        handle_operation_error("clone", "Invalid circuit identifier")
+                        handle_operation_error("Clone", "Invalid circuit identifier")
                     })
             } else {
-                handle_operation_error("clone", "Invalid circuit identifier")
+                handle_operation_error("Clone", "Invalid circuit identifier")
             };
             let output_directory = directory.unwrap_or(circuit_name.clone());
+            println!(
+                "{}",
+                style(format!("  ✓ Valid circuit identifier: {}", circuit)).cyan()
+            );
 
             let download_path = {
                 let p = Path::new(&output_directory);
                 if p.is_dir() {
-                    handle_operation_error("clone", "Output directory already exists");
+                    handle_operation_error("Clone", "Output directory already exists");
                 }
                 match fs::create_dir_all(p) {
                     Ok(_) => p.join("circuit.tar.gz"),
-                    Err(e) => handle_operation_error("clone", &e.to_string()),
+                    Err(e) => handle_operation_error("Clone", &e.to_string()),
                 }
             };
 
             match client
                 .clone_circuit_blocking(&circuit, download_path.to_string_lossy().to_string())
             {
-                Ok(_) => println!("Successfully cloned circuit {}", circuit),
+                Ok(_) => println!("{}", style("  ✓ Successfully downloaded circuit").cyan()),
                 Err(e) => {
                     if e.to_string().contains("404") {
                         handle_operation_error(
-                            "clone",
+                            "Clone",
                             "Circuit does not exist or you lack permission to access it.",
                         );
                     } else {
-                        handle_operation_error("clone", &e.to_string());
+                        handle_operation_error("Clone", &e.to_string());
                     }
                 }
             }
 
+            println!("{}", style("  ✓ Unpacking circuit...").cyan());
             // Unpack the tarball
             let downloaded = fs::read(&download_path).unwrap();
             let cursor = Cursor::new(downloaded);
@@ -144,11 +151,17 @@ fn main() {
                 Ok(())
             })()
             .unwrap_or_else(|e| {
-                handle_operation_error("clone", &format!("Issue unpacking circuit: {}", e))
+                handle_operation_error("Clone", &format!("Issue unpacking circuit: {}", e))
             });
 
             // Remove the download tarball
             std::fs::remove_file(&download_path).unwrap();
+
+            println!("{}", style("  ✓ Circuit cloned successfully!").cyan());
+            println!(
+                "\n{}",
+                style(format!("Circuit downloaded to: {}", output_directory)).bold()
+            );
         }
 
         Commands::Deploy {
@@ -172,7 +185,7 @@ fn main() {
                             ))
                         } else {
                             handle_operation_error(
-                                "deploy",
+                                "Deploy",
                                 &format!("\"{pair}\" is not a valid metadata pair."),
                             );
                         }
@@ -210,10 +223,10 @@ fn main() {
                             style(format!("{}/{}:{}", team, project_name, first_tag)).cyan()
                         );
                     } else {
-                        handle_operation_error("deploy", &response.error().unwrap_or_default())
+                        handle_operation_error("Deploy", &response.error().unwrap_or_default())
                     }
                 }
-                Err(e) => handle_operation_error("deploy", &e.to_string()),
+                Err(e) => handle_operation_error("Deploy", &e.to_string()),
             }
         }
     }
