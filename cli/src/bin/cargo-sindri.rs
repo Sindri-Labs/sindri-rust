@@ -75,17 +75,24 @@ fn main() {
         base_url: args.base_url,
     };
     let client = SindriClient::new(Some(auth), None);
-    println!("{}", client.base_url());
+
     match args.command {
         Commands::Clone { circuit, directory } => {
+            let circuit_regex =
+                Regex::new(r"^(?:([-a-zA-Z0-9_]+)\/)?([-a-zA-Z0-9_]+)(?::([-a-zA-Z0-9_.]+))?$")
+                    .unwrap();
+            let circuit_name = if let Some(captures) = circuit_regex.captures(&circuit) {
+                captures
+                    .get(2)
+                    .map(|m| m.as_str().to_string())
+                    .unwrap_or_else(|| {
+                        handle_operation_error("clone", "Invalid circuit identifier")
+                    })
+            } else {
+                handle_operation_error("clone", "Invalid circuit identifier")
+            };
+            let output_directory = directory.unwrap_or(circuit_name.clone());
 
-            let circuit_regex = Regex::new(r"^(?:([-a-zA-Z0-9_]+)\/)?([-a-zA-Z0-9_]+)(?::([-a-zA-Z0-9_.]+))?$").unwrap();
-            let captures = circuit_regex.captures(&circuit).unwrap_or_else(|| {
-                handle_operation_error("clone", "Invalid circuit identifier");
-            });
-            let circuit_name = captures[2].to_string();
-            let output_directory = directory.unwrap_or_else(|| circuit_name);
-            
             let download_path = {
                 let p = Path::new(&output_directory);
                 if p.is_dir() {
@@ -97,11 +104,16 @@ fn main() {
                 }
             };
 
-            match client.clone_circuit_blocking(&circuit, download_path.to_string_lossy().to_string(), None) {
+            match client
+                .clone_circuit_blocking(&circuit, download_path.to_string_lossy().to_string())
+            {
                 Ok(_) => println!("Successfully cloned circuit {}", circuit),
                 Err(e) => {
                     if e.to_string().contains("404") {
-                        handle_operation_error("clone", "Circuit does not exist or you lack permission to access it.");
+                        handle_operation_error(
+                            "clone",
+                            "Circuit does not exist or you lack permission to access it.",
+                        );
                     } else {
                         handle_operation_error("clone", &e.to_string());
                     }
@@ -113,15 +125,32 @@ fn main() {
             let cursor = Cursor::new(downloaded);
             let gz_decoder = GzDecoder::new(cursor);
             let mut archive = Archive::new(gz_decoder);
-            match archive.unpack(&output_directory) {
-                Ok(_) => println!("Successfully unpacked circuit {}", circuit),
-                Err(e) => handle_operation_error("clone", &e.to_string()),
-            }
-    
+
+            // Manually unpack the tarball, stripping the top-level directory
+            (|| -> Result<(), Box<dyn std::error::Error>> {
+                for entry in archive.entries()? {
+                    let mut entry = entry?;
+                    let path = entry.path()?;
+                    if let Some(stripped) =
+                        path.iter().skip(1).collect::<std::path::PathBuf>().to_str()
+                    {
+                        let output_path = Path::new(&output_directory).join(stripped);
+                        if let Some(parent) = output_path.parent() {
+                            fs::create_dir_all(parent)?;
+                        }
+                        entry.unpack(&output_path)?;
+                    }
+                }
+                Ok(())
+            })()
+            .unwrap_or_else(|e| {
+                handle_operation_error("clone", &format!("Issue unpacking circuit: {}", e))
+            });
+
             // Remove the download tarball
             std::fs::remove_file(&download_path).unwrap();
-        },
-        
+        }
+
         Commands::Deploy {
             project,
             tags,
@@ -142,9 +171,10 @@ fn main() {
                                 parts.next().unwrap_or_default().to_string(),
                             ))
                         } else {
-                            handle_operation_error("deploy", &format!(
-                                "\"{pair}\" is not a valid metadata pair."
-                            ));
+                            handle_operation_error(
+                                "deploy",
+                                &format!("\"{pair}\" is not a valid metadata pair."),
+                            );
                         }
                     })
                     .collect::<HashMap<String, String>>()
@@ -192,7 +222,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use std::process::Command;
-    
+
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use tempfile::TempDir;
@@ -205,7 +235,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_cli_deploy_unauthorized() {
-
         let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
 
         let circuit_path = "tests/factory/circuit.tar.gz";
@@ -223,29 +252,28 @@ mod tests {
 
     #[tokio::test]
     async fn test_cli_clone_circuit() {
-
         let temp_dir = TempDir::new().unwrap();
         let dir_path = temp_dir.path().to_path_buf();
 
         let mock_server = wiremock::MockServer::start().await;
 
-        let circuit_id = "123e4567-e89b-12d3-a456-426614174000";
+        let circuit_id = "mycircuit:tag";
 
         // Setup mock responses
         wiremock::Mock::given(method("GET"))
-        .and(path(format!("/api/v1/circuit/{}/detail", circuit_id)))
-        .respond_with(
-            ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
-                BoojumCircuitInfoResponse {
-                    status: JobStatus::Ready,
-                    file_size: Some(100),
-                    ..Default::default()
-                },
-            ))),
-        )
-        .mount(&mock_server)
-        .await;
-        
+            .and(path(format!("/api/v1/circuit/{}/detail", circuit_id)))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
+                    BoojumCircuitInfoResponse {
+                        status: JobStatus::Ready,
+                        file_size: Some(100),
+                        ..Default::default()
+                    },
+                ))),
+            )
+            .mount(&mock_server)
+            .await;
+
         let circuit_body = std::fs::read("tests/factory/circuit.tar.gz").unwrap();
         wiremock::Mock::given(method("GET"))
             .and(path(format!("/api/v1/circuit/{}/download", circuit_id)))
@@ -266,4 +294,15 @@ mod tests {
             .success()
             .stdout(predicate::str::contains("Successfully cloned circuit"));
     }
+
+    #[tokio::test]
+    async fn test_cli_clone_bad_identifiers() {
+        let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
+        cmd.arg("sindri").arg("clone").arg("this/wont/work");
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains("Invalid circuit identifier"));
+    }
+
+    // test no directory, that name matches what we'd expect and contents good
 }
