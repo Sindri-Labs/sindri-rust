@@ -231,8 +231,6 @@ mod tests {
         ResponseTemplate,
     };
 
-    use sindri::{BoojumCircuitInfoResponse, CircuitInfoResponse, JobStatus};
-
     #[tokio::test]
     async fn test_cli_deploy_unauthorized() {
         let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
@@ -259,24 +257,13 @@ mod tests {
 
         let circuit_id = "mycircuit:tag";
 
-        // Setup mock responses
-        wiremock::Mock::given(method("GET"))
-            .and(path(format!("/api/v1/circuit/{}/detail", circuit_id)))
-            .respond_with(
-                ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
-                    BoojumCircuitInfoResponse {
-                        status: JobStatus::Ready,
-                        file_size: Some(100),
-                        ..Default::default()
-                    },
-                ))),
-            )
-            .mount(&mock_server)
-            .await;
-
+        // Setup mock response
         let circuit_body = std::fs::read("tests/factory/circuit.tar.gz").unwrap();
         wiremock::Mock::given(method("GET"))
-            .and(path(format!("/api/v1/circuit/{}/download", circuit_id)))
+            .and(path(format!(
+                "/api/v1/circuit/{}/download",
+                urlencoding::encode(circuit_id)
+            )))
             .respond_with(ResponseTemplate::new(200).set_body_bytes(circuit_body))
             .mount(&mock_server)
             .await;
@@ -293,6 +280,14 @@ mod tests {
         cmd.assert()
             .success()
             .stdout(predicate::str::contains("Successfully cloned circuit"));
+
+        // Check that dir_path/sindri.json exists
+        let sindri_json_path = dir_path.join("circuit").join("sindri.json");
+        assert!(sindri_json_path.exists());
+
+        // Check that dir_path/circuit.circom exists
+        let circuit_circom_path = dir_path.join("circuit").join("circuit.circom");
+        assert!(circuit_circom_path.exists());
     }
 
     #[tokio::test]
@@ -302,7 +297,11 @@ mod tests {
         cmd.assert()
             .failure()
             .stderr(predicate::str::contains("Invalid circuit identifier"));
-    }
 
-    // test no directory, that name matches what we'd expect and contents good
+        let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
+        cmd.arg("sindri").arg("clone").arg("ಠ_ಠ");
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains("Invalid circuit identifier"));
+    }
 }
