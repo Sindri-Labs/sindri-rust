@@ -509,8 +509,7 @@ impl SindriClient {
     ///
     /// client.clone_circuit(
     ///     project_build_id,
-    ///     download_path,
-    ///     None
+    ///     download_path
     /// ).await.unwrap();
     /// # });
     /// ```
