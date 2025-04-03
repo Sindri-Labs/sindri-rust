@@ -51,7 +51,15 @@ pub enum Commands {
         meta: Option<Vec<String>>,
     },
     /// Login to Sindri
-    Login,
+    Login {
+        /// Username (if not provided, will prompt for input)
+        #[arg(long)]
+        username: Option<String>,
+
+        /// Password (if not provided, will prompt for input)
+        #[arg(long)]
+        password: Option<String>,
+    },
 }
 
 fn main() {
@@ -75,8 +83,8 @@ fn main() {
         } => {
             deploy(&client, project, tags, meta);
         }
-        Commands::Login => {
-            login(&client);
+        Commands::Login { username, password } => {
+            login(&client, username, password);
         }
     }
 }
@@ -165,5 +173,20 @@ mod tests {
         cmd.assert()
             .failure()
             .stderr(predicate::str::contains("Invalid circuit identifier"));
+    }
+
+    #[tokio::test]
+    async fn test_cli_login_bad_credentials() {
+        let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
+        cmd.arg("sindri")
+            .arg("login")
+            .arg("--username")
+            .arg("mockuser")
+            .arg("--password")
+            .arg("ಠ_ಠ");
+
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains("401 Unauthorized"));
     }
 }

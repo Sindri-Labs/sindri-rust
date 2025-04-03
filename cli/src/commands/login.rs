@@ -2,18 +2,24 @@ use dialoguer::{Input, Password, Select};
 use sindri::{client::SindriClient, TeamDetail};
 use crate::handle_operation_error;
 
-pub fn login(client: &SindriClient) {
+pub fn login(client: &SindriClient, username: Option<String>, password: Option<String>) {
     println!("{}", console::style("Logging in...").bold());
 
-    let username: String = Input::new()
-        .with_prompt("Username")
-        .interact_text()
-        .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
+    let username = match username {
+        Some(u) => u,
+        None => Input::new()
+            .with_prompt("Username")
+            .interact_text()
+            .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string())),
+    };
 
-    let password: String = Password::new()
-        .with_prompt("Password")
-        .interact()
-        .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
+    let password = match password {
+        Some(p) => p,
+        None => Password::new()
+            .with_prompt("Password")
+            .interact()
+            .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string())),
+    };
 
     // Generate an initial JWT token for team retrieval
     let rt = tokio::runtime::Runtime::new().unwrap();
