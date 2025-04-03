@@ -116,7 +116,7 @@ impl Default for PollingOptions {
 ///  like uploads of circuits or guest code and proof generation.
 #[derive(Debug)]
 pub struct SindriClient {
-    config: Configuration,
+    pub(crate) config: Configuration,
     pub polling_options: PollingOptions,
 }
 
