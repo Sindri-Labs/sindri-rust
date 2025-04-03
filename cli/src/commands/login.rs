@@ -1,6 +1,6 @@
+use crate::handle_operation_error;
 use dialoguer::{Input, Password, Select};
 use sindri::{client::SindriClient, TeamDetail};
-use crate::handle_operation_error;
 
 pub fn login(client: &SindriClient, username: Option<String>, password: Option<String>) {
     println!("{}", console::style("Logging in...").bold());
@@ -45,15 +45,28 @@ pub fn login(client: &SindriClient, username: Option<String>, password: Option<S
         .interact()
         .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
     let selected_team = &teams[selection];
-    
+
     // Generate API key for selected team
-    let api_key = match rt.block_on(client.api_key_select_team(&username, &password, &selected_team.name, &selected_team.id.to_string())) {
+    let api_key = match rt.block_on(client.api_key_select_team(
+        &username,
+        &password,
+        &selected_team.name,
+        &selected_team.id.to_string(),
+    )) {
         Ok(key) => key,
         Err(e) => handle_operation_error("Login", &e.to_string()),
     };
 
-    println!("\n{}", console::style("API key generated successfully!").green().bold());
-    println!("{}", console::style("Please copy this key as it will only be shown once:").bold());
+    println!(
+        "\n{}",
+        console::style("API key generated successfully!")
+            .green()
+            .bold()
+    );
+    println!(
+        "{}",
+        console::style("Please copy this key as it will only be shown once:").bold()
+    );
     println!("{}", console::style(api_key).cyan());
     println!("\n{}", console::style("You can now use this key with the --api-key flag or set `SINDRI_API_KEY` in your environment variables.").dim());
-} 
+}
