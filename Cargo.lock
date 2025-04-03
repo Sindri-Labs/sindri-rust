@@ -6059,7 +6059,6 @@ dependencies = [
  "flate2",
  "predicates",
  "regex",
- "serde_json",
  "sindri",
  "sindri-openapi",
  "tar",
