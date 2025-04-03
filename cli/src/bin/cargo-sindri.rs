@@ -1,7 +1,7 @@
 use clap::{command, Parser, Subcommand};
 use sindri::client::{AuthOptions, SindriClient};
 
-use sindri_cli::commands::{clone, deploy};
+use sindri_cli::commands::{clone, deploy, login};
 
 #[derive(Parser)]
 #[command(name = "cargo", bin_name = "cargo")]
@@ -50,6 +50,8 @@ pub enum Commands {
         #[arg(long, value_delimiter = ',')]
         meta: Option<Vec<String>>,
     },
+    /// Login to Sindri
+    Login,
 }
 
 fn main() {
@@ -72,6 +74,9 @@ fn main() {
             meta,
         } => {
             deploy(&client, project, tags, meta);
+        }
+        Commands::Login => {
+            login(&client);
         }
     }
 }
