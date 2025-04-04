@@ -5,7 +5,7 @@ pub use sindri_openapi::models::{
     GnarkCircuitInfoResponse, Halo2CircuitInfoResponse, HermezCircuitInfoResponse, JobStatus,
     JoltCircuitInfoResponse, NoirCircuitInfoResponse, Plonky2CircuitInfoResponse,
     ProofInfoResponse, ProofInput as InternalProofInput, SnarkvmCircuitInfoResponse,
-    Sp1CircuitInfoResponse,
+    Sp1CircuitInfoResponse, TeamDetail,
 };
 use std::collections::HashMap;
 
