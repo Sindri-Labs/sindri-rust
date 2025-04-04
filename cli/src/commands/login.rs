@@ -21,6 +21,19 @@ pub fn login(client: &SindriClient, username: Option<String>, password: Option<S
             .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string())),
     };
 
+    let name = Input::new()
+        .with_prompt("New API Key Name")
+        .with_initial_text(format!("{}-rust-sdk", username))
+        .validate_with(|input: &String| -> Result<(), String> {
+            if input.len() > 32 {
+                Err("API key name must be 32 characters or fewer.".to_string())
+            } else {
+                Ok(())
+            }
+        })
+        .interact_text()
+        .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
+
     // Generate an initial JWT token for team retrieval
     let rt = tokio::runtime::Runtime::new().unwrap();
     let token = match rt.block_on(client.jwt_token_generate(&username, &password)) {
@@ -46,11 +59,13 @@ pub fn login(client: &SindriClient, username: Option<String>, password: Option<S
         .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
     let selected_team = &teams[selection];
 
+
+
     // Generate API key for selected team
     let api_key = match rt.block_on(client.api_key_select_team(
         &username,
         &password,
-        &selected_team.name,
+        &name,
         &selected_team.id.to_string(),
     )) {
         Ok(key) => key,
