@@ -30,7 +30,7 @@ pub fn login(
     let name = match keyname {
         Some(n) => {
             if n.len() > 32 {
-                handle_operation_error("Login", "API key name must be 32 characters or fewer.");
+                handle_operation_error("Login", "API key name must not exceed 32 characters.");
             }
             n
         }
@@ -39,7 +39,7 @@ pub fn login(
             .with_initial_text(format!("{}-rust-sdk", username))
             .validate_with(|input: &String| -> Result<(), String> {
                 if input.len() > 32 {
-                    Err("API key name must be 32 characters or fewer.".to_string())
+                    Err("API key name must not exceed 32 characters.".to_string())
                 } else {
                     Ok(())
                 }

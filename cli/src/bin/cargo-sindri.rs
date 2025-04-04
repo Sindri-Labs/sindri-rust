@@ -196,10 +196,33 @@ mod tests {
             .arg("--username")
             .arg("mockuser")
             .arg("--password")
-            .arg("ಠ_ಠ");
+            .arg("ಠ_ಠ")
+            .arg("--keyname")
+            .arg("my-new-key")
+            .arg("--teamname")
+            .arg("does-not-matter");
 
         cmd.assert()
             .failure()
             .stderr(predicate::str::contains("401 Unauthorized"));
+    }
+
+    #[tokio::test]
+    async fn test_cli_login_keyname_too_long() {
+        let mut cmd = Command::cargo_bin("cargo-sindri").unwrap();
+        cmd.arg("sindri")
+            .arg("login")
+            .arg("--username")
+            .arg("mockuser")
+            .arg("--password")
+            .arg("ಠ_ಠ")
+            .arg("--keyname")
+            .arg("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            .arg("--teamname")
+            .arg("does-not-matter");
+
+        cmd.assert().failure().stderr(predicate::str::contains(
+            "API key name must not exceed 32 characters",
+        ));
     }
 }
