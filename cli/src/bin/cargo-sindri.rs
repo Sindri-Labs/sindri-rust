@@ -59,6 +59,14 @@ pub enum Commands {
         /// Password (if not provided, will prompt for input)
         #[arg(long)]
         password: Option<String>,
+
+        /// Key name (if not provided, will prompt for input)
+        #[arg(long)]
+        keyname: Option<String>,
+
+        /// Team name (if not provided, will prompt for input)
+        #[arg(long)]
+        teamname: Option<String>,
     },
 }
 
@@ -83,8 +91,13 @@ fn main() {
         } => {
             deploy(&client, project, tags, meta);
         }
-        Commands::Login { username, password } => {
-            login(&client, username, password);
+        Commands::Login {
+            username,
+            password,
+            keyname,
+            teamname,
+        } => {
+            login(&client, username, password, keyname, teamname);
         }
     }
 }

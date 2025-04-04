@@ -2,7 +2,13 @@ use crate::handle_operation_error;
 use dialoguer::{Input, Password, Select};
 use sindri::{client::SindriClient, TeamDetail};
 
-pub fn login(client: &SindriClient, username: Option<String>, password: Option<String>) {
+pub fn login(
+    client: &SindriClient,
+    username: Option<String>,
+    password: Option<String>,
+    keyname: Option<String>,
+    teamname: Option<String>,
+) {
     println!("{}", console::style("Logging in...").bold());
 
     let username = match username {
@@ -21,18 +27,26 @@ pub fn login(client: &SindriClient, username: Option<String>, password: Option<S
             .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string())),
     };
 
-    let name = Input::new()
-        .with_prompt("  New API Key Name")
-        .with_initial_text(format!("{}-rust-sdk", username))
-        .validate_with(|input: &String| -> Result<(), String> {
-            if input.len() > 32 {
-                Err("API key name must be 32 characters or fewer.".to_string())
-            } else {
-                Ok(())
+    let name = match keyname {
+        Some(n) => {
+            if n.len() > 32 {
+                handle_operation_error("Login", "API key name must be 32 characters or fewer.");
             }
-        })
-        .interact_text()
-        .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
+            n
+        }
+        None => Input::new()
+            .with_prompt("  New API Key Name")
+            .with_initial_text(format!("{}-rust-sdk", username))
+            .validate_with(|input: &String| -> Result<(), String> {
+                if input.len() > 32 {
+                    Err("API key name must be 32 characters or fewer.".to_string())
+                } else {
+                    Ok(())
+                }
+            })
+            .interact_text()
+            .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string())),
+    };
 
     // Generate an initial JWT token for team retrieval
     let rt = tokio::runtime::Runtime::new().unwrap();
@@ -53,12 +67,29 @@ pub fn login(client: &SindriClient, username: Option<String>, password: Option<S
 
     // Let user select a team
     let team_names: Vec<String> = teams.iter().map(|t: &TeamDetail| t.slug.clone()).collect();
-    let selection = Select::new()
-        .with_prompt("  Select a team to generate an API key for")
-        .items(&team_names)
-        .interact()
-        .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
-    let selected_team = &teams[selection];
+    let selected_team = match teamname {
+        Some(t) => {
+            if !team_names.contains(&t) {
+                handle_operation_error(
+                    "Login",
+                    &format!(
+                        "Team '{}' not found. Available teams: {}",
+                        t,
+                        team_names.join(", ")
+                    ),
+                );
+            }
+            &teams[team_names.iter().position(|x| x == &t).unwrap()]
+        }
+        None => {
+            let selection = Select::new()
+                .with_prompt("  Select a team to generate an API key for")
+                .items(&team_names)
+                .interact()
+                .unwrap_or_else(|e| handle_operation_error("Login", &e.to_string()));
+            &teams[selection]
+        }
+    };
 
     // Generate API key for selected team
     let api_key = match rt.block_on(client.api_key_select_team(
