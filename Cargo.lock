@@ -6060,7 +6060,6 @@ dependencies = [
  "predicates",
  "regex",
  "sindri",
- "sindri-openapi",
  "tar",
  "tempfile",
  "tokio",
