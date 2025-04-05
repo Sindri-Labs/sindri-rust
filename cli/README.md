@@ -13,6 +13,29 @@ cargo install sindri-cli --force --locked
 
 ## Usage
 
+### Login
+
+Most functionalities within the Sindri Rust SDK and CLI require you to supply your API key.
+This method allows you to create an API key by providing your Sindri username and password via:
+
+```bash
+cargo sindri login [OPTIONS]
+```
+
+#### Options
+- `--username <USERNAME>`: Sindri username (optional, will prompt if not provided)
+- `--password <PASSWORD>`: Sindri password (optional, will prompt if not provided)
+- `--keyname <KEYNAME>`: Name to identify your new key (optional, will prompt if not provided)
+- `--teamname <TEAMNAME>`: Sindri team which the key should be created for (optional, will prompt if not provided)
+- `--base-url <URL>`: Sindri API base URL (overrides SINDRI_BASE_URL env var)
+
+The login command will prompt for your Sindri credentials (if not provided via options) and allow you to select a team to generate an API key for.
+
+After successful login, you can use the generated API key by either:
+- Setting the `SINDRI_API_KEY` environment variable
+- Using the `--api-key` flag with any `cargo sindri` command
+
+
 ### Clone a Circuit
 
 Retrieve the original source code that was uploaded to Sindri for a given project build via:
