@@ -15,8 +15,11 @@ members = [
     "sindri",
 ]
 exclude = [
+    "examples/basic-demo",
     "examples/local-db",
     "examples/sp1-proof",
+    "examples/web3-demo",
+    "examples/zkvm-demo"
 ]
 
 [workspace.dependencies]

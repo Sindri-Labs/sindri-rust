@@ -1,0 +1,8 @@
+{
+    "$schema": "https://sindri.app/api/v1/sindri-manifest-schema.json",
+    "name": "zkvm-demo",
+    "circuitType": "sp1",
+    "provingScheme": "compressed",
+    "sp1Version": "4.0.0",
+    "elfPath": "program/regex-program"
+}
