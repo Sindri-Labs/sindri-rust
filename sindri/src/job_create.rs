@@ -175,3 +175,72 @@ impl SindriClient {
         Ok(proof_info)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{types::CircuitInfo, BoojumCircuitInfoResponse};
+    use wiremock::{
+        matchers::{method, path},
+        MockServer, ResponseTemplate,
+    };
+
+    async fn mock_server() -> MockServer {
+        let mock_server = wiremock::MockServer::start().await;
+
+        wiremock::Mock::given(method("POST"))
+            .and(path("/api/v1/circuit/create"))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(CircuitInfoResponse::Boojum(Box::new(
+                    BoojumCircuitInfoResponse {
+                        circuit_id: "test_circuit_123".to_string(),
+                        ..Default::default()
+                    },
+                ))),
+            )
+            .mount(&mock_server)
+            .await;
+
+        wiremock::Mock::given(method("POST"))
+            .and(path("/api/v1/circuit/test_circuit_123/prove"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(ProofInfoResponse {
+                proof_id: "test_proof_123".to_string(),
+                ..Default::default()
+            }))
+            .mount(&mock_server)
+            .await;
+
+        mock_server
+    }
+
+    #[tokio::test]
+    async fn test_request_build() {
+        let mock_server = mock_server().await;
+
+        let mut client = SindriClient::default();
+        client.config.base_path = mock_server.uri().to_string();
+        // Create a temporary test directory
+        let temp_dir = tempfile::tempdir().unwrap();
+        let test_file = temp_dir.path().join("test.zip");
+        std::fs::write(&test_file, "test content").unwrap();
+
+        let circuit_response = client
+            .request_build(test_file.to_str().unwrap().to_string(), None, None)
+            .await
+            .unwrap();
+        assert_eq!(circuit_response.id(), "test_circuit_123");
+    }
+
+    #[tokio::test]
+    async fn test_request_proof() {
+        let mock_server = mock_server().await;
+        let mut client = SindriClient::default();
+        client.config.base_path = mock_server.uri().to_string();
+
+        let proof_response = client
+            .request_proof("test_circuit_123", "x=10,y=20", None, None, None)
+            .await
+            .unwrap();
+        assert_eq!(proof_response.proof_id, "test_proof_123");
+    }
+}
