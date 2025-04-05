@@ -62,6 +62,7 @@
 pub mod client;
 
 pub(crate) mod custom_middleware;
+pub(crate) mod job_create;
 pub(crate) mod jwt;
 pub(crate) mod utils;
 

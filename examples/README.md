@@ -34,8 +34,10 @@ For extra logging, you can run with the `RUST_LOG` environment variable set to `
 
 ## Available Examples
 
-- Create a plonk proof via the Sp1 zkVM from public guest code and verify it locally:[sp1-proof](sp1-proof/README.md)
+- Create a plonk proof via the Sp1 zkVM from public guest code and verify it locally: [sp1-proof](sp1-proof/README.md)
+- Self manage job polling with a local rocksdb instance: [local-db](local-db/README.md)
 
 ## Additional Resources
 
 - [Sindri Documentation](https://sindri.app/docs/)
+- [Sindri Rust SDK Quickstart](https://sindri.app/docs/getting-started/rust-sdk/)

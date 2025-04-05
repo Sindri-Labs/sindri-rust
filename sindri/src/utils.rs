@@ -15,6 +15,7 @@ const MAX_PROJECT_SIZE: usize = 8 * 1024 * 1024 * 1024; // 8GB
 // Designated names for special purpose files
 pub const SINDRI_IGNORE_FILENAME: &str = ".sindriignore";
 pub const SINDRI_MANIFEST_FILENAME: &str = "sindri.json";
+#[cfg(feature = "rich-terminal")]
 pub const CLOCK_TICKS: [&str; 12] = [
     "  🕛 ", "  🕐 ", "  🕑 ", "  🕒 ", "  🕓 ", "  🕔 ", "  🕕 ", "  🕖 ", "  🕗 ", "  🕘 ",
     "  🕙 ", "  🕚 ",
@@ -36,6 +37,34 @@ fn format_size(bytes: usize) -> String {
         format!("{} {}", size as usize, UNITS[unit_index])
     } else {
         format!("{:.2} {}", size, UNITS[unit_index])
+    }
+}
+
+#[cfg(feature = "rich-terminal")]
+pub struct ClockProgressBar {
+    pb: ProgressBar,
+}
+
+#[cfg(feature = "rich-terminal")]
+impl ClockProgressBar {
+    pub fn new(message: &str) -> Self {
+        let pb = ProgressBar::new_spinner();
+        pb.enable_steady_tick(std::time::Duration::from_millis(120));
+        pb.set_style(
+            ProgressStyle::with_template("{spinner} {msg:.cyan}")
+                .unwrap()
+                .tick_strings(&crate::utils::CLOCK_TICKS),
+        );
+        pb.set_message(message.to_string());
+        Self { pb }
+    }
+
+    pub fn update_message(&self, message: &str) {
+        self.pb.set_message(message.to_string());
+    }
+
+    pub fn clear(&self) {
+        self.pb.finish_and_clear();
     }
 }
 
