@@ -1,6 +1,6 @@
 # Sindri Rust SDK
 
-<img src="https://github.com/Sindri-Labs/sindri-rust/blob/d3cd52fbc1333910557a48ed91a946067e0b44db/.github/assets/sindri-gradient-logo.webp" height="160" align="right"/>
+<img src="https://raw.githubusercontent.com/Sindri-Labs/sindri-rust/refs/heads/main/.github/assets/sindri-gradient-logo.webp" height="160" align="right"/>
 
 #### [Sindri Sign Up](https://sindri.app/signup) | [Getting Started](https://sindri.app/docs/getting-started/) | [Public Projects](https://sindri.app/explore)
 
