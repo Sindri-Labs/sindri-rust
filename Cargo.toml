@@ -15,6 +15,7 @@ members = [
     "sindri",
 ]
 exclude = [
+    "examples/local-db",
     "examples/sp1-proof",
 ]
 

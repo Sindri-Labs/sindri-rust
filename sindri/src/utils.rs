@@ -1,6 +1,6 @@
 //! Utility functions for Sindri Rust SDK (mainly local file managers called by client methods)
 
-use std::{error::Error, io::Read, path::Path, time::Duration};
+use std::{error::Error, io::Read, path::Path};
 
 #[cfg(feature = "rich-terminal")]
 use console::style;
@@ -49,7 +49,7 @@ pub struct ClockProgressBar {
 impl ClockProgressBar {
     pub fn new(message: &str) -> Self {
         let pb = ProgressBar::new_spinner();
-        pb.enable_steady_tick(Duration::from_millis(120));
+        pb.enable_steady_tick(std::time::Duration::from_millis(120));
         pb.set_style(
             ProgressStyle::with_template("{spinner} {msg:.cyan}")
                 .unwrap()

@@ -1,6 +1,8 @@
 /target/
+/examples/*/target/
 /.bashrc
 /.bash_history
 .env
 /sindri/tests/recordings/
 .vscode/
+examples/local-db/prove_jobs_db/
