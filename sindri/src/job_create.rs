@@ -1,24 +1,23 @@
 //! These methods will submit a project deploy or proof request to Sindri,
 //! without waiting for the job to complete.
 
-use std::{collections::HashMap, fs, path::Path, time::Duration};
+use std::{collections::HashMap, fs, path::Path};
 
 use regex::Regex;
 use sindri_openapi::{
     apis::circuits_api::{circuit_create, proof_create},
-    models::{CircuitInfoResponse,ProofInfoResponse, CircuitProveInput},
+    models::{CircuitInfoResponse, CircuitProveInput, ProofInfoResponse},
 };
 use tracing::{debug, info};
 
-use crate::{client::SindriClient, utils::compress_directory, types::ProofInput};
+use crate::{client::SindriClient, types::ProofInput, utils::compress_directory};
 
+#[cfg(feature = "rich-terminal")]
+use crate::utils::ClockProgressBar;
 #[cfg(feature = "rich-terminal")]
 use console::style;
-#[cfg(feature = "rich-terminal")]
-use indicatif::{ProgressBar, ProgressStyle};
 
 impl SindriClient {
-
     /// Deploys a new circuit from a local project (without waiting for job completion).
     ///
     /// In order to generate proofs on Sindri, you must first deploy the zero-knowledge circuit or
@@ -105,22 +104,15 @@ impl SindriClient {
         println!("{}", style("Uploading circuit...").bold());
 
         #[cfg(feature = "rich-terminal")]
-        let pb = ProgressBar::new_spinner();
-        #[cfg(feature = "rich-terminal")]
-        pb.enable_steady_tick(Duration::from_millis(120));
-        #[cfg(feature = "rich-terminal")]
-        pb.set_style(
-            ProgressStyle::with_template("{spinner} {msg:.cyan}")
-                .unwrap()
-                .tick_strings(&crate::utils::CLOCK_TICKS),
-        );
-        #[cfg(feature = "rich-terminal")]
-        pb.set_message("Sending files to circuit create endpoint...");
+        let pb = ClockProgressBar::new("Sending files to circuit create endpoint...");
 
         let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
+
+        #[cfg(feature = "rich-terminal")]
+        pb.clear();
+
         Ok(response)
     }
-
 
     /// Requests proof generation for a circuit (without waiting for job completion).
     ///

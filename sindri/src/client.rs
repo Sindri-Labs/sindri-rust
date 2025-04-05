@@ -1,21 +1,18 @@
 //! # The primary module for interacting with Sindri's API.
 
-use std::{collections::HashMap, fs, fs::File, io::Write, path::Path, time::Duration};
+use std::{collections::HashMap, fs::File, io::Write, time::Duration};
 
-use regex::Regex;
 use reqwest::header::{HeaderMap, HeaderValue};
 use sindri_openapi::{
     apis::{
         circuit_download, circuit_status,
-        circuits_api::{
-            circuit_create, circuit_delete, circuit_detail, proof_create, CircuitDetailError,
-        },
+        circuits_api::{circuit_delete, circuit_detail, CircuitDetailError},
         configuration::Configuration,
         proof_status,
         proofs_api::{proof_delete, proof_detail, ProofDetailError},
         Error,
     },
-    models::{CircuitInfoResponse, CircuitProveInput, JobStatus, ProofInfoResponse},
+    models::{CircuitInfoResponse, JobStatus, ProofInfoResponse},
 };
 use tracing::{debug, info, warn};
 
@@ -25,16 +22,13 @@ use crate::{
         ZstdRequestCompressionMiddleware,
     },
     types::{CircuitInfo, ProofInput},
-    utils::compress_directory,
 };
 
 #[cfg(any(feature = "record", feature = "replay"))]
 use crate::custom_middleware::vcr_middleware;
 
 #[cfg(feature = "rich-terminal")]
-use console::style;
-#[cfg(feature = "rich-terminal")]
-use indicatif::{ProgressBar, ProgressStyle};
+use crate::utils::ClockProgressBar;
 
 /// Configuration options for authenticating with the Sindri API.
 ///
@@ -343,73 +337,14 @@ impl SindriClient {
         tags: Option<Vec<String>>,
         meta: Option<HashMap<String, String>>,
     ) -> Result<CircuitInfoResponse, Box<dyn std::error::Error>> {
-        info!("Creating new circuit from project: {}", project);
-        debug!("Circuit tags: {:?}, metadata: {:?}", tags, meta);
-
-        // Validate tags if provided
-        let tag_rules = Regex::new(r"^[a-zA-Z0-9_.-]+$").unwrap();
-        if let Some(ref tags) = tags {
-            for tag in tags {
-                if !tag_rules.is_match(tag) {
-                    return Err(format!("\"{tag}\" is not a valid tag. Tags may only contain alphanumeric characters, underscores, hyphens, and periods.").into());
-                }
-            }
-        }
-        #[cfg(feature = "rich-terminal")]
-        println!(
-            "{}",
-            style(format!(
-                "  ✓ Valid tags specified: {}",
-                tags.as_ref().map_or(0, |t| t.len())
-            ))
-            .cyan()
-        );
-
-        // Load the project into a byte array whether it is a compressed
-        // file already or a directory
-        let project_bytes = match Path::new(&project) {
-            p if p.is_dir() => {
-                info!("Compressing directory for upload");
-                compress_directory(p, None).await?
-            }
-            p if p.is_file() => {
-                let extension_regex = Regex::new(r"(?i)\.(zip|tar|tar\.gz|tgz)$")?;
-                if !extension_regex.is_match(&project) {
-                    return Err("Project is not a zip file or tarball".into());
-                }
-                #[cfg(feature = "rich-terminal")]
-                println!("{}", style("  ✓ Detected compressed project file").cyan());
-                fs::read(&project)?
-            }
-            _ => return Err("Project is not a file or directory".into()),
-        };
-
-        info!("Uploading circuit to Sindri");
-        #[cfg(feature = "rich-terminal")]
-        println!("{}", style("Uploading circuit...").bold());
-
-        #[cfg(feature = "rich-terminal")]
-        let pb = ProgressBar::new_spinner();
-        #[cfg(feature = "rich-terminal")]
-        pb.enable_steady_tick(Duration::from_millis(120));
-        #[cfg(feature = "rich-terminal")]
-        pb.set_style(
-            ProgressStyle::with_template("{spinner} {msg:.cyan}")
-                .unwrap()
-                .tick_strings(&crate::utils::CLOCK_TICKS),
-        );
-        #[cfg(feature = "rich-terminal")]
-        pb.set_message("Sending files to circuit create endpoint...");
-
-        let response = circuit_create(&self.config, project_bytes, meta, tags).await?;
-
+        let response = self.request_build(project, tags, meta).await?;
         let circuit_id = response.id();
         info!("Circuit created with ID: {}", circuit_id);
 
         #[cfg(feature = "rich-terminal")]
         let mut current_status = *response.status();
         #[cfg(feature = "rich-terminal")]
-        pb.set_message(format!("Job status: {}", current_status));
+        let pb = ClockProgressBar::new(&format!("Job status: {}", current_status));
 
         let start_time = std::time::Instant::now();
         let mut status = circuit_status(&self.config, circuit_id).await?;
@@ -428,7 +363,7 @@ impl SindriClient {
             status = circuit_status(&self.config, circuit_id).await?;
             #[cfg(feature = "rich-terminal")]
             if status.status != current_status {
-                pb.set_message(format!("Job status: {}", status.status));
+                pb.update_message(&format!("Job status: {}", status.status));
                 current_status = status.status;
             }
         }
@@ -622,20 +557,9 @@ impl SindriClient {
         verify: Option<bool>,
         prover_implementation: Option<String>,
     ) -> Result<ProofInfoResponse, Box<dyn std::error::Error>> {
-        info!("Creating proof for circuit: {}", circuit_id);
-        debug!(
-            "Proof metadata: {:?}, verify: {:?}, prover: {:?}",
-            meta, verify, prover_implementation
-        );
-
-        let circuit_prove_input = CircuitProveInput {
-            proof_input: Box::new(proof_input.into().0),
-            perform_verify: verify,
-            meta,
-            prover_implementation,
-        };
-
-        let proof_info = proof_create(&self.config, circuit_id, circuit_prove_input).await?;
+        let proof_info = self
+            .request_proof(circuit_id, proof_input, meta, verify, prover_implementation)
+            .await?;
         let proof_id = proof_info.proof_id;
         info!("Proof generation started with ID: {}", proof_id);
 
