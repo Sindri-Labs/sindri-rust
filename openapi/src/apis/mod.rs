@@ -106,8 +106,7 @@ pub mod circuits_api;
 #[allow(dead_code)]
 mod internal_api;
 pub use internal_api::{
-    circuit_download, circuit_status, proof_status, user_me_with_jwt_auth, CircuitStatusError,
-    ProofStatusError,
+    circuit_download, circuit_status, proof_status, user_me_with_jwt_auth, CircuitStatusError, ProofStatusError,
 };
 pub mod proofs_api;
 pub mod token_api;
