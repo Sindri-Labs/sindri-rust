@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-cli-v0.2.2...sindri-cli-v0.2.3) - 2025-04-05
+
+### Added
+
+- *(cli)* api key generation ([#37](https://github.com/Sindri-Labs/sindri-rust/pull/37))
+
 ## [0.2.2](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-cli-v0.2.1...sindri-cli-v0.2.2) - 2025-03-15
 
 ### Added
