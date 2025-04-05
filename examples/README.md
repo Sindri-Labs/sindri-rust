@@ -36,6 +36,9 @@ For extra logging, you can run with the `RUST_LOG` environment variable set to `
 
 - Create a plonk proof via the Sp1 zkVM from public guest code and verify it locally: [sp1-proof](sp1-proof/README.md)
 - Self manage job polling with a local rocksdb instance: [local-db](local-db/README.md)
+- Integrate Sindri's proving infrastructure into your existing workflow: [basic-demo](basic-demo/README.md)
+- Write and test zkVM guest code while building end-to-end proving workflows: [zkvm-demo](zkvm-demo/README.md)
+- Run an end-to-end Web3 application with simulated on-chain verification: [web3-demo](web3-demo/README.md)
 
 ## Additional Resources
 
