@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-v0.2.2...sindri-v0.2.3) - 2025-04-05
+
+### Added
+
+- no-wait deploy and prove ([#38](https://github.com/Sindri-Labs/sindri-rust/pull/38))
+- *(cli)* api key generation ([#37](https://github.com/Sindri-Labs/sindri-rust/pull/37))
+
+### Other
+
+- bump middleware to 0.4.1 ([#33](https://github.com/Sindri-Labs/sindri-rust/pull/33))
+
 ## [0.2.2](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-v0.2.1...sindri-v0.2.2) - 2025-03-15
 
 ### Added
