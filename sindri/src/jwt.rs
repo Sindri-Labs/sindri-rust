@@ -6,7 +6,7 @@
 use sindri_openapi::{
     apis::{
         authorization_api::apikey_generate, configuration::Configuration,
-        token_api::jwt_token_generate, user_me_with_jwt_auth,
+        token_api::jwt_token_generate, user_me,
     },
     models::{ObtainApikeyInput, TeamDetail, TokenObtainPairInputSchema},
 };
@@ -48,7 +48,7 @@ impl SindriClient {
             bearer_access_token: Some(token.to_string()),
             ..Default::default()
         };
-        let user = user_me_with_jwt_auth(&config).await?;
+        let user = user_me(&config).await?;
 
         Ok(user.teams)
     }

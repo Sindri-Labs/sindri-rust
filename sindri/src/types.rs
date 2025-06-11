@@ -147,7 +147,7 @@ macro_rules! impl_circuit_info {
 }
 
 // Add any new circuit types here
-impl_circuit_info!(Boojum, Circom, Halo2, Hermez, Gnark, Jolt, Noir, Plonky2, Snarkvm, Sp1);
+impl_circuit_info!(Boojum, Circom, Halo2, Hermez, Gnark, Jolt, Noir, Openvm, Plonky2, Snarkvm, Sp1);
 
 /// A wrapper type around [`InternalProofInput`] that provides convenient conversions from
 /// various input formats for circuit proofs.
