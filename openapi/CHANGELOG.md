@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-openapi-v0.2.3...sindri-openapi-v0.3.0) - 2025-06-11
+
+### Other
+
+- *(deps)* upgrade openapi spec to v1.17.22 ([#41](https://github.com/Sindri-Labs/sindri-rust/pull/41))
+
 ## [0.2.3](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-openapi-v0.2.2...sindri-openapi-v0.2.3) - 2025-04-05
 
 ### Added
