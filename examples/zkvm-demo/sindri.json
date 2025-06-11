@@ -3,6 +3,6 @@
     "name": "zkvm-demo",
     "circuitType": "sp1",
     "provingScheme": "compressed",
-    "sp1Version": "4.0.0",
+    "sp1Version": "5.0.0",
     "elfPath": "program/regex-program"
 }

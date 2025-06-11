@@ -57,8 +57,8 @@ jobs:
       - name: Run sindri Sp1 v3 unit tests
         run: cargo nextest run -E 'package(sindri) & kind(lib) & test(sp1_v3)' --features sp1-v3
 
-      - name: Run sindri Sp1 v4 unit tests
-        run: cargo nextest run -E 'package(sindri) & kind(lib) & test(sp1_v4)' --features sp1-v4 --workspace --exclude sp1-proof
+      - name: Run sindri Sp1 v5 unit tests
+        run: cargo nextest run --release -E 'package(sindri) & kind(lib) & test(sp1_v5)' --features sp1-v5 --workspace --exclude sp1-proof
 
       - name: Run sindri integration tests (offline)
         run: cargo nextest run -E 'package(sindri) & kind(test) & test(end_to_end)' --features replay
