@@ -1,5 +1,5 @@
 use funty::Fundamental; // u8 to bool
-use sindri::{client::SindriClient, integrations::sp1_v4::SP1ProofInfo, JobStatus, ProofInput};
+use sindri::{client::SindriClient, integrations::sp1_v5::SP1ProofInfo, JobStatus, ProofInput};
 use sp1_sdk::SP1Stdin;
 
 #[tokio::main]
@@ -28,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let proof_info = client
                 .prove_circuit(
-                    "sindri-rust/zkvm-demo", // Maps the request to the prebuilt public project
+                    "sindri-rust/zkvm-demo:v5", // Maps the request to the prebuilt public project
                     proof_input,
                     None, // Don't need to attach meta data
                     None, // Don't require server-side validity check
