@@ -11,11 +11,24 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// SessionAuthErrorResponse : Action: Attempt to login with username and password. Error: User does not exist or password is incorrect.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ApikeyId {}
+pub struct SessionAuthErrorResponse {
+    #[serde(rename = "exception_id", skip_serializing_if = "Option::is_none")]
+    pub exception_id: Option<Box<models::ExceptionId>>,
+    #[serde(rename = "message", skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(rename = "username")]
+    pub username: String,
+}
 
-impl ApikeyId {
-    pub fn new() -> ApikeyId {
-        ApikeyId {}
+impl SessionAuthErrorResponse {
+    /// Action: Attempt to login with username and password. Error: User does not exist or password is incorrect.
+    pub fn new(username: String) -> SessionAuthErrorResponse {
+        SessionAuthErrorResponse {
+            exception_id: None,
+            message: None,
+            username,
+        }
     }
 }
