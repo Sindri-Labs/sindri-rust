@@ -11,11 +11,20 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// UserLoginInput : Client input to get logged in.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ApikeyId {}
+pub struct UserLoginInput {
+    /// Your account username.
+    #[serde(rename = "username")]
+    pub username: String,
+    /// Your account password.
+    #[serde(rename = "password")]
+    pub password: String,
+}
 
-impl ApikeyId {
-    pub fn new() -> ApikeyId {
-        ApikeyId {}
+impl UserLoginInput {
+    /// Client input to get logged in.
+    pub fn new(username: String, password: String) -> UserLoginInput {
+        UserLoginInput { username, password }
     }
 }

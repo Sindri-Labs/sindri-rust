@@ -11,11 +11,43 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TeamSettingsInput : Client input to update team settings.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ApikeyId {}
+pub struct TeamSettingsInput {
+    #[serde(
+        rename = "display_name",
+        default,
+        with = "::serde_with::rust::double_option",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub display_name: Option<Option<String>>,
+    /// The URL for the team's github account. This is displayed on the team page.
+    #[serde(rename = "github_url", skip_serializing_if = "Option::is_none")]
+    pub github_url: Option<String>,
+    #[serde(
+        rename = "twitter_url",
+        default,
+        with = "::serde_with::rust::double_option",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub twitter_url: Option<Option<String>>,
+    #[serde(
+        rename = "url",
+        default,
+        with = "::serde_with::rust::double_option",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub url: Option<Option<String>>,
+}
 
-impl ApikeyId {
-    pub fn new() -> ApikeyId {
-        ApikeyId {}
+impl TeamSettingsInput {
+    /// Client input to update team settings.
+    pub fn new() -> TeamSettingsInput {
+        TeamSettingsInput {
+            display_name: None,
+            github_url: None,
+            twitter_url: None,
+            url: None,
+        }
     }
 }
