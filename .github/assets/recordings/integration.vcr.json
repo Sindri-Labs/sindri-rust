@@ -4,7 +4,7 @@
       "response": {
         "body": {
           "encoding": null,
-          "string": "{\"circuit_id\": \"bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_type\": \"circom\", \"date_created\": \"2025-03-13T00:12:14.063Z\", \"meta\": {}, \"num_proofs\": 0, \"proving_scheme\": \"groth16\", \"public\": false, \"status\": \"Queued\", \"finished_processing\": false, \"tags\": [\"tester\"], \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://gravatar.com/avatar/9c01802ddb981e6bcfbec0f0516b8e35?s=400&d=identicon&r=x\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"compute_time\": null, \"compute_time_sec\": null, \"compute_times\": null, \"file_size\": 326, \"queue_time\": null, \"queue_time_sec\": null, \"uploaded_file_name\": \"rust_sdk_upload.tar.gz\", \"has_smart_contract_verifier\": false, \"has_verification_key\": false, \"verification_key\": null, \"warnings\": null, \"error\": null, \"curve\": \"bn254\", \"num_constraints\": null, \"num_outputs\": null, \"num_private_inputs\": null, \"num_public_inputs\": null}"
+          "string": "{\"circuit_id\": \"67ac63c8-6985-4f67-8925-86c76ec54487\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_type\": \"circom\", \"date_created\": \"2025-06-11T13:08:13.477Z\", \"homepage\": null, \"meta\": {}, \"num_proofs\": null, \"proving_scheme\": \"groth16\", \"public\": false, \"repository\": null, \"status\": \"Queued\", \"finished_processing\": false, \"tags\": [\"tester\"], \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://static.sindri.app/team_avatars/067d5ad8-2432-7783-8000-f12cfd0116d3.png\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"compute_time\": null, \"compute_time_sec\": null, \"compute_times\": null, \"file_size\": null, \"queue_time\": null, \"queue_time_sec\": null, \"uploaded_file_name\": \"rust_sdk_upload.tar.gz\", \"has_smart_contract_verifier\": false, \"has_verification_key\": false, \"verification_key\": null, \"warnings\": null, \"error\": null, \"curve\": \"bn254\", \"num_constraints\": null, \"num_outputs\": null, \"num_private_inputs\": null, \"num_public_inputs\": null}"
         },
         "http_version": "1.1",
         "status": {
@@ -12,29 +12,29 @@
           "message": "Created"
         },
         "headers": {
-          "server": [
-            "openresty"
-          ],
-          "content-type": [
-            "application/json; charset=utf-8"
-          ],
-          "referrer-policy": [
-            "same-origin"
-          ],
-          "cross-origin-opener-policy": [
-            "same-origin"
-          ],
-          "x-content-type-options": [
-            "nosniff"
+          "x-frame-options": [
+            "SAMEORIGIN"
           ],
           "vary": [
             "Cookie, Accept-Encoding, origin"
           ],
-          "x-frame-options": [
-            "SAMEORIGIN"
-          ],
           "date": [
-            "Thu, 13 Mar 2025 00:12:14 GMT"
+            "Wed, 11 Jun 2025 13:08:13 GMT"
+          ],
+          "cross-origin-opener-policy": [
+            "same-origin"
+          ],
+          "server": [
+            "openresty"
+          ],
+          "referrer-policy": [
+            "same-origin"
+          ],
+          "content-type": [
+            "application/json; charset=utf-8"
+          ],
+          "x-content-type-options": [
+            "nosniff"
           ]
         }
       },
@@ -46,27 +46,27 @@
         },
         "method": "post",
         "headers": {
-          "content-encoding": [
-            "zstd"
-          ],
-          "authorization": [
-            "Bearer REDACTED_TOKEN"
+          "user-agent": [
+            "OpenAPI-Generator/v0.0.0/rust"
           ],
           "content-type": [
             "multipart/form-data; boundary=----------------------------4ebf00fbcf09"
           ],
-          "user-agent": [
-            "OpenAPI-Generator/v0.0.0/rust"
+          "authorization": [
+            "Bearer REDACTED_TOKEN"
+          ],
+          "content-encoding": [
+            "zstd"
           ]
         }
       },
-      "recorded_at": "Thu, 13 Mar 2025 00:12:14 +0000"
+      "recorded_at": "Wed, 11 Jun 2025 13:08:13 +0000"
     },
     {
       "response": {
         "body": {
           "encoding": null,
-          "string": "{\"circuit_id\": \"bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098\", \"status\": \"Ready\", \"finished_processing\": true}"
+          "string": "{\"circuit_id\": \"67ac63c8-6985-4f67-8925-86c76ec54487\", \"status\": \"Ready\", \"finished_processing\": true}"
         },
         "http_version": "1.1",
         "status": {
@@ -74,37 +74,37 @@
           "message": "OK"
         },
         "headers": {
-          "content-type": [
-            "application/json; charset=utf-8"
-          ],
-          "date": [
-            "Thu, 13 Mar 2025 00:12:22 GMT"
-          ],
-          "referrer-policy": [
-            "same-origin"
+          "content-length": [
+            "102"
           ],
           "cross-origin-opener-policy": [
+            "same-origin"
+          ],
+          "date": [
+            "Wed, 11 Jun 2025 13:08:37 GMT"
+          ],
+          "referrer-policy": [
             "same-origin"
           ],
           "server": [
             "openresty"
           ],
-          "content-length": [
-            "102"
+          "x-content-type-options": [
+            "nosniff"
+          ],
+          "content-type": [
+            "application/json; charset=utf-8"
           ],
           "vary": [
             "Cookie, origin"
           ],
           "x-frame-options": [
             "SAMEORIGIN"
-          ],
-          "x-content-type-options": [
-            "nosniff"
           ]
         }
       },
       "request": {
-        "uri": "https://sindri.app/api/v1/circuit/bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098/status",
+        "uri": "https://sindri.app/api/v1/circuit/67ac63c8-6985-4f67-8925-86c76ec54487/status",
         "body": {
           "encoding": null,
           "string": ""
@@ -119,13 +119,13 @@
           ]
         }
       },
-      "recorded_at": "Thu, 13 Mar 2025 00:12:22 +0000"
+      "recorded_at": "Wed, 11 Jun 2025 13:08:37 +0000"
     },
     {
       "response": {
         "body": {
           "encoding": null,
-          "string": "{\"circuit_id\": \"bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_type\": \"circom\", \"date_created\": \"2025-03-13T00:12:14.063Z\", \"meta\": {}, \"num_proofs\": 0, \"proving_scheme\": \"groth16\", \"public\": false, \"status\": \"Ready\", \"finished_processing\": true, \"tags\": [\"tester\"], \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://gravatar.com/avatar/9c01802ddb981e6bcfbec0f0516b8e35?s=400&d=identicon&r=x\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"compute_time\": \"P0DT00H00M06.936630S\", \"compute_time_sec\": 6.93663, \"compute_times\": {\"total\": 6.93663, \"clean_up\": 0.00099, \"create_cpp\": 0.0856, \"file_setup\": 0.11635, \"compile_cpp\": 3.21878, \"create_r1cs\": 0.00746, \"save_results\": 0.55521, \"get_r1cs_info\": 0.00033, \"groth16_setup\": 1.10963, \"export_verification_key\": 0.94139, \"download_trusted_setup_file\": 0.00073, \"solidity_contract_generation\": 0.90018}, \"file_size\": 236529, \"queue_time\": \"P0DT00H00M00.478890S\", \"queue_time_sec\": 0.47889, \"uploaded_file_name\": \"rust_sdk_upload.tar.gz\", \"has_smart_contract_verifier\": true, \"has_verification_key\": true, \"verification_key\": {\"protocol\": \"groth16\", \"curve\": \"bn128\", \"nPublic\": 1, \"vk_alpha_1\": [\"20491192805390485299153009773594534940189261866228447918068658471970481763042\", \"9383485363053290200918347156157836566562967994039712273449902621266178545958\", \"1\"], \"vk_beta_2\": [[\"6375614351688725206403948262868962793625744043794305715222011528459656738731\", \"4252822878758300859123897981450591353533073413197771768651442665752259397132\"], [\"10505242626370262277552901082094356697409835680220590971873171140371331206856\", \"21847035105528745403288232691147584728191162732299865338377159692350059136679\"], [\"1\", \"0\"]], \"vk_gamma_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_delta_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_alphabeta_12\": [[[\"2029413683389138792403550203267699914886160938906632433982220835551125967885\", \"21072700047562757817161031222997517981543347628379360635925549008442030252106\"], [\"5940354580057074848093997050200682056184807770593307860589430076672439820312\", \"12156638873931618554171829126792193045421052652279363021382169897324752428276\"], [\"7898200236362823042373859371574133993780991612861777490112507062703164551277\", \"7074218545237549455313236346927434013100842096812539264420499035217050630853\"]], [[\"7077479683546002997211712695946002074877511277312570035766170199895071832130\", \"10093483419865920389913245021038182291233451549023025229112148274109565435465\"], [\"4595479056700221319381530156280926371456704509942304414423590385166031118820\", \"19831328484489333784475432780421641293929726139240675179672856274388269393268\"], [\"11934129596455521040620786944827826205713621633706285934057045369193958244500\", \"8037395052364110730298837004334506829870972346962140206007064471173334027475\"]]], \"IC\": [[\"6819801395408938350212900248749732364821477541620635511814266536599629892365\", \"9092252330033992554755034971584864587974280972948086568597554018278609861372\", \"1\"], [\"17882351432929302592725330552407222299541667716607588771282887857165175611387\", \"18907419617206324833977586007131055763810739835484972981819026406579664278293\", \"1\"]]}, \"warnings\": null, \"error\": null, \"curve\": \"bn254\", \"num_constraints\": 1, \"num_outputs\": 1, \"num_private_inputs\": 2, \"num_public_inputs\": 0}"
+          "string": "{\"circuit_id\": \"67ac63c8-6985-4f67-8925-86c76ec54487\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_type\": \"circom\", \"date_created\": \"2025-06-11T13:08:13.477Z\", \"homepage\": null, \"meta\": {}, \"num_proofs\": 0, \"proving_scheme\": \"groth16\", \"public\": false, \"repository\": null, \"status\": \"Ready\", \"finished_processing\": true, \"tags\": [\"tester\"], \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://static.sindri.app/team_avatars/067d5ad8-2432-7783-8000-f12cfd0116d3.png\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"compute_time\": \"P0DT00H00M10.847991S\", \"compute_time_sec\": 10.847991, \"compute_times\": {\"total\": 10.84799, \"clean_up\": 0.00183, \"create_cpp\": 0.18962, \"file_setup\": 0.14604, \"compile_cpp\": 5.74666, \"create_r1cs\": 0.02214, \"save_results\": 0.52292, \"get_r1cs_info\": 0.0006, \"groth16_setup\": 1.42238, \"export_verification_key\": 1.41914, \"download_trusted_setup_file\": 0.00101, \"solidity_contract_generation\": 1.37565}, \"file_size\": 236529, \"queue_time\": \"P0DT00H00M12.475213S\", \"queue_time_sec\": 12.475213, \"uploaded_file_name\": \"rust_sdk_upload.tar.gz\", \"has_smart_contract_verifier\": true, \"has_verification_key\": true, \"verification_key\": {\"protocol\": \"groth16\", \"curve\": \"bn128\", \"nPublic\": 1, \"vk_alpha_1\": [\"20491192805390485299153009773594534940189261866228447918068658471970481763042\", \"9383485363053290200918347156157836566562967994039712273449902621266178545958\", \"1\"], \"vk_beta_2\": [[\"6375614351688725206403948262868962793625744043794305715222011528459656738731\", \"4252822878758300859123897981450591353533073413197771768651442665752259397132\"], [\"10505242626370262277552901082094356697409835680220590971873171140371331206856\", \"21847035105528745403288232691147584728191162732299865338377159692350059136679\"], [\"1\", \"0\"]], \"vk_gamma_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_delta_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_alphabeta_12\": [[[\"2029413683389138792403550203267699914886160938906632433982220835551125967885\", \"21072700047562757817161031222997517981543347628379360635925549008442030252106\"], [\"5940354580057074848093997050200682056184807770593307860589430076672439820312\", \"12156638873931618554171829126792193045421052652279363021382169897324752428276\"], [\"7898200236362823042373859371574133993780991612861777490112507062703164551277\", \"7074218545237549455313236346927434013100842096812539264420499035217050630853\"]], [[\"7077479683546002997211712695946002074877511277312570035766170199895071832130\", \"10093483419865920389913245021038182291233451549023025229112148274109565435465\"], [\"4595479056700221319381530156280926371456704509942304414423590385166031118820\", \"19831328484489333784475432780421641293929726139240675179672856274388269393268\"], [\"11934129596455521040620786944827826205713621633706285934057045369193958244500\", \"8037395052364110730298837004334506829870972346962140206007064471173334027475\"]]], \"IC\": [[\"6819801395408938350212900248749732364821477541620635511814266536599629892365\", \"9092252330033992554755034971584864587974280972948086568597554018278609861372\", \"1\"], [\"17882351432929302592725330552407222299541667716607588771282887857165175611387\", \"18907419617206324833977586007131055763810739835484972981819026406579664278293\", \"1\"]]}, \"warnings\": null, \"error\": null, \"curve\": \"bn254\", \"num_constraints\": 1, \"num_outputs\": 1, \"num_private_inputs\": 2, \"num_public_inputs\": 0}"
         },
         "http_version": "1.1",
         "status": {
@@ -133,55 +133,55 @@
           "message": "OK"
         },
         "headers": {
-          "x-content-type-options": [
-            "nosniff"
-          ],
-          "server": [
-            "openresty"
-          ],
-          "date": [
-            "Thu, 13 Mar 2025 00:12:22 GMT"
-          ],
-          "cross-origin-opener-policy": [
-            "same-origin"
-          ],
           "content-type": [
             "application/json; charset=utf-8"
-          ],
-          "referrer-policy": [
-            "same-origin"
           ],
           "vary": [
             "Cookie, Accept-Encoding, origin"
           ],
           "x-frame-options": [
             "SAMEORIGIN"
+          ],
+          "date": [
+            "Wed, 11 Jun 2025 13:08:37 GMT"
+          ],
+          "server": [
+            "openresty"
+          ],
+          "referrer-policy": [
+            "same-origin"
+          ],
+          "cross-origin-opener-policy": [
+            "same-origin"
+          ],
+          "x-content-type-options": [
+            "nosniff"
           ]
         }
       },
       "request": {
-        "uri": "https://sindri.app/api/v1/circuit/bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098/detail",
+        "uri": "https://sindri.app/api/v1/circuit/67ac63c8-6985-4f67-8925-86c76ec54487/detail",
         "body": {
           "encoding": null,
           "string": ""
         },
         "method": "get",
         "headers": {
-          "user-agent": [
-            "OpenAPI-Generator/v0.0.0/rust"
-          ],
           "authorization": [
             "Bearer REDACTED_TOKEN"
+          ],
+          "user-agent": [
+            "OpenAPI-Generator/v0.0.0/rust"
           ]
         }
       },
-      "recorded_at": "Thu, 13 Mar 2025 00:12:22 +0000"
+      "recorded_at": "Wed, 11 Jun 2025 13:08:37 +0000"
     },
     {
       "response": {
         "body": {
           "encoding": null,
-          "string": "{\"proof_id\": \"eb06b704-2aaf-4c0c-b46a-bb489e0b7337\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_id\": \"bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098\", \"circuit_type\": \"circom\", \"date_created\": \"2025-03-13T00:12:22.582Z\", \"meta\": {}, \"perform_verify\": true, \"status\": \"Queued\", \"finished_processing\": false, \"verified\": null, \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://gravatar.com/avatar/9c01802ddb981e6bcfbec0f0516b8e35?s=400&d=identicon&r=x\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"circuit_team\": \"sindri-rust\", \"circuit_team_avatar_url\": \"https://gravatar.com/avatar/9c01802ddb981e6bcfbec0f0516b8e35?s=400&d=identicon&r=x\", \"circuit_team_slug\": \"sindri-rust\", \"compute_time\": null, \"compute_time_sec\": null, \"compute_times\": null, \"file_size\": null, \"proof\": null, \"public\": null, \"queue_time\": null, \"queue_time_sec\": null, \"smart_contract_calldata\": null, \"has_smart_contract_calldata\": false, \"has_verification_key\": true, \"verification_key\": null, \"warnings\": null, \"error\": null}"
+          "string": "{\"proof_id\": \"71090236-2ade-40e0-8e02-d9c1f45d5278\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_id\": \"67ac63c8-6985-4f67-8925-86c76ec54487\", \"circuit_type\": \"circom\", \"date_created\": \"2025-06-11T13:08:37.969Z\", \"meta\": {}, \"perform_verify\": true, \"status\": \"Queued\", \"finished_processing\": false, \"verified\": null, \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://static.sindri.app/team_avatars/067d5ad8-2432-7783-8000-f12cfd0116d3.png\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"circuit_team\": \"sindri-rust\", \"circuit_team_avatar_url\": \"https://static.sindri.app/team_avatars/067d5ad8-2432-7783-8000-f12cfd0116d3.png\", \"circuit_team_slug\": \"sindri-rust\", \"compute_time\": null, \"compute_time_sec\": null, \"compute_times\": null, \"file_size\": null, \"proof\": null, \"public\": null, \"queue_time\": null, \"queue_time_sec\": null, \"smart_contract_calldata\": null, \"has_smart_contract_calldata\": false, \"has_verification_key\": true, \"verification_key\": null, \"warnings\": null, \"error\": null}"
         },
         "http_version": "1.1",
         "status": {
@@ -189,34 +189,34 @@
           "message": "Created"
         },
         "headers": {
-          "referrer-policy": [
+          "server": [
+            "openresty"
+          ],
+          "cross-origin-opener-policy": [
             "same-origin"
-          ],
-          "x-content-type-options": [
-            "nosniff"
-          ],
-          "date": [
-            "Thu, 13 Mar 2025 00:12:22 GMT"
-          ],
-          "x-frame-options": [
-            "SAMEORIGIN"
           ],
           "content-type": [
             "application/json; charset=utf-8"
           ],
-          "server": [
-            "openresty"
-          ],
           "vary": [
             "Cookie, Accept-Encoding, origin"
           ],
-          "cross-origin-opener-policy": [
+          "x-content-type-options": [
+            "nosniff"
+          ],
+          "referrer-policy": [
             "same-origin"
+          ],
+          "date": [
+            "Wed, 11 Jun 2025 13:08:38 GMT"
+          ],
+          "x-frame-options": [
+            "SAMEORIGIN"
           ]
         }
       },
       "request": {
-        "uri": "https://sindri.app/api/v1/circuit/bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098/prove",
+        "uri": "https://sindri.app/api/v1/circuit/67ac63c8-6985-4f67-8925-86c76ec54487/prove",
         "body": {
           "encoding": null,
           "string": "{\"proof_input\":\"{\\\"a\\\": 1, \\\"b\\\": 2}\"}"
@@ -234,13 +234,13 @@
           ]
         }
       },
-      "recorded_at": "Thu, 13 Mar 2025 00:12:22 +0000"
+      "recorded_at": "Wed, 11 Jun 2025 13:08:38 +0000"
     },
     {
       "response": {
         "body": {
           "encoding": null,
-          "string": "{\"proof_id\": \"eb06b704-2aaf-4c0c-b46a-bb489e0b7337\", \"status\": \"Ready\", \"finished_processing\": true}"
+          "string": "{\"proof_id\": \"71090236-2ade-40e0-8e02-d9c1f45d5278\", \"status\": \"Ready\", \"finished_processing\": true}"
         },
         "http_version": "1.1",
         "status": {
@@ -248,17 +248,17 @@
           "message": "OK"
         },
         "headers": {
-          "content-length": [
-            "100"
-          ],
-          "vary": [
-            "Cookie, origin"
+          "cross-origin-opener-policy": [
+            "same-origin"
           ],
           "date": [
-            "Thu, 13 Mar 2025 00:12:24 GMT"
+            "Wed, 11 Jun 2025 13:08:41 GMT"
           ],
           "referrer-policy": [
             "same-origin"
+          ],
+          "server": [
+            "openresty"
           ],
           "content-type": [
             "application/json; charset=utf-8"
@@ -266,40 +266,40 @@
           "x-frame-options": [
             "SAMEORIGIN"
           ],
-          "server": [
-            "openresty"
-          ],
           "x-content-type-options": [
             "nosniff"
           ],
-          "cross-origin-opener-policy": [
-            "same-origin"
+          "content-length": [
+            "100"
+          ],
+          "vary": [
+            "Cookie, origin"
           ]
         }
       },
       "request": {
-        "uri": "https://sindri.app/api/v1/proof/eb06b704-2aaf-4c0c-b46a-bb489e0b7337/status",
+        "uri": "https://sindri.app/api/v1/proof/71090236-2ade-40e0-8e02-d9c1f45d5278/status",
         "body": {
           "encoding": null,
           "string": ""
         },
         "method": "get",
         "headers": {
-          "user-agent": [
-            "OpenAPI-Generator/v0.0.0/rust"
-          ],
           "authorization": [
             "Bearer REDACTED_TOKEN"
+          ],
+          "user-agent": [
+            "OpenAPI-Generator/v0.0.0/rust"
           ]
         }
       },
-      "recorded_at": "Thu, 13 Mar 2025 00:12:24 +0000"
+      "recorded_at": "Wed, 11 Jun 2025 13:08:41 +0000"
     },
     {
       "response": {
         "body": {
           "encoding": null,
-          "string": "{\"proof_id\": \"eb06b704-2aaf-4c0c-b46a-bb489e0b7337\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_id\": \"bdd9b3de-2d78-43ea-8b07-1e1b2a1a9098\", \"circuit_type\": \"circom\", \"date_created\": \"2025-03-13T00:12:22.582Z\", \"meta\": {}, \"perform_verify\": true, \"status\": \"Ready\", \"finished_processing\": true, \"verified\": true, \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://gravatar.com/avatar/9c01802ddb981e6bcfbec0f0516b8e35?s=400&d=identicon&r=x\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"circuit_team\": \"sindri-rust\", \"circuit_team_avatar_url\": \"https://gravatar.com/avatar/9c01802ddb981e6bcfbec0f0516b8e35?s=400&d=identicon&r=x\", \"circuit_team_slug\": \"sindri-rust\", \"compute_time\": \"P0DT00H00M01.375650S\", \"compute_time_sec\": 1.37565, \"compute_times\": {\"prove\": 0.23741, \"total\": 1.37565, \"clean_up\": 0.00481, \"file_setup\": 0.14878, \"save_results\": 0.19284, \"verify_check\": 0.65886, \"export_calldata\": 0.1146, \"generate_witness_c\": 0.01835}, \"file_size\": 1348, \"proof\": {\"pi_a\": [\"10566936974966123779671290851956619888847823855439846743660647528272219972974\", \"2473887840084487139155307842966816852570115683365789918788918675439756001212\", \"1\"], \"pi_b\": [[\"7178587678242459662402403182394147736553350847729973649456972384086902678576\", \"7983756792755869758021850054570173125563455307579207243577399555439163098030\"], [\"14577475730039884981734276164776953551075414528008216651546634154309994777073\", \"2963628364640773599069126664775712400270492756461286465291604507762367218294\"], [\"1\", \"0\"]], \"pi_c\": [\"7660913673449262515605313064599495535009710661756508357778822933697767147555\", \"10225631399853286996390369273473431035909206577421469944926692900789463877095\", \"1\"], \"protocol\": \"groth16\"}, \"public\": [\"2\"], \"queue_time\": \"P0DT00H00M00.594779S\", \"queue_time_sec\": 0.594779, \"smart_contract_calldata\": \"[\\\"0x175caca436f7067f98ef4930b84f68d72a54d8cba98783289444622abde1a56e\\\", \\\"0x05782bbfecef02718cee3b74961cb44b699422d1b6b88f96a9b2ef4c41183fbc\\\"],[[\\\"0x11a6a56e034888a3926af0bddcc5db06b0f974bd5db16f9c928a7c9354a843ae\\\", \\\"0x0fdeefc7b1a0b8d2e00b621c17ace25ebb976b1a7feee344150ebcb3b7d3a430\\\"],[\\\"0x068d5aad95b3a878a98f5023ee4de7dc22915c7f71ed8423d086d040b5294276\\\", \\\"0x203a8f1264c354708e0937abddc9781ab14471ddcf9eff46536bec3b682d89f1\\\"]],[\\\"0x10efec692ca7b0384506f698a2aebf11d6c989691033cc4633c8f8cc90240823\\\", \\\"0x169b8094d479b9d25e326c96d54fcca8a2c8ac078ab549e24b6f42ecf34d05e7\\\"],[\\\"0x0000000000000000000000000000000000000000000000000000000000000002\\\"]\\n\", \"has_smart_contract_calldata\": true, \"has_verification_key\": true, \"verification_key\": {\"protocol\": \"groth16\", \"curve\": \"bn128\", \"nPublic\": 1, \"vk_alpha_1\": [\"20491192805390485299153009773594534940189261866228447918068658471970481763042\", \"9383485363053290200918347156157836566562967994039712273449902621266178545958\", \"1\"], \"vk_beta_2\": [[\"6375614351688725206403948262868962793625744043794305715222011528459656738731\", \"4252822878758300859123897981450591353533073413197771768651442665752259397132\"], [\"10505242626370262277552901082094356697409835680220590971873171140371331206856\", \"21847035105528745403288232691147584728191162732299865338377159692350059136679\"], [\"1\", \"0\"]], \"vk_gamma_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_delta_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_alphabeta_12\": [[[\"2029413683389138792403550203267699914886160938906632433982220835551125967885\", \"21072700047562757817161031222997517981543347628379360635925549008442030252106\"], [\"5940354580057074848093997050200682056184807770593307860589430076672439820312\", \"12156638873931618554171829126792193045421052652279363021382169897324752428276\"], [\"7898200236362823042373859371574133993780991612861777490112507062703164551277\", \"7074218545237549455313236346927434013100842096812539264420499035217050630853\"]], [[\"7077479683546002997211712695946002074877511277312570035766170199895071832130\", \"10093483419865920389913245021038182291233451549023025229112148274109565435465\"], [\"4595479056700221319381530156280926371456704509942304414423590385166031118820\", \"19831328484489333784475432780421641293929726139240675179672856274388269393268\"], [\"11934129596455521040620786944827826205713621633706285934057045369193958244500\", \"8037395052364110730298837004334506829870972346962140206007064471173334027475\"]]], \"IC\": [[\"6819801395408938350212900248749732364821477541620635511814266536599629892365\", \"9092252330033992554755034971584864587974280972948086568597554018278609861372\", \"1\"], [\"17882351432929302592725330552407222299541667716607588771282887857165175611387\", \"18907419617206324833977586007131055763810739835484972981819026406579664278293\", \"1\"]]}, \"warnings\": null, \"error\": null}"
+          "string": "{\"proof_id\": \"71090236-2ade-40e0-8e02-d9c1f45d5278\", \"circuit_name\": \"test-circuit\", \"project_name\": \"test-circuit\", \"circuit_id\": \"67ac63c8-6985-4f67-8925-86c76ec54487\", \"circuit_type\": \"circom\", \"date_created\": \"2025-06-11T13:08:37.969Z\", \"meta\": {}, \"perform_verify\": true, \"status\": \"Ready\", \"finished_processing\": true, \"verified\": true, \"team\": \"sindri-rust\", \"team_avatar_url\": \"https://static.sindri.app/team_avatars/067d5ad8-2432-7783-8000-f12cfd0116d3.png\", \"team_name\": \"sindri-rust\", \"team_slug\": \"sindri-rust\", \"circuit_team\": \"sindri-rust\", \"circuit_team_avatar_url\": \"https://static.sindri.app/team_avatars/067d5ad8-2432-7783-8000-f12cfd0116d3.png\", \"circuit_team_slug\": \"sindri-rust\", \"compute_time\": \"P0DT00H00M01.913803S\", \"compute_time_sec\": 1.913803, \"compute_times\": {\"prove\": 0.30687, \"total\": 1.9138, \"clean_up\": 0.02216, \"file_setup\": 0.18349, \"save_results\": 0.20835, \"verify_check\": 1.01867, \"export_calldata\": 0.15172, \"generate_witness_c\": 0.02253}, \"file_size\": 1349, \"proof\": {\"pi_a\": [\"4037154435135580549187450132951366899546268194664336757061990023546259327052\", \"18018260580863307782593708549061016098377086453285144130046687666655729740770\", \"1\"], \"pi_b\": [[\"8266748184061243416585634455729624601929606472250965843431385170003376881070\", \"9391593068553393688523544534091759838875790671650162828702747595822550885713\"], [\"20951609204785934019390246106768615465446651603161395273270632218623398680100\", \"16829682041201163225496360660441776799543002310047737388221669113109735728328\"], [\"1\", \"0\"]], \"pi_c\": [\"4621146926046801238117834661648900441166189838284246588838476325102035531505\", \"21304570569660777768038247014881565193493528127013349436669827696079552245984\", \"1\"], \"protocol\": \"groth16\"}, \"public\": [\"2\"], \"queue_time\": \"P0DT00H00M00.540817S\", \"queue_time_sec\": 0.540817, \"smart_contract_calldata\": \"[\\\"0x08ecf2cc9eecae89e29215421a4766284312ab0d7e8f6126aa49338f4403484c\\\", \\\"0x27d5f95db6574162b80633101b648644f05cb8995f105e0397f181d94bdeebe2\\\"],[[\\\"0x14c3740bbf0e90f85d48658fed8c2a36950a9f12f80ed549d32a8ca0526e2551\\\", \\\"0x1246d04c1ae3ecbb9de5a14a8ca31e138fbdcc112ecb4707eb9fc57b2ca63dae\\\"],[\\\"0x2535433169d29c54a2c440ec6d2334c09321d21f7f573cc39054b349892ee4c8\\\", \\\"0x2e5230c94ababb57f243c4213a52be13ed119eeeedd9e1c551acd3820b289624\\\"]],[\\\"0x0a3779fa036315914561ae08ea61ea4ab92adabfc27340a103225bb2f745f6f1\\\", \\\"0x2f19f5a9f288cab3ee315d0a7619d1dd20cfa0a1234c08ac788204e09185f0e0\\\"],[\\\"0x0000000000000000000000000000000000000000000000000000000000000002\\\"]\\n\", \"has_smart_contract_calldata\": true, \"has_verification_key\": true, \"verification_key\": {\"protocol\": \"groth16\", \"curve\": \"bn128\", \"nPublic\": 1, \"vk_alpha_1\": [\"20491192805390485299153009773594534940189261866228447918068658471970481763042\", \"9383485363053290200918347156157836566562967994039712273449902621266178545958\", \"1\"], \"vk_beta_2\": [[\"6375614351688725206403948262868962793625744043794305715222011528459656738731\", \"4252822878758300859123897981450591353533073413197771768651442665752259397132\"], [\"10505242626370262277552901082094356697409835680220590971873171140371331206856\", \"21847035105528745403288232691147584728191162732299865338377159692350059136679\"], [\"1\", \"0\"]], \"vk_gamma_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_delta_2\": [[\"10857046999023057135944570762232829481370756359578518086990519993285655852781\", \"11559732032986387107991004021392285783925812861821192530917403151452391805634\"], [\"8495653923123431417604973247489272438418190587263600148770280649306958101930\", \"4082367875863433681332203403145435568316851327593401208105741076214120093531\"], [\"1\", \"0\"]], \"vk_alphabeta_12\": [[[\"2029413683389138792403550203267699914886160938906632433982220835551125967885\", \"21072700047562757817161031222997517981543347628379360635925549008442030252106\"], [\"5940354580057074848093997050200682056184807770593307860589430076672439820312\", \"12156638873931618554171829126792193045421052652279363021382169897324752428276\"], [\"7898200236362823042373859371574133993780991612861777490112507062703164551277\", \"7074218545237549455313236346927434013100842096812539264420499035217050630853\"]], [[\"7077479683546002997211712695946002074877511277312570035766170199895071832130\", \"10093483419865920389913245021038182291233451549023025229112148274109565435465\"], [\"4595479056700221319381530156280926371456704509942304414423590385166031118820\", \"19831328484489333784475432780421641293929726139240675179672856274388269393268\"], [\"11934129596455521040620786944827826205713621633706285934057045369193958244500\", \"8037395052364110730298837004334506829870972346962140206007064471173334027475\"]]], \"IC\": [[\"6819801395408938350212900248749732364821477541620635511814266536599629892365\", \"9092252330033992554755034971584864587974280972948086568597554018278609861372\", \"1\"], [\"17882351432929302592725330552407222299541667716607588771282887857165175611387\", \"18907419617206324833977586007131055763810739835484972981819026406579664278293\", \"1\"]]}, \"warnings\": null, \"error\": null}"
         },
         "http_version": "1.1",
         "status": {
@@ -307,26 +307,26 @@
           "message": "OK"
         },
         "headers": {
-          "x-content-type-options": [
-            "nosniff"
-          ],
-          "date": [
-            "Thu, 13 Mar 2025 00:12:24 GMT"
-          ],
-          "content-type": [
-            "application/json; charset=utf-8"
-          ],
           "cross-origin-opener-policy": [
             "same-origin"
+          ],
+          "date": [
+            "Wed, 11 Jun 2025 13:08:41 GMT"
           ],
           "referrer-policy": [
             "same-origin"
           ],
-          "x-frame-options": [
-            "SAMEORIGIN"
-          ],
           "server": [
             "openresty"
+          ],
+          "x-content-type-options": [
+            "nosniff"
+          ],
+          "content-type": [
+            "application/json; charset=utf-8"
+          ],
+          "x-frame-options": [
+            "SAMEORIGIN"
           ],
           "vary": [
             "Cookie, Accept-Encoding, origin"
@@ -334,23 +334,23 @@
         }
       },
       "request": {
-        "uri": "https://sindri.app/api/v1/proof/eb06b704-2aaf-4c0c-b46a-bb489e0b7337/detail",
+        "uri": "https://sindri.app/api/v1/proof/71090236-2ade-40e0-8e02-d9c1f45d5278/detail",
         "body": {
           "encoding": null,
           "string": ""
         },
         "method": "get",
         "headers": {
-          "user-agent": [
-            "OpenAPI-Generator/v0.0.0/rust"
-          ],
           "authorization": [
             "Bearer REDACTED_TOKEN"
+          ],
+          "user-agent": [
+            "OpenAPI-Generator/v0.0.0/rust"
           ]
         }
       },
-      "recorded_at": "Thu, 13 Mar 2025 00:12:24 +0000"
+      "recorded_at": "Wed, 11 Jun 2025 13:08:41 +0000"
     }
   ],
-  "recorded_with": "rVCR 0.2.1"
+  "recorded_with": "rVCR 0.2.3"
 }
