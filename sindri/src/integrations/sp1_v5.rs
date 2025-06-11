@@ -2,7 +2,7 @@ use crate::{
     types::{ProofInfo, ProofInfoResponse, ProofInput},
     CircuitInfoResponse, InternalProofInput,
 };
-use sp1_sdk_v4::{ProverClient, SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey};
+use sp1_sdk_v5::{ProverClient, SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey};
 
 /// Convert SP1Stdin to ProofInput type accepted by SindriClient proof generation methods
 impl TryFrom<SP1Stdin> for ProofInput {
