@@ -1,8 +1,8 @@
-diff --git a/openapi/src/apis/internal_api.rs b/openapi/src/apis/internal_api.rs
-index 1f37468..6cbbce3 100644
---- a/openapi/src/apis/internal_api.rs
-+++ b/openapi/src/apis/internal_api.rs
-@@ -1132,7 +1132,7 @@ pub async fn team_avatar_upload(
+diff --git a/openapi/src/apis/internal_teams_api.rs b/openapi/src/apis/internal_teams_api.rs
+index 1414400..69f2fd8 100644
+--- a/openapi/src/apis/internal_teams_api.rs
++++ b/openapi/src/apis/internal_teams_api.rs
+@@ -87,7 +87,7 @@ pub async fn team_avatar_upload(
      files: Vec<std::path::PathBuf>,
  ) -> Result<models::TeamMeResponse, Error<TeamAvatarUploadError>> {
      // add a prefix to parameters to efficiently prevent name collisions
@@ -11,7 +11,7 @@ index 1f37468..6cbbce3 100644
  
      let uri_str = format!("{}/api/v1/team/avatar/upload", configuration.base_path);
      let mut req_builder = configuration
-@@ -1148,7 +1148,7 @@ pub async fn team_avatar_upload(
+@@ -103,7 +103,7 @@ pub async fn team_avatar_upload(
      if let Some(ref token) = configuration.bearer_access_token {
          req_builder = req_builder.bearer_auth(token.to_owned());
      };

@@ -1,0 +1,40 @@
+diff --git a/openapi/src/apis/internal_circuits_api.rs b/openapi/src/apis/internal_circuits_api.rs
+index c4adede..c5bf891 100644
+--- a/openapi/src/apis/internal_circuits_api.rs
++++ b/openapi/src/apis/internal_circuits_api.rs
+@@ -56,7 +56,7 @@ pub async fn circuit_download(
+     configuration: &configuration::Configuration,
+     circuit_id: &str,
+     path: Option<&str>,
+-) -> Result<(), Error<CircuitDownloadError>> {
++) -> Result<reqwest::Response, Error<CircuitDownloadError>> {
+     // add a prefix to parameters to efficiently prevent name collisions
+     let p_circuit_id = circuit_id;
+     let p_path = path;
+@@ -87,7 +87,7 @@ pub async fn circuit_download(
+     let status = resp.status();
+ 
+     if !status.is_client_error() && !status.is_server_error() {
+-        Ok(())
++        Ok(resp)
+     } else {
+         let content = resp.text().await?;
+         let entity: Option<CircuitDownloadError> = serde_json::from_str(&content).ok();
+@@ -200,7 +200,7 @@ pub async fn circuit_smart_contract_verifier(
+ /// Get status for a specific circuit.
+ pub async fn circuit_status(
+     configuration: &configuration::Configuration,
+-    circuit_id: Option<&str>,
++    circuit_id: &str,
+ ) -> Result<models::CircuitStatusResponse, Error<CircuitStatusError>> {
+     // add a prefix to parameters to efficiently prevent name collisions
+     let p_circuit_id = circuit_id;
+@@ -208,7 +208,7 @@ pub async fn circuit_status(
+     let uri_str = format!(
+         "{}/api/v1/circuit/{circuit_id}/status",
+         configuration.base_path,
+-        circuit_id = crate::apis::urlencode(p_circuit_id.unwrap())
++        circuit_id = crate::apis::urlencode(p_circuit_id)
+     );
+     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+ 

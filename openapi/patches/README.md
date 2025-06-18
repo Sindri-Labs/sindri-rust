@@ -12,8 +12,10 @@ Removing `scripts/openapitools.json` and rerunning `./scripts/update-sdk.sh` wil
 | `circuit_creation.patch` | *Creates custom multipart form data | `src/apis/circuits_api.rs` |
 | `define_any_ltgt.patch` | *Defines `AnyOfLessThanGreaterThan` type (as `serde_json::Value`) | `src/models/mod.rs` |
 | `export_some_internals.patch` | Exports some internal types for use in `sindri` | `src/apis/mod.rs` |
-| `internal_api_lintfixes.patch` | *Manual fix for some cargo warnings | `src/apis/internal_api.rs` | 
+| `team_lint_fixes.patch` | *Manual fix for some cargo warnings | `src/apis/internal_teams.rs` | 
 | `no_circuit_response_nest.patch` | Circuit info is not nested by `circuit_type`, this patch removes the nesting | `src/models/circuit_info_response.rs` |
-| `rm_id_options_restore_download.patch` | *Identifiers should not be optional for path params | `src/apis/internal_api.rs` |
+| `circuit_status_fix.patch` | *Identifiers should not be optional for path params | `src/apis/internal_circuits_api.rs` |
+| `project_option_id_fix.patch` | *Identifiers should not be optional for path params | `src/apis/internal_projects_api.rs` |
 | `rm_proof_id_option.patch` | *Identifier should not be optional for path params | `src/apis/proofs_api.rs` |
+| `rm_circuid_id_option.patch` | *Identifier should not be optional for path params | `src/apis/circuits_api.rs` |
 | `two_input_modes.patch` | Allows automatic inference of proof input type from string or JSON | `src/models/proof_input.rs` |

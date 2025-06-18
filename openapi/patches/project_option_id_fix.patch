@@ -1,0 +1,22 @@
+diff --git a/openapi/src/apis/internal_projects_api.rs b/openapi/src/apis/internal_projects_api.rs
+index 20f01cc..79b377c 100644
+--- a/openapi/src/apis/internal_projects_api.rs
++++ b/openapi/src/apis/internal_projects_api.rs
+@@ -480,7 +480,7 @@ pub async fn project_proofs_paginated(
+ /// Update project settings.
+ pub async fn project_settings(
+     configuration: &configuration::Configuration,
+-    project_name: Option<&str>,
++    project_name: &str,
+     project_settings_input: models::ProjectSettingsInput,
+ ) -> Result<models::ProjectInfoResponse, Error<ProjectSettingsError>> {
+     // add a prefix to parameters to efficiently prevent name collisions
+@@ -490,7 +490,7 @@ pub async fn project_settings(
+     let uri_str = format!(
+         "{}/api/v1/project/{project_name}/settings",
+         configuration.base_path,
+-        project_name = crate::apis::urlencode(p_project_name.unwrap())
++        project_name = crate::apis::urlencode(p_project_name)
+     );
+     let mut req_builder = configuration
+         .client
