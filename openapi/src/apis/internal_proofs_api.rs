@@ -13,179 +13,191 @@ use crate::{apis::ResponseContent, models};
 use reqwest;
 use serde::{Deserialize, Serialize};
 
-/// struct for typed errors of method [`apikey_delete`]
+/// struct for typed errors of method [`proof_histogram`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyDeleteError {
-    Status404(models::ApiKeyDoesNotExistResponse),
+pub enum ProofHistogramError {
     Status500(models::SindriInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`apikey_generate`]
+/// struct for typed errors of method [`proof_list`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyGenerateError {
-    Status400(models::SindriValueErrorResponse),
-    Status403(models::ApiKeyErrorResponse),
-    Status401(models::ApiKeyErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`apikey_generate_with_auth`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ApikeyGenerateWithAuthError {
-    Status400(models::SindriValueErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`apikey_list`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ApikeyListError {
+pub enum ProofListError {
     Status500(models::SindriInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// Delete a specific API key.
-pub async fn apikey_delete(
+/// struct for typed errors of method [`proof_list_paginated`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ProofListPaginatedError {
+    Status500(models::SindriInternalErrorResponse),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`proof_status`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ProofStatusError {
+    Status404(models::ProofDoesNotExistResponse),
+    Status500(models::SindriInternalErrorResponse),
+    UnknownValue(serde_json::Value),
+}
+
+/// Get histogram data for a team's proofs.
+pub async fn proof_histogram(
     configuration: &configuration::Configuration,
-    apikey_id: Option<&str>,
-) -> Result<models::ActionResponse, Error<ApikeyDeleteError>> {
+    proof_histogram_input: models::ProofHistogramInput,
+) -> Result<models::ProofHistogramResponse, Error<ProofHistogramError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_apikey_id = apikey_id;
+    let p_proof_histogram_input = proof_histogram_input;
+
+    let uri_str = format!("{}/api/v1/proof/histogram", configuration.base_path);
+    let mut req_builder = configuration
+        .client
+        .request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    req_builder = req_builder.json(&p_proof_histogram_input);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ProofHistogramError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// List proofs for the requesting team.
+pub async fn proof_list(
+    configuration: &configuration::Configuration,
+    proof_list_input: models::ProofListInput,
+) -> Result<Vec<models::ProofInfoResponse>, Error<ProofListError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_proof_list_input = proof_list_input;
+
+    let uri_str = format!("{}/api/v1/proof/list", configuration.base_path);
+    let mut req_builder = configuration
+        .client
+        .request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    req_builder = req_builder.json(&p_proof_list_input);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ProofListError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// List proofs for the requesting team.
+pub async fn proof_list_paginated(
+    configuration: &configuration::Configuration,
+    proof_list_input: models::ProofListInput,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<models::PagedProofInfoResponse, Error<ProofListPaginatedError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_proof_list_input = proof_list_input;
+    let p_limit = limit;
+    let p_offset = offset;
+
+    let uri_str = format!("{}/api/v1/proof/list/paginated", configuration.base_path);
+    let mut req_builder = configuration
+        .client
+        .request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = p_limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = p_offset {
+        req_builder = req_builder.query(&[("offset", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    req_builder = req_builder.json(&p_proof_list_input);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ProofListPaginatedError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Get status for a specific proof.
+pub async fn proof_status(
+    configuration: &configuration::Configuration,
+    proof_id: &str,
+) -> Result<models::ProofStatusResponse, Error<ProofStatusError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_proof_id = proof_id;
 
     let uri_str = format!(
-        "{}/api/v1/apikey/{apikey_id}/delete",
+        "{}/api/v1/proof/{proof_id}/status",
         configuration.base_path,
-        apikey_id = crate::apis::urlencode(p_apikey_id.unwrap())
+        proof_id = crate::apis::urlencode(p_proof_id)
     );
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ApikeyDeleteError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// Generates a long-term API Key from your account's username and password.
-pub async fn apikey_generate(
-    configuration: &configuration::Configuration,
-    obtain_apikey_input: models::ObtainApikeyInput,
-    sindri_team_id: Option<&str>,
-) -> Result<models::ApiKeyResponse, Error<ApikeyGenerateError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_obtain_apikey_input = obtain_apikey_input;
-    let p_sindri_team_id = sindri_team_id;
-
-    let uri_str = format!("{}/api/apikey/generate", configuration.base_path);
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(param_value) = p_sindri_team_id {
-        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
-    }
-    req_builder = req_builder.json(&p_obtain_apikey_input);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ApikeyGenerateError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// Generate an API key for the requesting team.
-pub async fn apikey_generate_with_auth(
-    configuration: &configuration::Configuration,
-    name: Option<&str>,
-) -> Result<models::ApiKeyResponse, Error<ApikeyGenerateWithAuthError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_name = name;
-
-    let uri_str = format!("{}/api/v1/apikey/generate", configuration.base_path);
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_name {
-        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ApikeyGenerateWithAuthError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// List API keys for the requesting team.
-pub async fn apikey_list(
-    configuration: &configuration::Configuration,
-) -> Result<Vec<models::ApiKeyResponse>, Error<ApikeyListError>> {
-    let uri_str = format!("{}/api/v1/apikey/list", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -208,7 +220,7 @@ pub async fn apikey_list(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyListError> = serde_json::from_str(&content).ok();
+        let entity: Option<ProofStatusError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,

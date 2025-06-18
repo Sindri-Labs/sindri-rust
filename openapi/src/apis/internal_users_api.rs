@@ -13,98 +13,46 @@ use crate::{apis::ResponseContent, models};
 use reqwest;
 use serde::{Deserialize, Serialize};
 
-/// struct for typed errors of method [`apikey_delete`]
+/// struct for typed errors of method [`user_login`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyDeleteError {
-    Status404(models::ApiKeyDoesNotExistResponse),
-    Status500(models::SindriInternalErrorResponse),
+pub enum UserLoginError {
+    Status403(models::SessionAuthErrorResponse),
+    Status401(models::SessionAuthErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`apikey_generate`]
+/// struct for typed errors of method [`user_logout`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyGenerateError {
-    Status400(models::SindriValueErrorResponse),
-    Status403(models::ApiKeyErrorResponse),
-    Status401(models::ApiKeyErrorResponse),
+pub enum UserLogoutError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`apikey_generate_with_auth`]
+/// struct for typed errors of method [`user_me`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyGenerateWithAuthError {
-    Status400(models::SindriValueErrorResponse),
+pub enum UserMeError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`apikey_list`]
+/// struct for typed errors of method [`user_password`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyListError {
-    Status500(models::SindriInternalErrorResponse),
+pub enum UserPasswordError {
+    Status422(models::ValidationErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// Delete a specific API key.
-pub async fn apikey_delete(
+/// Login a user.
+pub async fn user_login(
     configuration: &configuration::Configuration,
-    apikey_id: Option<&str>,
-) -> Result<models::ActionResponse, Error<ApikeyDeleteError>> {
+    user_login_input: models::UserLoginInput,
+) -> Result<models::ActionResponse, Error<UserLoginError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_apikey_id = apikey_id;
+    let p_user_login_input = user_login_input;
 
-    let uri_str = format!(
-        "{}/api/v1/apikey/{apikey_id}/delete",
-        configuration.base_path,
-        apikey_id = crate::apis::urlencode(p_apikey_id.unwrap())
-    );
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ApikeyDeleteError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// Generates a long-term API Key from your account's username and password.
-pub async fn apikey_generate(
-    configuration: &configuration::Configuration,
-    obtain_apikey_input: models::ObtainApikeyInput,
-    sindri_team_id: Option<&str>,
-) -> Result<models::ApiKeyResponse, Error<ApikeyGenerateError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_obtain_apikey_input = obtain_apikey_input;
-    let p_sindri_team_id = sindri_team_id;
-
-    let uri_str = format!("{}/api/apikey/generate", configuration.base_path);
+    let uri_str = format!("{}/api/v1/user/login", configuration.base_path);
     let mut req_builder = configuration
         .client
         .request(reqwest::Method::POST, &uri_str);
@@ -112,10 +60,7 @@ pub async fn apikey_generate(
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(param_value) = p_sindri_team_id {
-        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
-    }
-    req_builder = req_builder.json(&p_obtain_apikey_input);
+    req_builder = req_builder.json(&p_user_login_input);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -127,7 +72,7 @@ pub async fn apikey_generate(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyGenerateError> = serde_json::from_str(&content).ok();
+        let entity: Option<UserLoginError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -136,31 +81,18 @@ pub async fn apikey_generate(
     }
 }
 
-/// Generate an API key for the requesting team.
-pub async fn apikey_generate_with_auth(
+/// Logout a user.
+pub async fn user_logout(
     configuration: &configuration::Configuration,
-    name: Option<&str>,
-) -> Result<models::ApiKeyResponse, Error<ApikeyGenerateWithAuthError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_name = name;
-
-    let uri_str = format!("{}/api/v1/apikey/generate", configuration.base_path);
+) -> Result<models::ActionResponse, Error<UserLogoutError>> {
+    let uri_str = format!("{}/api/v1/user/logout", configuration.base_path);
     let mut req_builder = configuration
         .client
         .request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = p_name {
-        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
-    }
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -172,7 +104,7 @@ pub async fn apikey_generate_with_auth(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyGenerateWithAuthError> = serde_json::from_str(&content).ok();
+        let entity: Option<UserLogoutError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -181,11 +113,11 @@ pub async fn apikey_generate_with_auth(
     }
 }
 
-/// List API keys for the requesting team.
-pub async fn apikey_list(
+/// Obtain user details. Requires user authentication.
+pub async fn user_me(
     configuration: &configuration::Configuration,
-) -> Result<Vec<models::ApiKeyResponse>, Error<ApikeyListError>> {
-    let uri_str = format!("{}/api/v1/apikey/list", configuration.base_path);
+) -> Result<models::UserMeResponse, Error<UserMeError>> {
+    let uri_str = format!("{}/api/v1/user/me", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -194,9 +126,6 @@ pub async fn apikey_list(
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -208,7 +137,47 @@ pub async fn apikey_list(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyListError> = serde_json::from_str(&content).ok();
+        let entity: Option<UserMeError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Change user password. Requires user authentication.
+pub async fn user_password(
+    configuration: &configuration::Configuration,
+    password_change_input: models::PasswordChangeInput,
+) -> Result<models::ActionResponse, Error<UserPasswordError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_password_change_input = password_change_input;
+
+    let uri_str = format!("{}/api/v1/user/password", configuration.base_path);
+    let mut req_builder = configuration
+        .client
+        .request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    req_builder = req_builder.json(&p_password_change_input);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<UserPasswordError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,

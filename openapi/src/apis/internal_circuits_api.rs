@@ -13,58 +13,64 @@ use crate::{apis::ResponseContent, models};
 use reqwest;
 use serde::{Deserialize, Serialize};
 
-/// struct for typed errors of method [`apikey_delete`]
+/// struct for typed errors of method [`circuit_download`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyDeleteError {
-    Status404(models::ApiKeyDoesNotExistResponse),
+pub enum CircuitDownloadError {
+    Status404(),
     Status500(models::SindriInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`apikey_generate`]
+/// struct for typed errors of method [`circuit_proofs_paginated`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ApikeyGenerateError {
-    Status400(models::SindriValueErrorResponse),
-    Status403(models::ApiKeyErrorResponse),
-    Status401(models::ApiKeyErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`apikey_generate_with_auth`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ApikeyGenerateWithAuthError {
-    Status400(models::SindriValueErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`apikey_list`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ApikeyListError {
+pub enum CircuitProofsPaginatedError {
+    Status404(models::CircuitDoesNotExistResponse),
     Status500(models::SindriInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// Delete a specific API key.
-pub async fn apikey_delete(
+/// struct for typed errors of method [`circuit_smart_contract_verifier`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CircuitSmartContractVerifierError {
+    Status404(models::CircuitDoesNotExistResponse),
+    Status409(models::CircuitIsNotReadyResponse),
+    Status500(models::SindriInternalErrorResponse),
+    Status501(models::ComingSoonResponse),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`circuit_status`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CircuitStatusError {
+    Status404(models::CircuitDoesNotExistResponse),
+    Status500(models::SindriInternalErrorResponse),
+    UnknownValue(serde_json::Value),
+}
+
+/// Obtain circuit file(s).
+pub async fn circuit_download(
     configuration: &configuration::Configuration,
-    apikey_id: Option<&str>,
-) -> Result<models::ActionResponse, Error<ApikeyDeleteError>> {
+    circuit_id: &str,
+    path: Option<&str>,
+) -> Result<(), Error<CircuitDownloadError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_apikey_id = apikey_id;
+    let p_circuit_id = circuit_id;
+    let p_path = path;
 
     let uri_str = format!(
-        "{}/api/v1/apikey/{apikey_id}/delete",
+        "{}/api/v1/circuit/{circuit_id}/download",
         configuration.base_path,
-        apikey_id = crate::apis::urlencode(p_apikey_id.unwrap())
+        circuit_id = crate::apis::urlencode(p_circuit_id)
     );
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::DELETE, &uri_str);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
+    if let Some(ref param_value) = p_path {
+        req_builder = req_builder.query(&[("path", &param_value.to_string())]);
+    }
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -81,11 +87,10 @@ pub async fn apikey_delete(
     let status = resp.status();
 
     if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
+        Ok(())
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyDeleteError> = serde_json::from_str(&content).ok();
+        let entity: Option<CircuitDownloadError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -94,28 +99,40 @@ pub async fn apikey_delete(
     }
 }
 
-/// Generates a long-term API Key from your account's username and password.
-pub async fn apikey_generate(
+/// List all proofs for a circuit.
+pub async fn circuit_proofs_paginated(
     configuration: &configuration::Configuration,
-    obtain_apikey_input: models::ObtainApikeyInput,
-    sindri_team_id: Option<&str>,
-) -> Result<models::ApiKeyResponse, Error<ApikeyGenerateError>> {
+    circuit_id: &str,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<models::PagedProofInfoResponse, Error<CircuitProofsPaginatedError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_obtain_apikey_input = obtain_apikey_input;
-    let p_sindri_team_id = sindri_team_id;
+    let p_circuit_id = circuit_id;
+    let p_limit = limit;
+    let p_offset = offset;
 
-    let uri_str = format!("{}/api/apikey/generate", configuration.base_path);
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::POST, &uri_str);
+    let uri_str = format!(
+        "{}/api/v1/circuit/{circuit_id}/proofs/paginated",
+        configuration.base_path,
+        circuit_id = crate::apis::urlencode(p_circuit_id)
+    );
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
+    if let Some(ref param_value) = p_limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = p_offset {
+        req_builder = req_builder.query(&[("offset", &param_value.to_string())]);
+    }
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(param_value) = p_sindri_team_id {
-        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
-    }
-    req_builder = req_builder.json(&p_obtain_apikey_input);
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -127,7 +144,7 @@ pub async fn apikey_generate(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyGenerateError> = serde_json::from_str(&content).ok();
+        let entity: Option<CircuitProofsPaginatedError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -136,56 +153,19 @@ pub async fn apikey_generate(
     }
 }
 
-/// Generate an API key for the requesting team.
-pub async fn apikey_generate_with_auth(
+/// Get smart contract verifier for existing circuit
+pub async fn circuit_smart_contract_verifier(
     configuration: &configuration::Configuration,
-    name: Option<&str>,
-) -> Result<models::ApiKeyResponse, Error<ApikeyGenerateWithAuthError>> {
+    circuit_id: &str,
+) -> Result<models::SmartContractVerifierResponse, Error<CircuitSmartContractVerifierError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_name = name;
+    let p_circuit_id = circuit_id;
 
-    let uri_str = format!("{}/api/v1/apikey/generate", configuration.base_path);
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_name {
-        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ApikeyGenerateWithAuthError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// List API keys for the requesting team.
-pub async fn apikey_list(
-    configuration: &configuration::Configuration,
-) -> Result<Vec<models::ApiKeyResponse>, Error<ApikeyListError>> {
-    let uri_str = format!("{}/api/v1/apikey/list", configuration.base_path);
+    let uri_str = format!(
+        "{}/api/v1/circuit/{circuit_id}/smart_contract_verifier",
+        configuration.base_path,
+        circuit_id = crate::apis::urlencode(p_circuit_id)
+    );
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -208,7 +188,51 @@ pub async fn apikey_list(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ApikeyListError> = serde_json::from_str(&content).ok();
+        let entity: Option<CircuitSmartContractVerifierError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Get status for a specific circuit.
+pub async fn circuit_status(
+    configuration: &configuration::Configuration,
+    circuit_id: Option<&str>,
+) -> Result<models::CircuitStatusResponse, Error<CircuitStatusError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_circuit_id = circuit_id;
+
+    let uri_str = format!(
+        "{}/api/v1/circuit/{circuit_id}/status",
+        configuration.base_path,
+        circuit_id = crate::apis::urlencode(p_circuit_id.unwrap())
+    );
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CircuitStatusError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,

@@ -4,6 +4,11 @@ src/apis/authorization_api.rs
 src/apis/circuits_api.rs
 src/apis/configuration.rs
 src/apis/internal_api.rs
+src/apis/internal_circuits_api.rs
+src/apis/internal_projects_api.rs
+src/apis/internal_proofs_api.rs
+src/apis/internal_teams_api.rs
+src/apis/internal_users_api.rs
 src/apis/mod.rs
 src/apis/proofs_api.rs
 src/apis/token_api.rs

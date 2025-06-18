@@ -103,11 +103,12 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
 
 pub mod authorization_api;
 pub mod circuits_api;
-#[allow(dead_code)]
-mod internal_api;
-pub use internal_api::{
-    circuit_download, circuit_status, proof_status, user_me, CircuitStatusError, ProofStatusError,
-};
+pub mod internal_api;
+pub mod internal_circuits_api;
+pub mod internal_projects_api;
+pub mod internal_proofs_api;
+pub mod internal_teams_api;
+pub mod internal_users_api;
 pub mod proofs_api;
 pub mod token_api;
 

@@ -13,76 +13,83 @@ use crate::{apis::ResponseContent, models};
 use reqwest;
 use serde::{Deserialize, Serialize};
 
-/// struct for typed errors of method [`circuit_create`]
+/// struct for typed errors of method [`team_avatar_upload`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CircuitCreateError {
-    Status422(models::ValidationErrorResponse),
-    Status501(models::ComingSoonResponse),
-    Status500(models::SindriInternalErrorResponse),
+pub enum TeamAvatarUploadError {
     Status400(models::SindriInvalidUploadResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`circuit_delete`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CircuitDeleteError {
-    Status404(models::CircuitDoesNotExistResponse),
     Status500(models::SindriInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`circuit_detail`]
+/// struct for typed errors of method [`team_create`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CircuitDetailError {
-    Status404(models::CircuitDoesNotExistResponse),
+pub enum TeamCreateError {
+    Status400(models::SindriValueErrorResponse),
+    Status409(models::TeamAlreadyExistsResponse),
     Status500(models::SindriInternalErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`circuit_list`]
+/// struct for typed errors of method [`team_detail`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CircuitListError {
+pub enum TeamDetailError {
+    Status404(models::TeamDoesNotExistResponse),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`team_invite`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TeamInviteError {
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`team_me`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TeamMeError {
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`team_members`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TeamMembersError {
+    Status404(models::TeamDoesNotExistResponse),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`team_remove_member`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TeamRemoveMemberError {
+    Status403(),
+    Status404(),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`team_settings`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TeamSettingsError {
+    Status404(models::TeamDoesNotExistResponse),
     Status500(models::SindriInternalErrorResponse),
+    Status422(models::ValidationErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`circuit_proofs`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CircuitProofsError {
-    Status404(models::CircuitDoesNotExistResponse),
-    Status500(models::SindriInternalErrorResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`proof_create`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ProofCreateError {
-    Status404(models::CircuitDoesNotExistResponse),
-    Status409(models::CircuitIsNotReadyResponse),
-    Status400(models::ProofCannotBeCreatedResponse),
-    Status501(models::ComingSoonResponse),
-    UnknownValue(serde_json::Value),
-}
-
-/// Create a circuit.
-pub async fn circuit_create(
+/// Upload avatar for the team
+pub async fn team_avatar_upload(
     configuration: &configuration::Configuration,
-    files: Vec<u8>,
-    meta: Option<std::collections::HashMap<String, String>>,
-    tags: Option<Vec<String>>,
-) -> Result<models::CircuitInfoResponse, Error<CircuitCreateError>> {
+    files: Vec<std::path::PathBuf>,
+) -> Result<models::TeamMeResponse, Error<TeamAvatarUploadError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_files = files;
-    let p_meta = meta;
-    let p_tags = tags;
 
-    let uri_str = format!("{}/api/v1/circuit/create", configuration.base_path);
+    let uri_str = format!("{}/api/v1/team/avatar/upload", configuration.base_path);
     let mut req_builder = configuration
         .client
         .request(reqwest::Method::POST, &uri_str);
@@ -96,58 +103,9 @@ pub async fn circuit_create(
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    // Build the request body directly in order to avoid a streaming request
-    // that is incompatible with the retry middleware
-    let boundary = "----------------------------4ebf00fbcf09";
-    req_builder = req_builder.header(
-        "Content-Type",
-        format!("multipart/form-data; boundary={boundary}"),
-    );
-
-    let filename = "rust_sdk_upload.tar.gz";
-    let mut byte_string = Vec::new();
-    byte_string.extend_from_slice(
-        format!(
-            "--{boundary}\r\n\
-            Content-Disposition: form-data; name=\"files\"; filename=\"{filename}\"\r\n\
-            \r\n",
-        )
-        .as_bytes(),
-    );
-    byte_string.extend(p_files);
-    byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes()); // End of files
-    if let Some(p_tags) = p_tags {
-        for tag in p_tags {
-            byte_string.extend_from_slice(
-                format!(
-                    "--{boundary}\r\n\
-                    Content-Disposition: form-data; name=\"tags\"\r\n\
-                    \r\n\
-                    {tag}\r\n"
-                )
-                .as_bytes(),
-            );
-            byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
-            // End of tag
-        }
-    }
-    if let Some(p_meta) = p_meta {
-        let meta_json = serde_json::to_string(&p_meta)?;
-        byte_string.extend_from_slice(
-            format!(
-                "--{boundary}\r\n\
-           Content-Disposition: form-data; name=\"meta\"\r\n\
-           Content-Type: application/json\r\n\
-            \r\n\
-            {meta_json}\r\n"
-            )
-            .as_bytes(),
-        );
-        byte_string.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
-        // End of meta
-    }
-    let local_var_body = reqwest::Body::from(byte_string);
-    req_builder = req_builder.body(local_var_body);
+    let mut multipart_form = reqwest::multipart::Form::new();
+    // TODO: support file upload for 'files' parameter
+    req_builder = req_builder.multipart(multipart_form);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -159,7 +117,7 @@ pub async fn circuit_create(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<CircuitCreateError> = serde_json::from_str(&content).ok();
+        let entity: Option<TeamAvatarUploadError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -168,32 +126,31 @@ pub async fn circuit_create(
     }
 }
 
-/// Delete a circuit.
-pub async fn circuit_delete(
+/// Create a new team
+pub async fn team_create(
     configuration: &configuration::Configuration,
-    circuit_id: Option<&str>,
-) -> Result<models::ActionResponse, Error<CircuitDeleteError>> {
+    team_create_input: models::TeamCreateInput,
+    sindri_team_id: Option<&str>,
+) -> Result<models::TeamDetail, Error<TeamCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_circuit_id = circuit_id;
+    let p_team_create_input = team_create_input;
+    let p_sindri_team_id = sindri_team_id;
 
-    let uri_str = format!(
-        "{}/api/v1/circuit/{circuit_id}/delete",
-        configuration.base_path,
-        circuit_id = crate::apis::urlencode(p_circuit_id.unwrap())
-    );
+    let uri_str = format!("{}/api/v1/team/create", configuration.base_path);
     let mut req_builder = configuration
         .client
-        .request(reqwest::Method::DELETE, &uri_str);
+        .request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
+    if let Some(param_value) = p_sindri_team_id {
+        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
+    }
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
+    req_builder = req_builder.json(&p_team_create_input);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -205,7 +162,7 @@ pub async fn circuit_delete(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<CircuitDeleteError> = serde_json::from_str(&content).ok();
+        let entity: Option<TeamCreateError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -214,103 +171,18 @@ pub async fn circuit_delete(
     }
 }
 
-/// Get info for an existing circuit.
-pub async fn circuit_detail(
+/// Return details for the specified team
+pub async fn team_detail(
     configuration: &configuration::Configuration,
-    circuit_id: &str,
-    include_verification_key: Option<bool>,
-) -> Result<models::CircuitInfoResponse, Error<CircuitDetailError>> {
+    team_slug: &str,
+) -> Result<models::TeamDetail, Error<TeamDetailError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_circuit_id = circuit_id;
-    let p_include_verification_key = include_verification_key;
+    let p_team_slug = team_slug;
 
     let uri_str = format!(
-        "{}/api/v1/circuit/{circuit_id}/detail",
+        "{}/api/v1/team/{team_slug}/detail",
         configuration.base_path,
-        circuit_id = crate::apis::urlencode(p_circuit_id)
-    );
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_include_verification_key {
-        req_builder = req_builder.query(&[("include_verification_key", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CircuitDetailError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// List all circuits owned by team.
-pub async fn circuit_list(
-    configuration: &configuration::Configuration,
-) -> Result<Vec<models::CircuitInfoResponse>, Error<CircuitListError>> {
-    let uri_str = format!("{}/api/v1/circuit/list", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        serde_json::from_str(&content).map_err(Error::from)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CircuitListError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
-}
-
-/// List all proofs for a circuit.
-pub async fn circuit_proofs(
-    configuration: &configuration::Configuration,
-    circuit_id: &str,
-) -> Result<Vec<models::ProofInfoResponse>, Error<CircuitProofsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_circuit_id = circuit_id;
-
-    let uri_str = format!(
-        "{}/api/v1/circuit/{circuit_id}/proofs",
-        configuration.base_path,
-        circuit_id = crate::apis::urlencode(p_circuit_id)
+        team_slug = crate::apis::urlencode(p_team_slug)
     );
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
@@ -334,7 +206,7 @@ pub async fn circuit_proofs(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<CircuitProofsError> = serde_json::from_str(&content).ok();
+        let entity: Option<TeamDetailError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
@@ -343,21 +215,187 @@ pub async fn circuit_proofs(
     }
 }
 
-/// Prove a circuit with specific inputs.
-pub async fn proof_create(
+/// Invite an email address to join the specified team
+pub async fn team_invite(
     configuration: &configuration::Configuration,
-    circuit_id: &str,
-    circuit_prove_input: models::CircuitProveInput,
-) -> Result<models::ProofInfoResponse, Error<ProofCreateError>> {
+    team_invite_input: models::TeamInviteInput,
+    sindri_team_id: Option<&str>,
+) -> Result<models::ActionResponse, Error<TeamInviteError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_circuit_id = circuit_id;
-    let p_circuit_prove_input = circuit_prove_input;
+    let p_team_invite_input = team_invite_input;
+    let p_sindri_team_id = sindri_team_id;
+
+    let uri_str = format!("{}/api/v1/team/invite", configuration.base_path);
+    let mut req_builder = configuration
+        .client
+        .request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(param_value) = p_sindri_team_id {
+        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    req_builder = req_builder.json(&p_team_invite_input);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<TeamInviteError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Obtain team details for the currently authenticated team
+pub async fn team_me(
+    configuration: &configuration::Configuration,
+) -> Result<models::TeamMeResponse, Error<TeamMeError>> {
+    let uri_str = format!("{}/api/v1/team/me", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<TeamMeError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Return member list for the specified team
+pub async fn team_members(
+    configuration: &configuration::Configuration,
+    team_slug: &str,
+    sindri_team_id: Option<&str>,
+) -> Result<models::TeamMembersResponse, Error<TeamMembersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_team_slug = team_slug;
+    let p_sindri_team_id = sindri_team_id;
 
     let uri_str = format!(
-        "{}/api/v1/circuit/{circuit_id}/prove",
+        "{}/api/v1/team/{team_slug}/members",
         configuration.base_path,
-        circuit_id = crate::apis::urlencode(p_circuit_id)
+        team_slug = crate::apis::urlencode(p_team_slug)
     );
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(param_value) = p_sindri_team_id {
+        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<TeamMembersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Remove a user from the specified team. Revokes all team API keys if the removed user was the last team member.
+pub async fn team_remove_member(
+    configuration: &configuration::Configuration,
+    team_remove_member_input: models::TeamRemoveMemberInput,
+    sindri_team_id: Option<&str>,
+) -> Result<models::ActionResponse, Error<TeamRemoveMemberError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_team_remove_member_input = team_remove_member_input;
+    let p_sindri_team_id = sindri_team_id;
+
+    let uri_str = format!("{}/api/v1/team/remove-member", configuration.base_path);
+    let mut req_builder = configuration
+        .client
+        .request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(param_value) = p_sindri_team_id {
+        req_builder = req_builder.header("Sindri-Team-Id", param_value.to_string());
+    }
+    if let Some(ref token) = configuration.bearer_access_token {
+        req_builder = req_builder.bearer_auth(token.to_owned());
+    };
+    req_builder = req_builder.json(&p_team_remove_member_input);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        serde_json::from_str(&content).map_err(Error::from)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<TeamRemoveMemberError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent {
+            status,
+            content,
+            entity,
+        }))
+    }
+}
+
+/// Update team settings.
+pub async fn team_settings(
+    configuration: &configuration::Configuration,
+    team_settings_input: models::TeamSettingsInput,
+) -> Result<models::TeamDetail, Error<TeamSettingsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_team_settings_input = team_settings_input;
+
+    let uri_str = format!("{}/api/v1/team/settings", configuration.base_path);
     let mut req_builder = configuration
         .client
         .request(reqwest::Method::POST, &uri_str);
@@ -371,7 +409,7 @@ pub async fn proof_create(
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_circuit_prove_input);
+    req_builder = req_builder.json(&p_team_settings_input);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -383,7 +421,7 @@ pub async fn proof_create(
         serde_json::from_str(&content).map_err(Error::from)
     } else {
         let content = resp.text().await?;
-        let entity: Option<ProofCreateError> = serde_json::from_str(&content).ok();
+        let entity: Option<TeamSettingsError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent {
             status,
             content,
