@@ -109,6 +109,9 @@ pub mod internal_projects_api;
 pub mod internal_proofs_api;
 pub mod internal_teams_api;
 pub mod internal_users_api;
+pub use internal_circuits_api::{circuit_download, circuit_status, CircuitStatusError};
+pub use internal_proofs_api::{proof_status, ProofStatusError};
+pub use internal_users_api::user_me;
 pub mod proofs_api;
 pub mod token_api;
 

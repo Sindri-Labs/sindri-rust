@@ -1,17 +1,14 @@
 diff --git a/openapi/src/apis/mod.rs b/openapi/src/apis/mod.rs
-index 18c0d9d..9347831 100644
+index e2bbca5..f1ddc9a 100644
 --- a/openapi/src/apis/mod.rs
 +++ b/openapi/src/apis/mod.rs
-@@ -103,7 +103,11 @@ pub fn parse_deep_object(prefix: &str, value: &serde_json::Value) -> Vec<(String
- 
- pub mod authorization_api;
- pub mod circuits_api;
--pub mod internal_api;
-+#[allow(dead_code)]
-+mod internal_api;
-+pub use internal_api::{
-+    circuit_download, circuit_status, proof_status, user_me, CircuitStatusError, ProofStatusError,
-+};
+@@ -109,6 +109,9 @@ pub mod internal_projects_api;
+ pub mod internal_proofs_api;
+ pub mod internal_teams_api;
+ pub mod internal_users_api;
++pub use internal_circuits_api::{circuit_download, circuit_status, CircuitStatusError};
++pub use internal_proofs_api::{proof_status, ProofStatusError};
++pub use internal_users_api::user_me;
  pub mod proofs_api;
  pub mod token_api;
  
