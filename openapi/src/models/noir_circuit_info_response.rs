@@ -34,7 +34,7 @@ pub struct NoirCircuitInfoResponse {
     #[serde(rename = "meta")]
     pub meta: std::collections::HashMap<String, String>,
     #[serde(rename = "num_proofs", deserialize_with = "Option::deserialize")]
-    pub num_proofs: Option<i32>,
+    pub num_proofs: Option<i64>,
     /// The proving scheme for this circuit. This is specified during creation in the included sindri.json file.
     #[serde(rename = "proving_scheme")]
     pub proving_scheme: String,
@@ -72,7 +72,7 @@ pub struct NoirCircuitInfoResponse {
     #[serde(rename = "compute_times", deserialize_with = "Option::deserialize")]
     pub compute_times: Option<Box<models::AnyOfLessThanGreaterThan>>,
     #[serde(rename = "file_size", deserialize_with = "Option::deserialize")]
-    pub file_size: Option<i32>,
+    pub file_size: Option<i64>,
     #[serde(rename = "queue_time", deserialize_with = "Option::deserialize")]
     pub queue_time: Option<String>,
     #[serde(rename = "queue_time_sec", deserialize_with = "Option::deserialize")]
@@ -93,9 +93,9 @@ pub struct NoirCircuitInfoResponse {
     #[serde(rename = "error", deserialize_with = "Option::deserialize")]
     pub error: Option<String>,
     #[serde(rename = "acir_opcodes", deserialize_with = "Option::deserialize")]
-    pub acir_opcodes: Option<i32>,
+    pub acir_opcodes: Option<i64>,
     #[serde(rename = "circuit_size", deserialize_with = "Option::deserialize")]
-    pub circuit_size: Option<i32>,
+    pub circuit_size: Option<i64>,
     /// The elliptic curve over which the proving protocol takes place.
     #[serde(rename = "curve")]
     pub curve: String,
@@ -117,7 +117,7 @@ impl NoirCircuitInfoResponse {
         date_created: String,
         homepage: Option<String>,
         meta: std::collections::HashMap<String, String>,
-        num_proofs: Option<i32>,
+        num_proofs: Option<i64>,
         proving_scheme: String,
         public: bool,
         repository: Option<String>,
@@ -131,7 +131,7 @@ impl NoirCircuitInfoResponse {
         compute_time: Option<String>,
         compute_time_sec: Option<f64>,
         compute_times: Option<models::AnyOfLessThanGreaterThan>,
-        file_size: Option<i32>,
+        file_size: Option<i64>,
         queue_time: Option<String>,
         queue_time_sec: Option<f64>,
         uploaded_file_name: String,
@@ -140,8 +140,8 @@ impl NoirCircuitInfoResponse {
         verification_key: Option<serde_json::Value>,
         warnings: Option<Vec<String>>,
         error: Option<String>,
-        acir_opcodes: Option<i32>,
-        circuit_size: Option<i32>,
+        acir_opcodes: Option<i64>,
+        circuit_size: Option<i64>,
         curve: String,
         nargo_package_name: String,
         noir_version: String,

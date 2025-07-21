@@ -16,11 +16,11 @@ pub struct PagedProjectInfoResponse {
     #[serde(rename = "items")]
     pub items: Vec<models::ProjectInfoResponse>,
     #[serde(rename = "count")]
-    pub count: i32,
+    pub count: i64,
 }
 
 impl PagedProjectInfoResponse {
-    pub fn new(items: Vec<models::ProjectInfoResponse>, count: i32) -> PagedProjectInfoResponse {
+    pub fn new(items: Vec<models::ProjectInfoResponse>, count: i64) -> PagedProjectInfoResponse {
         PagedProjectInfoResponse { items, count }
     }
 }

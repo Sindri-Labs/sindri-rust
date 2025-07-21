@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UserMeResponse {
     #[serde(rename = "id")]
-    pub id: i32,
+    pub id: i64,
     #[serde(rename = "first_name")]
     pub first_name: String,
     #[serde(rename = "last_name")]
@@ -37,7 +37,7 @@ pub struct UserMeResponse {
 impl UserMeResponse {
     /// Details about the currently authenticated user.
     pub fn new(
-        id: i32,
+        id: i64,
         first_name: String,
         last_name: String,
         username: String,

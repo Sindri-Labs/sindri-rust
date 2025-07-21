@@ -34,7 +34,7 @@ pub struct CircomCircuitInfoResponse {
     #[serde(rename = "meta")]
     pub meta: std::collections::HashMap<String, String>,
     #[serde(rename = "num_proofs", deserialize_with = "Option::deserialize")]
-    pub num_proofs: Option<i32>,
+    pub num_proofs: Option<i64>,
     /// The proving scheme for this circuit. This is specified during creation in the included sindri.json file.
     #[serde(rename = "proving_scheme")]
     pub proving_scheme: String,
@@ -72,7 +72,7 @@ pub struct CircomCircuitInfoResponse {
     #[serde(rename = "compute_times", deserialize_with = "Option::deserialize")]
     pub compute_times: Option<Box<models::AnyOfLessThanGreaterThan>>,
     #[serde(rename = "file_size", deserialize_with = "Option::deserialize")]
-    pub file_size: Option<i32>,
+    pub file_size: Option<i64>,
     #[serde(rename = "queue_time", deserialize_with = "Option::deserialize")]
     pub queue_time: Option<String>,
     #[serde(rename = "queue_time_sec", deserialize_with = "Option::deserialize")]
@@ -96,16 +96,16 @@ pub struct CircomCircuitInfoResponse {
     #[serde(rename = "curve")]
     pub curve: String,
     #[serde(rename = "num_constraints", deserialize_with = "Option::deserialize")]
-    pub num_constraints: Option<i32>,
+    pub num_constraints: Option<i64>,
     #[serde(rename = "num_outputs", deserialize_with = "Option::deserialize")]
-    pub num_outputs: Option<i32>,
+    pub num_outputs: Option<i64>,
     #[serde(
         rename = "num_private_inputs",
         deserialize_with = "Option::deserialize"
     )]
-    pub num_private_inputs: Option<i32>,
+    pub num_private_inputs: Option<i64>,
     #[serde(rename = "num_public_inputs", deserialize_with = "Option::deserialize")]
-    pub num_public_inputs: Option<i32>,
+    pub num_public_inputs: Option<i64>,
 }
 
 impl CircomCircuitInfoResponse {
@@ -118,7 +118,7 @@ impl CircomCircuitInfoResponse {
         date_created: String,
         homepage: Option<String>,
         meta: std::collections::HashMap<String, String>,
-        num_proofs: Option<i32>,
+        num_proofs: Option<i64>,
         proving_scheme: String,
         public: bool,
         repository: Option<String>,
@@ -132,7 +132,7 @@ impl CircomCircuitInfoResponse {
         compute_time: Option<String>,
         compute_time_sec: Option<f64>,
         compute_times: Option<models::AnyOfLessThanGreaterThan>,
-        file_size: Option<i32>,
+        file_size: Option<i64>,
         queue_time: Option<String>,
         queue_time_sec: Option<f64>,
         uploaded_file_name: String,
@@ -142,10 +142,10 @@ impl CircomCircuitInfoResponse {
         warnings: Option<Vec<String>>,
         error: Option<String>,
         curve: String,
-        num_constraints: Option<i32>,
-        num_outputs: Option<i32>,
-        num_private_inputs: Option<i32>,
-        num_public_inputs: Option<i32>,
+        num_constraints: Option<i64>,
+        num_outputs: Option<i64>,
+        num_private_inputs: Option<i64>,
+        num_public_inputs: Option<i64>,
     ) -> CircomCircuitInfoResponse {
         CircomCircuitInfoResponse {
             circuit_id,

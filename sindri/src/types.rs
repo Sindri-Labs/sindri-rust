@@ -14,11 +14,11 @@ pub trait CircuitInfo {
     fn compute_time_sec(&self) -> Option<f64>;
     fn date_created(&self) -> &str;
     fn error(&self) -> Option<String>;
-    fn file_size(&self) -> Option<i32>;
+    fn file_size(&self) -> Option<i64>;
     fn finished_processing(&self) -> bool;
     fn id(&self) -> &str;
     fn meta(&self) -> &HashMap<String, String>;
-    fn num_proofs(&self) -> Option<i32>;
+    fn num_proofs(&self) -> Option<i64>;
     fn project_name(&self) -> &str;
     fn proving_scheme(&self) -> &str;
     fn queue_time_sec(&self) -> Option<f64>;
@@ -55,7 +55,7 @@ macro_rules! impl_circuit_info {
                 }
             }
 
-            fn file_size(&self) -> Option<i32> {
+            fn file_size(&self) -> Option<i64> {
                 match self {
                     $(
                         CircuitInfoResponse::$variant(response) => response.file_size,
@@ -87,7 +87,7 @@ macro_rules! impl_circuit_info {
                 }
             }
 
-            fn num_proofs(&self) -> Option<i32> {
+            fn num_proofs(&self) -> Option<i64> {
                 match self {
                     $(
                         CircuitInfoResponse::$variant(response) => response.num_proofs,
@@ -258,7 +258,7 @@ mod tests {
             compute_time_sec: Some(42.5),
             date_created: "2025-01-01".to_string(),
             error: Some("test error".to_string()),
-            file_size: Some(1000),
+            file_size: Some(4000000000),
             finished_processing: true,
             meta: HashMap::from([("key".to_string(), "value".to_string())]),
             num_proofs: Some(3),
