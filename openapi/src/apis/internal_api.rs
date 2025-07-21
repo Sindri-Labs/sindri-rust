@@ -285,7 +285,7 @@ pub async fn circuit_download(
     configuration: &configuration::Configuration,
     circuit_id: &str,
     path: Option<&str>,
-) -> Result<(), Error<CircuitDownloadError>> {
+) -> Result<reqwest::Response, Error<CircuitDownloadError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_circuit_id = circuit_id;
     let p_path = path;
@@ -316,7 +316,7 @@ pub async fn circuit_download(
     let status = resp.status();
 
     if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
+        Ok(resp)
     } else {
         let content = resp.text().await?;
         let entity: Option<CircuitDownloadError> = serde_json::from_str(&content).ok();
@@ -429,7 +429,7 @@ pub async fn circuit_smart_contract_verifier(
 /// Get status for a specific circuit.
 pub async fn circuit_status(
     configuration: &configuration::Configuration,
-    circuit_id: Option<&str>,
+    circuit_id: &str,
 ) -> Result<models::CircuitStatusResponse, Error<CircuitStatusError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_circuit_id = circuit_id;
@@ -437,7 +437,7 @@ pub async fn circuit_status(
     let uri_str = format!(
         "{}/api/v1/circuit/{circuit_id}/status",
         configuration.base_path,
-        circuit_id = crate::apis::urlencode(p_circuit_id.unwrap())
+        circuit_id = crate::apis::urlencode(p_circuit_id)
     );
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
@@ -895,7 +895,7 @@ pub async fn project_proofs_paginated(
 /// Update project settings.
 pub async fn project_settings(
     configuration: &configuration::Configuration,
-    project_name: Option<&str>,
+    project_name: &str,
     project_settings_input: models::ProjectSettingsInput,
 ) -> Result<models::ProjectInfoResponse, Error<ProjectSettingsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
@@ -905,7 +905,7 @@ pub async fn project_settings(
     let uri_str = format!(
         "{}/api/v1/project/{project_name}/settings",
         configuration.base_path,
-        project_name = crate::apis::urlencode(p_project_name.unwrap())
+        project_name = crate::apis::urlencode(p_project_name)
     );
     let mut req_builder = configuration
         .client
