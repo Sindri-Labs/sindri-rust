@@ -34,7 +34,7 @@ pub struct ProjectInfoResponse {
     #[serde(rename = "name")]
     pub name: String,
     #[serde(rename = "num_proofs", deserialize_with = "Option::deserialize")]
-    pub num_proofs: Option<i32>,
+    pub num_proofs: Option<i64>,
     /// A unique identifier generated for the project. UUID4 format.
     #[serde(rename = "project_id")]
     pub project_id: String,
@@ -62,7 +62,7 @@ impl ProjectInfoResponse {
         is_public: bool,
         labels: Vec<String>,
         name: String,
-        num_proofs: Option<i32>,
+        num_proofs: Option<i64>,
         project_id: String,
         tags: Vec<String>,
         team: String,

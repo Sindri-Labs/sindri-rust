@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 pub struct ProofHistogramInput {
     /// The bin size in seconds.
     #[serde(rename = "bin_size", skip_serializing_if = "Option::is_none")]
-    pub bin_size: Option<i32>,
+    pub bin_size: Option<i64>,
     /// Limit to proofs created on/after this timezone-aware, ISO8601 formatted time.
     #[serde(rename = "start_time")]
     pub start_time: String,

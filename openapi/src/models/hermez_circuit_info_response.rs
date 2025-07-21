@@ -34,7 +34,7 @@ pub struct HermezCircuitInfoResponse {
     #[serde(rename = "meta")]
     pub meta: std::collections::HashMap<String, String>,
     #[serde(rename = "num_proofs", deserialize_with = "Option::deserialize")]
-    pub num_proofs: Option<i32>,
+    pub num_proofs: Option<i64>,
     /// The proving scheme for this circuit. This is specified during creation in the included sindri.json file.
     #[serde(rename = "proving_scheme")]
     pub proving_scheme: String,
@@ -72,7 +72,7 @@ pub struct HermezCircuitInfoResponse {
     #[serde(rename = "compute_times", deserialize_with = "Option::deserialize")]
     pub compute_times: Option<Box<models::AnyOfLessThanGreaterThan>>,
     #[serde(rename = "file_size", deserialize_with = "Option::deserialize")]
-    pub file_size: Option<i32>,
+    pub file_size: Option<i64>,
     #[serde(rename = "queue_time", deserialize_with = "Option::deserialize")]
     pub queue_time: Option<String>,
     #[serde(rename = "queue_time_sec", deserialize_with = "Option::deserialize")]
@@ -106,7 +106,7 @@ impl HermezCircuitInfoResponse {
         date_created: String,
         homepage: Option<String>,
         meta: std::collections::HashMap<String, String>,
-        num_proofs: Option<i32>,
+        num_proofs: Option<i64>,
         proving_scheme: String,
         public: bool,
         repository: Option<String>,
@@ -120,7 +120,7 @@ impl HermezCircuitInfoResponse {
         compute_time: Option<String>,
         compute_time_sec: Option<f64>,
         compute_times: Option<models::AnyOfLessThanGreaterThan>,
-        file_size: Option<i32>,
+        file_size: Option<i64>,
         queue_time: Option<String>,
         queue_time_sec: Option<f64>,
         uploaded_file_name: String,

@@ -16,11 +16,11 @@ pub struct PagedCircuitInfoResponse {
     #[serde(rename = "items")]
     pub items: Vec<models::CircuitInfoResponse>,
     #[serde(rename = "count")]
-    pub count: i32,
+    pub count: i64,
 }
 
 impl PagedCircuitInfoResponse {
-    pub fn new(items: Vec<models::CircuitInfoResponse>, count: i32) -> PagedCircuitInfoResponse {
+    pub fn new(items: Vec<models::CircuitInfoResponse>, count: i64) -> PagedCircuitInfoResponse {
         PagedCircuitInfoResponse { items, count }
     }
 }

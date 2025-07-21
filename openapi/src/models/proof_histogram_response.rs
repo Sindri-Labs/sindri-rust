@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 pub struct ProofHistogramResponse {
     /// The bin size in seconds.
     #[serde(rename = "bin_size")]
-    pub bin_size: i32,
+    pub bin_size: i64,
     /// A list of dictionaries in the format:</br>                 ```                  {                      'bin': '2021-01-01T00:00:00Z',                      'ready': 2,                      'failed': 1,                      'in_progress': 3,                      'queued': 4,                  }                  ```</br>                  where 'bin' is an ISO8601 timestamp indicating the start                  of the bin, and proof status keys (e.g. 'ready') indicating                  the number of proofs with that status in the bin.
     #[serde(rename = "data")]
     pub data: Vec<serde_json::Value>,
@@ -31,7 +31,7 @@ pub struct ProofHistogramResponse {
 impl ProofHistogramResponse {
     /// Response for producing proof histograms.
     pub fn new(
-        bin_size: i32,
+        bin_size: i64,
         data: Vec<serde_json::Value>,
         end_time: String,
         start_time: String,

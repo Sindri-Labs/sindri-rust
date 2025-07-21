@@ -26,7 +26,7 @@ pub struct TeamDetail {
     #[serde(rename = "github_url")]
     pub github_url: String,
     #[serde(rename = "id")]
-    pub id: i32,
+    pub id: i64,
     /// Whether the team is a personal team.
     #[serde(rename = "is_personal")]
     pub is_personal: bool,
@@ -35,9 +35,9 @@ pub struct TeamDetail {
     pub name: String,
     /// The number of projects owned by the team.
     #[serde(rename = "num_projects")]
-    pub num_projects: i32,
+    pub num_projects: i64,
     #[serde(rename = "num_proofs", deserialize_with = "Option::deserialize")]
-    pub num_proofs: Option<i32>,
+    pub num_proofs: Option<i64>,
     /// Whether the team is a Sindri corporate team.
     #[serde(rename = "sindri_corporate")]
     pub sindri_corporate: bool,
@@ -59,11 +59,11 @@ impl TeamDetail {
         date_created: String,
         description: String,
         github_url: String,
-        id: i32,
+        id: i64,
         is_personal: bool,
         name: String,
-        num_projects: i32,
-        num_proofs: Option<i32>,
+        num_projects: i64,
+        num_proofs: Option<i64>,
         sindri_corporate: bool,
         slug: String,
         twitter_url: String,

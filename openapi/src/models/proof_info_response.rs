@@ -94,7 +94,7 @@ pub struct ProofInfoResponse {
         with = "::serde_with::rust::double_option",
         skip_serializing_if = "Option::is_none"
     )]
-    pub file_size: Option<Option<i32>>,
+    pub file_size: Option<Option<i64>>,
     #[serde(
         rename = "proof",
         default,
