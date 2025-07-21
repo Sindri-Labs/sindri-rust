@@ -258,7 +258,7 @@ mod tests {
             compute_time_sec: Some(42.5),
             date_created: "2025-01-01".to_string(),
             error: Some("test error".to_string()),
-            file_size: Some(1000),
+            file_size: Some(4000000000),
             finished_processing: true,
             meta: HashMap::from([("key".to_string(), "value".to_string())]),
             num_proofs: Some(3),
