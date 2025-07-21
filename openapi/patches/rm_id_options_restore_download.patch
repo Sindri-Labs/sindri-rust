@@ -1,29 +1,17 @@
 diff --git a/openapi/src/apis/internal_api.rs b/openapi/src/apis/internal_api.rs
-index e53c0c6..1f37468 100644
+index 8c4d8fb..3ab8ac3 100644
 --- a/openapi/src/apis/internal_api.rs
 +++ b/openapi/src/apis/internal_api.rs
-@@ -249,9 +249,9 @@ pub enum UserMeWithJwtAuthError {
- /// Obtain circuit file(s).
- pub async fn circuit_download(
+@@ -285,7 +285,7 @@ pub async fn circuit_download(
      configuration: &configuration::Configuration,
--    circuit_id: Option<&str>,
-+    circuit_id: &str,
+     circuit_id: &str,
      path: Option<&str>,
 -) -> Result<(), Error<CircuitDownloadError>> {
 +) -> Result<reqwest::Response, Error<CircuitDownloadError>> {
      // add a prefix to parameters to efficiently prevent name collisions
      let p_circuit_id = circuit_id;
      let p_path = path;
-@@ -259,7 +259,7 @@ pub async fn circuit_download(
-     let uri_str = format!(
-         "{}/api/v1/circuit/{circuit_id}/download",
-         configuration.base_path,
--        circuit_id = crate::apis::urlencode(p_circuit_id.unwrap())
-+        circuit_id = crate::apis::urlencode(p_circuit_id)
-     );
-     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
- 
-@@ -282,7 +282,7 @@ pub async fn circuit_download(
+@@ -316,7 +316,7 @@ pub async fn circuit_download(
      let status = resp.status();
  
      if !status.is_client_error() && !status.is_server_error() {
@@ -32,7 +20,7 @@ index e53c0c6..1f37468 100644
      } else {
          let content = resp.text().await?;
          let entity: Option<CircuitDownloadError> = serde_json::from_str(&content).ok();
-@@ -395,7 +395,7 @@ pub async fn circuit_smart_contract_verifier(
+@@ -429,7 +429,7 @@ pub async fn circuit_smart_contract_verifier(
  /// Get status for a specific circuit.
  pub async fn circuit_status(
      configuration: &configuration::Configuration,
@@ -41,7 +29,7 @@ index e53c0c6..1f37468 100644
  ) -> Result<models::CircuitStatusResponse, Error<CircuitStatusError>> {
      // add a prefix to parameters to efficiently prevent name collisions
      let p_circuit_id = circuit_id;
-@@ -403,7 +403,7 @@ pub async fn circuit_status(
+@@ -437,7 +437,7 @@ pub async fn circuit_status(
      let uri_str = format!(
          "{}/api/v1/circuit/{circuit_id}/status",
          configuration.base_path,
@@ -50,25 +38,7 @@ index e53c0c6..1f37468 100644
      );
      let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
  
-@@ -482,7 +482,7 @@ pub async fn password_change_with_jwt_auth(
- /// List all circuits for a project.
- pub async fn project_circuits(
-     configuration: &configuration::Configuration,
--    project_id: Option<&str>,
-+    project_id: &str,
- ) -> Result<Vec<models::CircuitInfoResponse>, Error<ProjectCircuitsError>> {
-     // add a prefix to parameters to efficiently prevent name collisions
-     let p_project_id = project_id;
-@@ -490,7 +490,7 @@ pub async fn project_circuits(
-     let uri_str = format!(
-         "{}/api/v1/project/{project_id}/circuits",
-         configuration.base_path,
--        project_id = crate::apis::urlencode(p_project_id.unwrap())
-+        project_id = crate::apis::urlencode(p_project_id)
-     );
-     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
- 
-@@ -864,7 +864,7 @@ pub async fn project_proofs_paginated(
+@@ -895,7 +895,7 @@ pub async fn project_proofs_paginated(
  /// Update project settings.
  pub async fn project_settings(
      configuration: &configuration::Configuration,
@@ -77,7 +47,7 @@ index e53c0c6..1f37468 100644
      project_settings_input: models::ProjectSettingsInput,
  ) -> Result<models::ProjectInfoResponse, Error<ProjectSettingsError>> {
      // add a prefix to parameters to efficiently prevent name collisions
-@@ -874,7 +874,7 @@ pub async fn project_settings(
+@@ -905,7 +905,7 @@ pub async fn project_settings(
      let uri_str = format!(
          "{}/api/v1/project/{project_name}/settings",
          configuration.base_path,

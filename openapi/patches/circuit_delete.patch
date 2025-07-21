@@ -1,0 +1,22 @@
+diff --git a/openapi/src/apis/circuits_api.rs b/openapi/src/apis/circuits_api.rs
+index c3b2e13..0ec1b9a 100644
+--- a/openapi/src/apis/circuits_api.rs
++++ b/openapi/src/apis/circuits_api.rs
+@@ -171,7 +171,7 @@ pub async fn circuit_create(
+ /// Delete a circuit.
+ pub async fn circuit_delete(
+     configuration: &configuration::Configuration,
+-    circuit_id: Option<&str>,
++    circuit_id: &str,
+ ) -> Result<models::ActionResponse, Error<CircuitDeleteError>> {
+     // add a prefix to parameters to efficiently prevent name collisions
+     let p_circuit_id = circuit_id;
+@@ -179,7 +179,7 @@ pub async fn circuit_delete(
+     let uri_str = format!(
+         "{}/api/v1/circuit/{circuit_id}/delete",
+         configuration.base_path,
+-        circuit_id = crate::apis::urlencode(p_circuit_id.unwrap())
++        circuit_id = crate::apis::urlencode(p_circuit_id)
+     );
+     let mut req_builder = configuration
+         .client

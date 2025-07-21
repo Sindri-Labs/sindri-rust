@@ -10,6 +10,7 @@ Removing `scripts/openapitools.json` and rerunning `./scripts/update-sdk.sh` wil
 | Filename       | Purpose                  | Patched Files         |
 |----------------|--------------------------|-----------------------|
 | `circuit_creation.patch` | *Creates custom multipart form data | `src/apis/circuits_api.rs` |
+| `circuit_delete.patch` | *Identifiers should not be optional for path params | `src/apis/circuits_api.rs` |
 | `define_any_ltgt.patch` | *Defines `AnyOfLessThanGreaterThan` type (as `serde_json::Value`) | `src/models/mod.rs` |
 | `export_some_internals.patch` | Exports some internal types for use in `sindri` | `src/apis/mod.rs` |
 | `internal_api_lintfixes.patch` | *Manual fix for some cargo warnings | `src/apis/internal_api.rs` | 
