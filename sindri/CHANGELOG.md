@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-v0.3.0...sindri-v0.3.1) - 2025-07-21
+
+### Fixed
+
+- *(openapi)* integer types should be `i64` ([#47](https://github.com/Sindri-Labs/sindri-rust/pull/47))
+
 ## [0.3.0](https://github.com/Sindri-Labs/sindri-rust/compare/sindri-v0.2.3...sindri-v0.3.0) - 2025-06-11
 
 ### Added
